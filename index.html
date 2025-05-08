@@ -189,7 +189,7 @@
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
             gap: 1.5rem;
-            margin-top: 2rem;
+            margin-top: 1rem;
         }
         
         .video-card {
@@ -289,6 +289,77 @@
             color: #888;
             font-size: 0.9rem;
         }
+
+        /* Styling untuk link video-card */
+        a.video-card {
+            display: block;
+            text-decoration: none; /* Menghilangkan garis bawah default */
+            color: inherit; /* Menggunakan warna teks default */
+            background-color: var(--background-light);
+            border-radius: 8px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            height: 100%;
+        }
+
+        /* Efek hover untuk video card */
+        a.video-card:hover {
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2); /* Bayangan sedikit lebih kuat */
+            background-color: var(--background-light-hover, #383838); /* Warna background sedikit lebih terang saat hover */
+        }
+
+        /* Efek untuk thumbnail saat hover */
+        a.video-card:hover .thumbnail img {
+            transform: scale(1.05); /* Sedikit zoom pada thumbnail */
+            filter: brightness(1.1); /* Sedikit lebih terang */
+        }
+
+        /* Efek transisi pada thumbnail */
+        .thumbnail img {
+            transition: all 0.3s ease;
+        }
+
+        /* Styling untuk judul video saat hover */
+        a.video-card:hover h3 {
+            color: var(--primary-color); /* Mengubah warna judul ke warna utama saat hover */
+        }
+
+        /* Efek focus untuk aksesibilitas */
+        a.video-card:focus {
+            outline: 2px solid var(--primary-color);
+            outline-offset: 2px;
+        }
+
+        /* Styling tambahan untuk elemen dalam card */
+        a.video-card h3 {
+            transition: color 0.3s ease;
+            margin-top: 0.5rem;
+        }
+
+        /* Indikator play saat hover */
+        a.video-card:hover .thumbnail::after {
+            content: "";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 50px;
+            height: 50px;
+            background-color: rgba(255, 77, 77, 0.8); /* Warna primary dengan transparansi */
+            border-radius: 50%;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M8 5v14l11-7z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: center;
+            background-size: 24px;
+            opacity: 0.9;
+            transition: all 0.2s ease;
+        }
+
+        /* Menjaga posisi relatif pada thumbnail untuk memungkinkan overlay */
+        .thumbnail {
+            position: relative;
+        }
         
         /* Responsive Design */
         @media (max-width: 992px) {
@@ -380,7 +451,8 @@
     </header>
     
     <main>
-        <div class="featured-video">
+        <!-- Featured Video Section -->
+        <!--<div class="featured-video">
             <div class="video-player">
                 <video controls poster="/api/placeholder/1280/720" alt="featured video placeholder">
                     <source src="#" type="video/mp4">
@@ -429,13 +501,13 @@
                     </button>
                 </div>
             </div>
-        </div>
+        </div>-->
         
-        <h2>Video Rekomendasi</h2>
+        <h2>Jelajah Video</h2>
         
         <div class="video-grid">
             <!-- Video Card 1 -->
-            <div class="video-card">
+            <a href="/video/1.html" class="video-card">
                 <div class="thumbnail">
                     <img src="/api/placeholder/320/180" alt="thumbnail placeholder">
                     <span class="duration">10:45</span>
@@ -448,7 +520,7 @@
                         <span>1 minggu yang lalu</span>
                     </div>
                 </div>
-            </div>
+            </a>
             
             <!-- Video Card 2 -->
             <div class="video-card">
