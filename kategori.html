@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="id" class="dark-mode">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kategori Video - Vidtapz</title>
+    <script>
+        // Cek preferensi tema dari localStorage
+        const savedTheme = localStorage.getItem('theme');
+        // Terapkan tema yang tersimpan, atau gunakan dark mode sebagai default
+        if (savedTheme === 'light') {
+            document.documentElement.classList.add('light-mode');
+        } else {
+            document.documentElement.classList.add('dark-mode');
+        }
+    </script>
+    <!-- Link ke file CSS eksternal -->
+    <link rel="stylesheet" href="styles.css">
+    <!-- CSS tambahan khusus untuk halaman kategori -->
+    <style>
+        /* Styling khusus untuk halaman kategori */
+        .category-container {
+            margin-bottom: 3rem;
+        }
+        
+        .category-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .category-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--text-color);
+        }
+        
+        .view-all {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color 0.3s;
+        }
+        
+        .view-all:hover {
+            text-decoration: underline;
+        }
+        
+        .category-description {
+            margin-bottom: 1rem;
+            color: var(--stats-color);
+        }
+        
+        .category-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .category-card {
+            background-color: var(--card-background);
+            border-radius: 8px;
+            overflow: hidden;
+            transition: transform 0.3s, box-shadow 0.3s;
+            box-shadow: var(--shadow);
+            display: flex;
+            flex-direction: column;
+            text-decoration: none;
+            color: var(--text-color);
+            height: 100%;
+        }
+        
+        .category-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .category-thumbnail {
+            position: relative;
+            padding-bottom: 56.25%;
+            background-color: var(--background-light);
+            overflow: hidden;
+        }
+        
+        .category-thumbnail img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s;
+        }
+        
+        .category-card:hover .category-thumbnail img {
+            transform: scale(1.05);
+        }
+        
+        .category-info {
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+        }
+        
+        .category-name {
+            font-size: 1.1rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+        
+        .video-count {
+            color: var(--stats-color);
+            font-size: 0.9rem;
+            margin-top: auto;
+        }
+        
+        /* Filter dan pencarian kategori */
+        .category-filters {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        
+        .filter-group {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+        
+        .filter-label {
+            font-size: 0.9rem;
+            color: var(--stats-color);
+        }
+        
+        .filter-select {
+            padding: 0.5rem;
+            border-radius: 4px;
+            border: 1px solid var(--border-color);
+            background-color: var(--card-background);
+            color: var(--text-color);
+            font-size: 0.9rem;
+        }
+        
+        .category-search {
+            display: flex;
+            max-width: 300px;
+        }
+        
+        .category-search input {
+            padding: 0.5rem;
+            border: 1px solid var(--border-color);
+            border-radius: 4px 0 0 4px;
+            background-color: var(--card-background);
+            color: var(--text-color);
+            width: 100%;
+        }
+        
+        .category-search button {
+            background-color: var(--primary-color);
+            border: none;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 0 4px 4px 0;
+            cursor: pointer;
+        }
+        
+        /* Tampilan populer di bagian atas */
+        .featured-categories {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+        
+        .featured-category {
+            position: relative;
+            border-radius: 8px;
+            overflow: hidden;
+            height: 150px;
+            box-shadow: var(--shadow);
+            transition: transform 0.3s;
+        }
+        
+        .featured-category:hover {
+            transform: translateY(-5px);
+        }
+        
+        .featured-category img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .featured-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 1rem;
+            background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+            color: white;
+        }
+        
+        .featured-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 0.3rem;
+        }
+        
+        .featured-count {
+            font-size: 0.8rem;
+            opacity: 0.8;
+        }
+        
+        /* Responsif */
+        @media (max-width: 992px) {
+            .featured-categories {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .category-filters {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .category-search {
+                max-width: 100%;
+                width: 100%;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .featured-categories {
+                grid-template-columns: 1fr;
+            }
+            
+            .category-list {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="nav-container">
+            <a href="index.html" class="logo">VidTap</a>
+            
+            <div class="search-bar">
+                <input type="text" placeholder="Cari video...">
+                <button>Cari</button>
+            </div>
+            
+            <!-- Toggle menu untuk tampilan mobile -->
+            <div class="menu-toggle" onclick="toggleMenu()">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+            
+            <ul class="nav-links">
+                <li><a href="index.html">Beranda</a></li>
+                <li><a href="/vidshorts.html">VidShortz</a></li>
+                <li><a href="#">Trending</a></li>
+                <li><a href="kategori.html" class="active">Kategori</a></li>
+                <li><a href="#">Saluran Saya</a></li>
+                <li><a href="#">Riwayat</a></li>
+                <!-- Tambahan: tombol switch tema -->
+                <li>
+                    <div class="theme-switch-wrapper">
+                        <label class="theme-switch" for="checkbox">
+                            <input type="checkbox" id="checkbox" />
+                            <div class="slider round">
+                                <!-- Icons untuk dark/light mode -->
+                                <svg class="moon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                                </svg>
+                                <svg class="sun" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="12" cy="12" r="5"></circle>
+                                    <line x1="12" y1="1" x2="12" y2="3"></line>
+                                    <line x1="12" y1="21" x2="12" y2="23"></line>
+                                    <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                                    <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                                    <line x1="1" y1="12" x2="3" y2="12"></line>
+                                    <line x1="21" y1="12" x2="23" y2="12"></line>
+                                    <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                                    <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                                </svg>
+                            </div>
+                        </label>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </header>
+    
+    <main>
+        <h2>Kategori Video</h2>
+        
+        <!-- Filter dan pencarian kategori -->
+        <div class="category-filters">
+            <div class="filter-group">
+                <span class="filter-label">Urutkan:</span>
+                <select class="filter-select">
+                    <option value="popular">Terpopuler</option>
+                    <option value="newest">Terbaru</option>
+                    <option value="a-z">A-Z</option>
+                </select>
+                
+                <span class="filter-label">Tampilkan:</span>
+                <select class="filter-select">
+                    <option value="all">Semua</option>
+                    <option value="tech">Teknologi</option>
+                    <option value="music">Musik</option>
+                    <option value="education">Pendidikan</option>
+                </select>
+            </div>
+            
+            <div class="category-search">
+                <input type="text" placeholder="Cari kategori...">
+                <button>Cari</button>
+            </div>
+        </div>
+        
+        <!-- Kategori populer di bagian atas -->
+        <h3>Kategori Populer</h3>
+        <div class="featured-categories">
+            <a href="/category/programming.html" class="featured-category">
+                <img src="/api/placeholder/400/150" alt="Programming">
+                <div class="featured-overlay">
+                    <div class="featured-title">Programming</div>
+                    <div class="featured-count">1.243 video</div>
+                </div>
+            </a>
+            
+            <a href="/category/web-development.html" class="featured-category">
+                <img src="/api/placeholder/400/150" alt="Web Development">
+                <div class="featured-overlay">
+                    <div class="featured-title">Web Development</div>
+                    <div class="featured-count">856 video</div>
+                </div>
+            </a>
+            
+            <a href="/category/design.html" class="featured-category">
+                <img src="/api/placeholder/400/150" alt="Design">
+                <div class="featured-overlay">
+                    <div class="featured-title">Design</div>
+                    <div class="featured-count">721 video</div>
+                </div>
+            </a>
+        </div>
+        
+        <!-- Daftar semua kategori -->
+        <h3>Semua Kategori</h3>
+        <div class="category-list">
+            <!-- Kategori 1 -->
+            <a href="/category/programming.html" class="category-card">
+                <div class="category-thumbnail">
+                    <img src="/api/placeholder/200/120" alt="Programming">
+                </div>
+                <div class="category-info">
+                    <div class="category-name">Programming</div>
+                    <div class="video-count">1.243 video</div>
+                </div>
+            </a>
+            
+            <!-- Kategori 2 -->
+            <a href="/category/web-development.html" class="category-card">
+                <div class="category-thumbnail">
+                    <img src="/api/placeholder/200/120" alt="Web Development">
+                </div>
+                <div class="category-info">
+                    <div class="category-name">Web Development</div>
+                    <div class="video-count">856 video</div>
+                </div>
+            </a>
+            
+            <!-- Kategori 3 -->
+            <a href="/category/design.html" class="category-card">
+                <div class="category-thumbnail">
+                    <img src="/api/placeholder/200/120" alt="Design">
+                </div>
+                <div class="category-info">
+                    <div class="category-name">Design</div>
+                    <div class="video-count">721 video</div>
+                </div>
+            </a>
+            
+            <!-- Kategori 4 -->
+            <a href="/category/mobile-development.html" class="category-card">
+                <div class="category-thumbnail">
+                    <img src="/api/placeholder/200/120" alt="Mobile Development">
+                </div>
+                <div class="category-info">
+                    <div class="category-name">Mobile Development</div>
+                    <div class="video-count">532 video</div>
+                </div>
+            </a>
+            
+            <!-- Kategori 5 -->
+            <a href="/category/data-science.html" class="category-card">
+                <div class="category-thumbnail">
+                    <img src="/api/placeholder/200/120" alt="Data Science">
+                </div>
+                <div class="category-info">
+                    <div class="category-name">Data Science</div>
+                    <div class="video-count">423 video</div>
+                </div>
+            </a>
+            
+            <!-- Kategori 6 -->
+            <a href="/category/game-development.html" class="category-card">
+                <div class="category-thumbnail">
+                    <img src="/api/placeholder/200/120" alt="Game Development">
+                </div>
+                <div class="category-info">
+                    <div class="category-name">Game Development</div>
+                    <div class="video-count">386 video</div>
+                </div>
+            </a>
+            
+            <!-- Kategori 7 -->
+            <a href="/category/artificial-intelligence.html" class="category-card">
+                <div class="category-thumbnail">
+                    <img src="/api/placeholder/200/120" alt="Artificial Intelligence">
+                </div>
+                <div class="category-info">
+                    <div class="category-name">Artificial Intelligence</div>
+                    <div class="video-count">298 video</div>
+                </div>
+            </a>
+            
+            <!-- Kategori 8 -->
+            <a href="/category/cyber-security.html" class="category-card">
+                <div class="category-thumbnail">
+                    <img src="/api/placeholder/200/120" alt="Cyber Security">
+                </div>
+                <div class="category-info">
+                    <div class="category-name">Cyber Security</div>
+                    <div class="video-count">254 video</div>
+                </div>
+            </a>
+            
+            <!-- Kategori 9 -->
+            <a href="/category/digital-marketing.html" class="category-card">
+                <div class="category-thumbnail">
+                    <img src="/api/placeholder/200/120" alt="Digital Marketing">
+                </div>
+                <div class="category-info">
+                    <div class="category-name">Digital Marketing</div>
+                    <div class="video-count">215 video</div>
+                </div>
+            </a>
+            
+            <!-- Kategori 10 -->
+            <a href="/category/blockchain.html" class="category-card">
+                <div class="category-thumbnail">
+                    <img src="/api/placeholder/200/120" alt="Blockchain">
+                </div>
+                <div class="category-info">
+                    <div class="category-name">Blockchain</div>
+                    <div class="video-count">187 video</div>
+                </div>
+            </a>
+            
+            <!-- Kategori 11 -->
+            <a href="/category/devops.html" class="category-card">
+                <div class="category-thumbnail">
+                    <img src="/api/placeholder/200/120" alt="DevOps">
+                </div>
+                <div class="category-info">
+                    <div class="category-name">DevOps</div>
+                    <div class="video-count">164 video</div>
+                </div>
+            </a>
+            
+            <!-- Kategori 12 -->
+            <a href="/category/cloud-computing.html" class="category-card">
+                <div class="category-thumbnail">
+                    <img src="/api/placeholder/200/120" alt="Cloud Computing">
+                </div>
+                <div class="category-info">
+                    <div class="category-name">Cloud Computing</div>
+                    <div class="video-count">142 video</div>
+                </div>
+            </a>
+        </div>
+        
+        <!-- Kategori Khusus - Direkomendasikan -->
+        <div class="category-container">
+            <div class="category-header">
+                <h3 class="category-title">Kategori Direkomendasikan</h3>
+                <a href="#" class="view-all">Lihat Semua</a>
+            </div>
+            <p class="category-description">Kategori yang mungkin anda sukai berdasarkan riwayat tontonan.</p>
+            
+            <div class="category-list">
+                <!-- Rekomendasi 1 -->
+                <a href="/category/ui-ux.html" class="category-card">
+                    <div class="category-thumbnail">
+                        <img src="/api/placeholder/200/120" alt="UI/UX Design">
+                    </div>
+                    <div class="category-info">
+                        <div class="category-name">UI/UX Design</div>
+                        <div class="video-count">325 video</div>
+                    </div>
+                </a>
+                
+                <!-- Rekomendasi 2 -->
+                <a href="/category/javascript.html" class="category-card">
+                    <div class="category-thumbnail">
+                        <img src="/api/placeholder/200/120" alt="JavaScript">
+                    </div>
+                    <div class="category-info">
+                        <div class="category-name">JavaScript</div>
+                        <div class="video-count">468 video</div>
+                    </div>
+                </a>
+                
+                <!-- Rekomendasi 3 -->
+                <a href="/category/css-tricks.html" class="category-card">
+                    <div class="category-thumbnail">
+                        <img src="/api/placeholder/200/120" alt="CSS Tricks">
+                    </div>
+                    <div class="category-info">
+                        <div class="category-name">CSS Tricks</div>
+                        <div class="video-count">289 video</div>
+                    </div>
+                </a>
+                
+                <!-- Rekomendasi 4 -->
+                <a href="/category/responsive-design.html" class="category-card">
+                    <div class="category-thumbnail">
+                        <img src="/api/placeholder/200/120" alt="Responsive Design">
+                    </div>
+                    <div class="category-info">
+                        <div class="category-name">Responsive Design</div>
+                        <div class="video-count">176 video</div>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </main>
+    
+    <footer>
+        <div class="footer-content">
+            <div class="footer-links">
+                <a href="#">Tentang Kami</a>
+                <a href="#">Ketentuan Layanan</a>
+                <a href="#">Kebijakan Privasi</a>
+                <a href="#">Bantuan</a>
+                <a href="#">Kontak</a>
+            </div>
+            
+            <p class="copyright">© 2025 VidTap. Semua hak dilindungi undang-undang.</p>
+        </div>
+    </footer>
+
+    <!-- Link ke file JavaScript -->
+    <script src="script.js"></script>
+    
+</body>
+</html>

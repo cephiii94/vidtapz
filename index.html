@@ -1,427 +1,21 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="id" class="dark-mode">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Vidtapz - Platform Streaming Video</title>
-    <style>
-        :root {
-            --primary-color: #ff4d4d;
-            --secondary-color: #333;
-            --text-color: #f5f5f5;
-            --background-dark: #1a1a1a;
-            --background-light: #2d2d2d;
-            --shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+    <script>
+        // Cek preferensi tema dari localStorage
+        const savedTheme = localStorage.getItem('theme');
+        // Terapkan tema yang tersimpan, atau gunakan dark mode sebagai default
+        if (savedTheme === 'light') {
+            document.documentElement.classList.add('light-mode');
+        } else {
+            document.documentElement.classList.add('dark-mode');
         }
-        
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-        
-        body {
-            background-color: var(--background-dark);
-            color: var(--text-color);
-            line-height: 1.6;
-        }
-        
-        header {
-            background-color: var(--secondary-color);
-            padding: 1rem;
-            position: fixed;
-            width: 100%;
-            top: 0;
-            z-index: 1000;
-            box-shadow: var(--shadow);
-        }
-        
-        .nav-container {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-        
-        .logo {
-            font-size: 1.8rem;
-            font-weight: bold;
-            color: var(--primary-color);
-            text-decoration: none;
-        }
-        
-        .nav-links {
-            display: flex;
-            list-style: none;
-        }
-        
-        .nav-links li {
-            margin-left: 2rem;
-        }
-        
-        .nav-links a {
-            color: var(--text-color);
-            text-decoration: none;
-            transition: color 0.3s;
-        }
-        
-        .nav-links a:hover {
-            color: var(--primary-color);
-        }
-        
-        .search-bar {
-            display: flex;
-            margin-right: 1rem;
-        }
-        
-        .search-bar input {
-            padding: 0.5rem;
-            border: none;
-            border-radius: 4px 0 0 4px;
-            width: 250px;
-        }
-        
-        .search-bar button {
-            background-color: var(--primary-color);
-            border: none;
-            color: white;
-            padding: 0.5rem 1rem;
-            border-radius: 0 4px 4px 0;
-            cursor: pointer;
-        }
-        
-        .menu-toggle {
-            display: none;
-            flex-direction: column;
-            justify-content: space-between;
-            width: 30px;
-            height: 21px;
-            cursor: pointer;
-        }
-        
-        .menu-toggle span {
-            height: 3px;
-            width: 100%;
-            background-color: var(--text-color);
-            border-radius: 10px;
-        }
-        
-        main {
-            max-width: 1200px;
-            margin: 6rem auto 2rem;
-            padding: 0 1rem;
-        }
-        
-        .featured-video {
-            margin-bottom: 2rem;
-            background-color: var(--background-light);
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: var(--shadow);
-        }
-        
-        .video-player {
-            position: relative;
-            padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
-            height: 0;
-            overflow: hidden;
-        }
-        
-        .video-player video {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: #000;
-        }
-        
-        .video-info {
-            padding: 1.5rem;
-        }
-        
-        .video-info h2 {
-            font-size: 1.5rem;
-            margin-bottom: 0.5rem;
-        }
-        
-        .video-meta {
-            display: flex;
-            align-items: center;
-            margin-bottom: 1rem;
-            color: #aaa;
-        }
-        
-        .video-meta span {
-            margin-right: 1rem;
-        }
-        
-        .video-description {
-            margin-bottom: 1rem;
-            line-height: 1.6;
-        }
-        
-        .video-actions {
-            display: flex;
-            gap: 1rem;
-        }
-        
-        .action-button {
-            background-color: var(--background-dark);
-            border: none;
-            color: var(--text-color);
-            padding: 0.5rem 1rem;
-            border-radius: 4px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            transition: background-color 0.3s;
-        }
-        
-        .action-button:hover {
-            background-color: var(--primary-color);
-        }
-        
-        .video-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 1.5rem;
-            margin-top: 1rem;
-        }
-        
-        .video-card {
-            background-color: var(--background-light);
-            border-radius: 8px;
-            overflow: hidden;
-            transition: transform 0.3s;
-            box-shadow: var(--shadow);
-        }
-        
-        .video-card:hover {
-            transform: translateY(-5px);
-        }
-        
-        .thumbnail {
-            position: relative;
-            padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
-            height: 0;
-            overflow: hidden;
-        }
-        
-        .thumbnail img {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-        
-        .duration {
-            position: absolute;
-            bottom: 10px;
-            right: 10px;
-            background-color: rgba(0, 0, 0, 0.7);
-            color: white;
-            padding: 0.2rem 0.5rem;
-            border-radius: 4px;
-            font-size: 0.8rem;
-        }
-        
-        .card-info {
-            padding: 1rem;
-        }
-        
-        .card-info h3 {
-            font-size: 1rem;
-            margin-bottom: 0.5rem;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        
-        .channel {
-            font-size: 0.9rem;
-            color: #aaa;
-            margin-bottom: 0.5rem;
-        }
-        
-        .stats {
-            display: flex;
-            justify-content: space-between;
-            color: #888;
-            font-size: 0.8rem;
-        }
-        
-        footer {
-            background-color: var(--secondary-color);
-            padding: 2rem 1rem;
-            margin-top: 3rem;
-            text-align: center;
-        }
-        
-        .footer-content {
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-        
-        .footer-links {
-            display: flex;
-            justify-content: center;
-            gap: 2rem;
-            margin-bottom: 1.5rem;
-        }
-        
-        .footer-links a {
-            color: var(--text-color);
-            text-decoration: none;
-            transition: color 0.3s;
-        }
-        
-        .footer-links a:hover {
-            color: var(--primary-color);
-        }
-        
-        .copyright {
-            color: #888;
-            font-size: 0.9rem;
-        }
-
-        /* Styling untuk link video-card */
-        a.video-card {
-            display: block;
-            text-decoration: none; /* Menghilangkan garis bawah default */
-            color: inherit; /* Menggunakan warna teks default */
-            background-color: var(--background-light);
-            border-radius: 8px;
-            overflow: hidden;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            height: 100%;
-        }
-
-        /* Efek hover untuk video card */
-        a.video-card:hover {
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2); /* Bayangan sedikit lebih kuat */
-            background-color: var(--background-light-hover, #383838); /* Warna background sedikit lebih terang saat hover */
-        }
-
-        /* Efek untuk thumbnail saat hover */
-        a.video-card:hover .thumbnail img {
-            transform: scale(1.05); /* Sedikit zoom pada thumbnail */
-            filter: brightness(1.1); /* Sedikit lebih terang */
-        }
-
-        /* Efek transisi pada thumbnail */
-        .thumbnail img {
-            transition: all 0.3s ease;
-        }
-
-        /* Styling untuk judul video saat hover */
-        a.video-card:hover h3 {
-            color: var(--primary-color); /* Mengubah warna judul ke warna utama saat hover */
-        }
-
-        /* Efek focus untuk aksesibilitas */
-        a.video-card:focus {
-            outline: 2px solid var(--primary-color);
-            outline-offset: 2px;
-        }
-
-        /* Styling tambahan untuk elemen dalam card */
-        a.video-card h3 {
-            transition: color 0.3s ease;
-            margin-top: 0.5rem;
-        }
-
-        /* Indikator play saat hover */
-        a.video-card:hover .thumbnail::after {
-            content: "";
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 50px;
-            height: 50px;
-            background-color: rgba(255, 77, 77, 0.8); /* Warna primary dengan transparansi */
-            border-radius: 50%;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M8 5v14l11-7z'/%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: center;
-            background-size: 24px;
-            opacity: 0.9;
-            transition: all 0.2s ease;
-        }
-
-        /* Menjaga posisi relatif pada thumbnail untuk memungkinkan overlay */
-        .thumbnail {
-            position: relative;
-        }
-        
-        /* Responsive Design */
-        @media (max-width: 992px) {
-            .search-bar input {
-                width: 200px;
-            }
-        }
-        
-        @media (max-width: 768px) {
-            .menu-toggle {
-                display: flex;
-            }
-            
-            .nav-links, .search-bar {
-                display: none;
-            }
-            
-            .nav-links.active {
-                display: flex;
-                flex-direction: column;
-                position: absolute;
-                top: 100%;
-                left: 0;
-                right: 0;
-                background-color: var(--secondary-color);
-                padding: 1rem;
-                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            }
-            
-            .nav-links.active li {
-                margin: 0.5rem 0;
-            }
-            
-            .search-bar.active {
-                display: flex;
-                width: 100%;
-                margin-top: 1rem;
-            }
-            
-            .search-bar.active input {
-                width: 100%;
-            }
-            
-            .video-grid {
-                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            }
-        }
-        
-        @media (max-width: 480px) {
-            .logo {
-                font-size: 1.5rem;
-            }
-            
-            .video-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .video-actions {
-                flex-wrap: wrap;
-            }
-        }
-    </style>
+    </script>
+    <!-- Link ke file CSS eksternal -->
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <header>
@@ -433,6 +27,7 @@
                 <button>Cari</button>
             </div>
             
+            <!-- Toggle menu untuk tampilan mobile -->
             <div class="menu-toggle" onclick="toggleMenu()">
                 <span></span>
                 <span></span>
@@ -443,73 +38,47 @@
                 <li><a href="#">Beranda</a></li>
                 <li><a href="/vidshorts.html">VidShortz</a></li>
                 <li><a href="#">Trending</a></li>
-                <li><a href="#">Kategori</a></li>
+                <li><a href="/kategori.html">Kategori</a></li>
                 <li><a href="#">Saluran Saya</a></li>
                 <li><a href="#">Riwayat</a></li>
+                <!-- Tambahan: tombol switch tema -->
+                <li>
+                    <div class="theme-switch-wrapper">
+                        <label class="theme-switch" for="checkbox">
+                            <input type="checkbox" id="checkbox" />
+                            <div class="slider round">
+                                <!-- Icons untuk dark/light mode -->
+                                <svg class="moon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                                </svg>
+                                <svg class="sun" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="12" cy="12" r="5"></circle>
+                                    <line x1="12" y1="1" x2="12" y2="3"></line>
+                                    <line x1="12" y1="21" x2="12" y2="23"></line>
+                                    <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                                    <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                                    <line x1="1" y1="12" x2="3" y2="12"></line>
+                                    <line x1="21" y1="12" x2="23" y2="12"></line>
+                                    <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                                    <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                                </svg>
+                            </div>
+                        </label>
+                    </div>
+                </li>
             </ul>
         </div>
     </header>
     
     <main>
-        <!-- Featured Video Section -->
-        <!--<div class="featured-video">
-            <div class="video-player">
-                <video controls poster="/api/placeholder/1280/720" alt="featured video placeholder">
-                    <source src="#" type="video/mp4">
-                    Peramban Anda tidak mendukung tag video.
-                </video>
-            </div>
-            
-            <div class="video-info">
-                <h2>Tutorial: Membangun Website Streaming Video Responsive</h2>
-                
-                <div class="video-meta">
-                    <span>243.721 tayangan</span>
-                    <span>2 hari yang lalu</span>
-                </div>
-                
-                <p class="video-description">
-                    Dalam tutorial ini, kami menunjukkan langkah demi langkah cara membangun website streaming video responsive
-                    yang akan berfungsi dengan baik di semua perangkat dan ukuran layar. Pelajari teknik CSS modern, HTML5 video,
-                    dan pengelolaan responsivitas.
-                </p>
-                
-                <div class="video-actions">
-                    <button class="action-button">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-                            <path d="M8.864.046C7.908-.193 7.02.53 6.956 1.466c-.072 1.051-.23 2.016-.428 2.59-.125.36-.479 1.013-1.04 1.639-.557.623-1.282 1.178-2.131 1.41C2.685 7.288 2 7.87 2 8.72v4.001c0 .845.682 1.464 1.448 1.545 1.07.114 1.564.415 2.068.723l.048.03c.272.165.578.348.97.484.397.136.861.217 1.466.217h3.5c.937 0 1.599-.477 1.934-1.064a1.86 1.86 0 0 0 .254-.912c0-.152-.023-.312-.077-.464.201-.263.38-.578.488-.901.11-.33.172-.762.004-1.149.069-.13.12-.269.159-.403.077-.27.113-.568.113-.857 0-.288-.036-.585-.113-.856a2.144 2.144 0 0 0-.138-.362 1.9 1.9 0 0 0 .234-1.734c-.206-.592-.682-1.1-1.2-1.272-.847-.282-1.803-.276-2.516-.211a9.84 9.84 0 0 0-.443.05 9.365 9.365 0 0 0-.062-4.509A1.38 1.38 0 0 0 9.125.111L8.864.046zM11.5 14.721H8c-.51 0-.863-.069-1.14-.164-.281-.097-.506-.228-.776-.393l-.04-.024c-.555-.339-1.198-.731-2.49-.868-.333-.036-.554-.29-.554-.55V8.72c0-.254.226-.543.62-.65 1.095-.3 1.977-.996 2.614-1.708.635-.71 1.064-1.475 1.238-1.978.243-.7.407-1.768.482-2.85.025-.362.36-.594.667-.518l.262.066c.16.04.258.143.288.255a8.34 8.34 0 0 1-.145 4.725.5.5 0 0 0 .595.644l.003-.001.014-.003.058-.014a8.908 8.908 0 0 1 1.036-.157c.663-.06 1.457-.054 2.11.164.175.058.45.3.57.65.107.308.087.67-.266 1.022l-.353.353.353.354c.043.043.105.141.154.315.048.167.075.37.075.581 0 .212-.027.414-.075.582-.05.174-.111.272-.154.315l-.353.353.353.354c.047.047.109.177.005.488a2.224 2.224 0 0 1-.505.805l-.353.353.353.354c.006.005.041.05.041.17a.866.866 0 0 1-.121.416c-.165.288-.503.56-1.066.56z"/>
-                        </svg>
-                        12.5K
-                    </button>
-                    <button class="action-button">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-                            <path d="M8.864 15.674c-.956.24-1.843-.484-1.908-1.42-.072-1.05-.23-2.015-.428-2.59-.125-.36-.479-1.012-1.04-1.638-.557-.624-1.282-1.179-2.131-1.41C2.685 8.432 2 7.85 2 7V3c0-.845.682-1.464 1.448-1.546 1.07-.113 1.564-.415 2.068-.723l.048-.029c.272-.166.578-.349.97-.484C6.931.08 7.395 0 8 0h3.5c.937 0 1.599.478 1.934 1.064.164.287.254.607.254.913 0 .152-.023.312-.077.464.201.262.38.577.488.9.11.33.172.762.004 1.15.069.13.12.268.159.403.077.27.113.567.113.856 0 .289-.036.586-.113.856-.035.12-.08.244-.138.363.394.571.418 1.2.234 1.733-.206.592-.682 1.1-1.2 1.272-.847.283-1.803.276-2.516.211a9.877 9.877 0 0 1-.443-.05 9.364 9.364 0 0 1-.062 4.51c-.138.508-.55.848-1.012.964l-.261.065zM11.5 1H8c-.51 0-.863.068-1.14.163-.281.097-.506.229-.776.393l-.04.025c-.555.338-1.198.73-2.49.866-.333.035-.554.29-.554.55v4c0 .255.226.543.62.65 1.095.3 1.977.997 2.614 1.709.635.71 1.064 1.475 1.238 1.977.243.7.407 1.768.482 2.85.025.362.36.595.667.518l.262-.065c.16-.04.258-.144.288-.255a8.34 8.34 0 0 0-.145-4.726.5.5 0 0 1 .595-.643h.003l.014.004.058.013a8.912 8.912 0 0 0 1.036.157c.663.06 1.457.054 2.11-.163.175-.059.45-.301.57-.651.107-.308.087-.67-.266-1.021l-.353-.354.353-.354c.043-.042.105-.14.154-.315.048-.167.075-.37.075-.581 0-.211-.027-.414-.075-.581-.05-.174-.111-.273-.154-.315l-.353-.354.353-.354c.047-.047.109-.176.005-.488a2.224 2.224 0 0 0-.505-.804l-.353-.354.353-.354c.006-.005.041-.05.041-.17a.866.866 0 0 0-.121-.415C12.4 1.272 12.063 1 11.5 1z"/>
-                        </svg>
-                        352
-                    </button>
-                    <button class="action-button">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-                            <path d="M13.5 1a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zM11 2.5a2.5 2.5 0 1 1 .603 1.628l-6.718 3.12a2.499 2.499 0 0 1 0 1.504l6.718 3.12a2.5 2.5 0 1 1-.488.876l-6.718-3.12a2.5 2.5 0 1 1 0-3.256l6.718-3.12A2.5 2.5 0 0 1 11 2.5zm-8.5 4a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zm11 5.5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3z"/>
-                        </svg>
-                        Bagikan
-                    </button>
-                    <button class="action-button">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-                            <path d="M9.828.722a.5.5 0 0 1 .354.146l4.95 4.95a.5.5 0 0 1 0 .707l-4.95 4.95a.5.5 0 0 1-.707-.707l4.096-4.096-4.096-4.096a.5.5 0 0 1 .354-.854zm-7.5 0a.5.5 0 0 1 .354.146l4.95 4.95a.5.5 0 0 1 0 .707l-4.95 4.95a.5.5 0 0 1-.707-.707l4.096-4.096-4.096-4.096a.5.5 0 0 1 .354-.854z"/>
-                        </svg>
-                        Salin Kode
-                    </button>
-                </div>
-            </div>
-        </div>-->
-        
+        <!-- Header untuk bagian Jelajah Video -->
         <h2>Jelajah Video</h2>
         
         <div class="video-grid">
-            <!-- Video Card 1 -->
-            <a href="/video/1.html" class="video-card">
+            <!-- Video Card 1 - Menggunakan tag <a> dengan href dan data-video -->
+            <a href="/video/1.html" class="video-card" data-video="https://www.youtube.com/watch?v=VQRLujxTm3c">
                 <div class="thumbnail">
-                    <img src="/api/placeholder/320/180" alt="thumbnail placeholder">
+                    <img src="/api/placeholder/320/180" alt="thumbnail video portofolio">
                     <span class="duration">10:45</span>
                 </div>
                 <div class="card-info">
@@ -522,10 +91,10 @@
                 </div>
             </a>
             
-            <!-- Video Card 2 -->
-            <div class="video-card">
+            <!-- Video Card 2 - Diubah agar konsisten dengan format card 1 -->
+            <a href="/video/2.html" class="video-card" data-video="https://www.youtube.com/watch?v=example2">
                 <div class="thumbnail">
-                    <img src="/api/placeholder/320/180" alt="thumbnail placeholder">
+                    <img src="/api/placeholder/320/180" alt="thumbnail CSS Grid">
                     <span class="duration">15:20</span>
                 </div>
                 <div class="card-info">
@@ -536,12 +105,12 @@
                         <span>3 hari yang lalu</span>
                     </div>
                 </div>
-            </div>
+            </a>
             
             <!-- Video Card 3 -->
-            <div class="video-card">
+            <a href="/video/3.html" class="video-card" data-video="https://www.youtube.com/watch?v=example3">
                 <div class="thumbnail">
-                    <img src="/api/placeholder/320/180" alt="thumbnail placeholder">
+                    <img src="/api/placeholder/320/180" alt="thumbnail animasi CSS">
                     <span class="duration">8:12</span>
                 </div>
                 <div class="card-info">
@@ -552,12 +121,12 @@
                         <span>5 hari yang lalu</span>
                     </div>
                 </div>
-            </div>
+            </a>
             
             <!-- Video Card 4 -->
-            <div class="video-card">
+            <a href="/video/4.html" class="video-card" data-video="https://www.youtube.com/watch?v=example4">
                 <div class="thumbnail">
-                    <img src="/api/placeholder/320/180" alt="thumbnail placeholder">
+                    <img src="/api/placeholder/320/180" alt="thumbnail JavaScript">
                     <span class="duration">12:35</span>
                 </div>
                 <div class="card-info">
@@ -568,12 +137,12 @@
                         <span>2 minggu yang lalu</span>
                     </div>
                 </div>
-            </div>
+            </a>
             
             <!-- Video Card 5 -->
-            <div class="video-card">
+            <a href="/video/5.html" class="video-card" data-video="https://www.youtube.com/watch?v=example5">
                 <div class="thumbnail">
-                    <img src="/api/placeholder/320/180" alt="thumbnail placeholder">
+                    <img src="/api/placeholder/320/180" alt="thumbnail React Native">
                     <span class="duration">18:45</span>
                 </div>
                 <div class="card-info">
@@ -584,12 +153,12 @@
                         <span>1 bulan yang lalu</span>
                     </div>
                 </div>
-            </div>
+            </a>
             
             <!-- Video Card 6 -->
-            <div class="video-card">
+            <a href="/video/6.html" class="video-card" data-video="https://www.youtube.com/watch?v=example6">
                 <div class="thumbnail">
-                    <img src="/api/placeholder/320/180" alt="thumbnail placeholder">
+                    <img src="/api/placeholder/320/180" alt="thumbnail SEO">
                     <span class="duration">14:20</span>
                 </div>
                 <div class="card-info">
@@ -600,7 +169,7 @@
                         <span>2 minggu yang lalu</span>
                     </div>
                 </div>
-            </div>
+            </a>
         </div>
     </main>
     
@@ -617,15 +186,29 @@
             <p class="copyright">© 2025 VidTap. Semua hak dilindungi undang-undang.</p>
         </div>
     </footer>
-    
-    <script>
-        function toggleMenu() {
-            const navLinks = document.querySelector('.nav-links');
-            const searchBar = document.querySelector('.search-bar');
-            
-            navLinks.classList.toggle('active');
-            searchBar.classList.toggle('active');
-        }
-    </script>
+
+    <!-- Pop-up Video - Diubah untuk menggunakan iframe YouTube -->
+    <div class="video-popup-overlay" id="videoPopup">
+        <div class="video-popup">
+            <div class="popup-header">
+                <h3 class="popup-title"></h3>
+                <button class="popup-close">&times;</button>
+            </div>
+            <div class="popup-video-container">
+                <!-- Menggunakan iframe untuk video YouTube -->
+                <iframe id="popupIframe" width="100%" height="100%" frameborder="0" 
+                        allowfullscreen allow="accelerometer; autoplay; clipboard-write; 
+                        encrypted-media; gyroscope; picture-in-picture"></iframe>
+            </div>
+            <div class="video-info">
+                <div class="video-actions">
+                    <button class="full-view-button">Tampilan Penuh</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Link ke file JavaScript -->
+    <script src="script.js"></script>
 </body>
 </html>
