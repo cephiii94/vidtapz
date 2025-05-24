@@ -1,0 +1,1581 @@
+<!DOCTYPE html>
+<html lang="id" class="dark-mode">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vidtap - Tonton Video</title>
+    <script>
+        // Theme preference check
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'light') {
+            document.documentElement.classList.add('light-mode');
+        } else {
+            document.documentElement.classList.add('dark-mode');
+        }
+    </script>
+    <style>
+        /* Enhanced Variables & Modern Theme */
+        :root {
+            --primary-color: #ff4d4d;
+            --secondary-color: #333;
+            --text-color: #f5f5f5;
+            --background-dark: #1a1a1a;
+            --background-light: #2d2d2d;
+            --card-background: #2d2d2d;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            --shadow-hover: 0 12px 30px rgba(0, 0, 0, 0.25);
+            --shadow-large: 0 20px 40px rgba(0, 0, 0, 0.3);
+            --border-color: rgba(255, 255, 255, 0.1);
+            --stats-color: #888;
+            --channel-color: #aaa;
+            --header-bg: #333;
+            --footer-bg: #333;
+            --accent-video: #ff6b6b;
+            --gradient-primary: linear-gradient(135deg, var(--primary-color), var(--accent-video));
+            --gradient-secondary: linear-gradient(135deg, var(--background-light), var(--card-background));
+        }
+
+        html.light-mode {
+            --text-color: #333;
+            --background-dark: #f5f5f5;
+            --background-light: #ffffff;
+            --card-background: #ffffff;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --shadow-hover: 0 12px 30px rgba(0, 0, 0, 0.15);
+            --shadow-large: 0 20px 40px rgba(0, 0, 0, 0.2);
+            --border-color: rgba(0, 0, 0, 0.1);
+            --stats-color: #666;
+            --channel-color: #555;
+            --header-bg: #ffffff;
+            --footer-bg: #f0f0f0;
+            --secondary-color: #ffffff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--background-dark);
+            color: var(--text-color);
+            line-height: 1.6;
+            transition: all 0.3s ease;
+            overflow-x: hidden;
+        }
+
+        /* Enhanced Header Styling */
+        header {
+            background-color: var(--header-bg);
+            padding: 1rem;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            box-shadow: var(--shadow);
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        .nav-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .logo:hover {
+            transform: scale(1.05);
+            text-shadow: 0 0 20px rgba(255, 77, 77, 0.5);
+        }
+
+        .logo::before {
+            content: "🎬";
+            font-size: 1.5rem;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            align-items: center;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            color: var(--text-color);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            position: relative;
+            padding: 0.5rem 0;
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: 0;
+            left: 50%;
+            background: var(--gradient-primary);
+            transition: all 0.3s ease;
+            transform: translateX(-50%);
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary-color);
+            transform: translateY(-2px);
+        }
+
+        .search-bar {
+            display: flex;
+            margin-right: 1rem;
+            border-radius: 25px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            transition: all 0.3s ease;
+        }
+
+        .search-bar:focus-within {
+            transform: scale(1.02);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .search-bar input {
+            padding: 0.75rem 1.25rem;
+            border: none;
+            width: 300px;
+            background-color: var(--background-light);
+            color: var(--text-color);
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .search-bar button {
+            background: var(--gradient-primary);
+            border: none;
+            color: white;
+            padding: 0.75rem 1.25rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .search-bar button:hover {
+            transform: scale(1.05);
+        }
+
+        .menu-toggle {
+            display: none;
+            flex-direction: column;
+            justify-content: space-between;
+            width: 30px;
+            height: 21px;
+            cursor: pointer;
+        }
+
+        .menu-toggle span {
+            height: 3px;
+            width: 100%;
+            background-color: var(--text-color);
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+
+        /* Theme Switch Enhanced */
+        .theme-switch-wrapper {
+            display: flex;
+            align-items: center;
+        }
+
+        .theme-switch {
+            display: inline-block;
+            height: 28px;
+            position: relative;
+            width: 54px;
+        }
+
+        .theme-switch input {
+            display: none;
+        }
+
+        .slider {
+            background-color: #ccc;
+            bottom: 0;
+            cursor: pointer;
+            left: 0;
+            position: absolute;
+            right: 0;
+            top: 0;
+            transition: .4s;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 6px;
+            border-radius: 34px;
+        }
+
+        .slider:before {
+            background-color: #fff;
+            bottom: 4px;
+            content: "";
+            height: 20px;
+            left: 4px;
+            position: absolute;
+            transition: .4s;
+            width: 20px;
+            border-radius: 50%;
+            z-index: 1;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        input:checked + .slider {
+            background: var(--gradient-primary);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+
+        .slider .sun {
+            color: #f8d568;
+            font-size: 14px;
+        }
+
+        .slider .moon {
+            color: #f5f5f5;
+            font-size: 14px;
+        }
+
+        /* Enhanced Main Content */
+        main {
+            max-width: 1400px;
+            margin: 6rem auto 2rem;
+            padding: 0 1rem;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+            opacity: 0;
+            transform: translateY(30px);
+            animation: fadeInUp 0.8s ease 0.2s forwards;
+        }
+
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Enhanced Video Player Section */
+        .video-player {
+            position: relative;
+            padding-bottom: 56.25%;
+            height: 0;
+            overflow: hidden;
+            background: linear-gradient(45deg, var(--primary-color), var(--accent-video));
+            border-radius: 20px;
+            box-shadow: var(--shadow-large);
+            margin-bottom: 1.5rem;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            transform: scale(0.98);
+            animation: scaleIn 0.6s ease 0.4s forwards;
+        }
+
+        @keyframes scaleIn {
+            to {
+                transform: scale(1);
+            }
+        }
+
+        .video-player:hover {
+            transform: scale(1.01);
+            box-shadow: var(--shadow-large);
+        }
+
+        .video-player iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 20px;
+            border: none;
+        }
+
+        /* Enhanced Video Info */
+        .video-info {
+            background: var(--gradient-secondary);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: var(--shadow);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid var(--border-color);
+            opacity: 0;
+            transform: translateY(30px);
+            animation: slideInUp 0.6s ease 0.6s forwards;
+        }
+
+        @keyframes slideInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .video-info:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .video-title {
+            font-size: 1.6rem;
+            font-weight: 700;
+            line-height: 1.4;
+            margin-bottom: 1.5rem;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            transition: all 0.3s ease;
+        }
+
+        /* Enhanced Channel Info */
+        .channel-info {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            padding: 1.5rem 0;
+            border-top: 2px solid var(--border-color);
+            transition: all 0.3s ease;
+        }
+
+        .channel-info:hover {
+            border-top-color: var(--primary-color);
+        }
+
+        .channel-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: var(--gradient-primary);
+            overflow: hidden;
+            flex-shrink: 0;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .channel-avatar::before {
+            content: '';
+            position: absolute;
+            inset: 2px;
+            border-radius: 50%;
+            background: var(--card-background);
+            z-index: 1;
+        }
+
+        .channel-avatar img {
+            position: relative;
+            z-index: 2;
+            width: calc(100% - 4px);
+            height: calc(100% - 4px);
+            border-radius: 50%;
+            object-fit: cover;
+            margin: 2px;
+            transition: all 0.3s ease;
+        }
+
+        .channel-info:hover .channel-avatar {
+            transform: scale(1.1);
+        }
+
+        .channel-details {
+            flex-grow: 1;
+        }
+
+        .channel-details h3 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin: 0 0 0.5rem 0;
+            color: var(--text-color);
+            transition: all 0.3s ease;
+        }
+
+        .channel-info:hover .channel-details h3 {
+            color: var(--primary-color);
+        }
+
+        .channel-details .channel-meta {
+            font-size: 0.9rem;
+            color: var(--stats-color);
+            transition: all 0.3s ease;
+        }
+
+        .channel-info:hover .channel-details .channel-meta {
+            color: var(--accent-video);
+        }
+
+        /* Enhanced Related Videos Section */
+        .related-videos {
+            background: var(--gradient-secondary);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: var(--shadow);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid var(--border-color);
+            opacity: 0;
+            transform: translateY(30px);
+            animation: slideInUp 0.6s ease 0.8s forwards;
+        }
+
+        .related-videos:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .related-header {
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-bottom: 2rem;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            border-bottom: 3px solid transparent;
+            border-image: var(--gradient-primary) 1;
+            padding-bottom: 0.75rem;
+            position: relative;
+        }
+
+        .related-header::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 60px;
+            height: 3px;
+            background: var(--gradient-primary);
+            border-radius: 2px;
+        }
+
+        .related-video-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        /* Enhanced Related Video Cards */
+        .related-videos .video-card {
+            display: block;
+            background: var(--card-background);
+            border-radius: 16px;
+            overflow: hidden;
+            text-decoration: none;
+            color: inherit;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
+            opacity: 0;
+            transform: translateY(30px);
+            position: relative;
+        }
+
+        .related-videos .video-card.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .related-videos .video-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: var(--shadow-hover);
+            border-color: var(--primary-color);
+        }
+
+        .related-videos .thumbnail {
+            position: relative;
+            width: 100%;
+            height: 0;
+            padding-bottom: 56.25%;
+            overflow: hidden;
+            background: var(--gradient-primary);
+        }
+
+        .related-videos .thumbnail img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            opacity: 0;
+        }
+
+        .related-videos .thumbnail img.loaded {
+            opacity: 1;
+        }
+
+        .related-videos .video-card:hover .thumbnail img {
+            transform: scale(1.1);
+            filter: brightness(1.1);
+        }
+
+        .related-videos .duration {
+            position: absolute;
+            bottom: 12px;
+            right: 12px;
+            background-color: rgba(0, 0, 0, 0.9);
+            color: white;
+            padding: 0.3rem 0.8rem;
+            border-radius: 8px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        .related-videos .video-card:hover .duration {
+            background-color: var(--primary-color);
+            transform: scale(1.1);
+        }
+
+        /* Play Overlay for Related Videos */
+        .related-videos .play-overlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 60px;
+            height: 60px;
+            background: var(--gradient-primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            backdrop-filter: blur(10px);
+        }
+
+        .related-videos .video-card:hover .play-overlay {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1.1);
+        }
+
+        .related-videos .play-overlay::after {
+            content: "";
+            width: 0;
+            height: 0;
+            border-left: 20px solid white;
+            border-top: 12px solid transparent;
+            border-bottom: 12px solid transparent;
+            margin-left: 4px;
+        }
+
+        .related-videos .card-info {
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .related-videos .card-info h3 {
+            font-size: 1.05rem;
+            font-weight: 600;
+            line-height: 1.4;
+            margin-bottom: 0.75rem;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            color: var(--text-color);
+            transition: all 0.3s ease;
+        }
+
+        .related-videos .video-card:hover .card-info h3 {
+            color: var(--primary-color);
+            transform: translateX(5px);
+        }
+
+        .related-videos .channel {
+            color: var(--channel-color);
+            font-size: 0.9rem;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .related-videos .video-card:hover .channel {
+            color: var(--accent-video);
+        }
+
+        .related-videos .stats {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+            color: var(--stats-color);
+            font-size: 0.8rem;
+            transition: all 0.3s ease;
+        }
+
+        .related-videos .video-card:hover .stats {
+            color: var(--text-color);
+        }
+
+        /* Footer Enhanced */
+        footer {
+            background-color: var(--footer-bg);
+            padding: 3rem 1rem 2rem;
+            margin-top: 5rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 2.5rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .footer-links a {
+            color: var(--text-color);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            position: relative;
+            padding: 0.5rem 0;
+        }
+
+        .footer-links a::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: 0;
+            left: 50%;
+            background: var(--primary-color);
+            transition: all 0.3s ease;
+            transform: translateX(-50%);
+        }
+
+        .footer-links a:hover::after {
+            width: 100%;
+        }
+
+        .footer-links a:hover {
+            color: var(--primary-color);
+            transform: translateY(-2px);
+        }
+
+        .copyright {
+            color: var(--stats-color);
+            font-size: 0.9rem;
+            transition: color 0.3s;
+        }
+
+        /* Loading Animation */
+        .loading-shimmer {
+            background: linear-gradient(90deg, var(--background-light) 25%, var(--card-background) 50%, var(--background-light) 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        /* Responsive Design Enhancements */
+        @media (max-width: 768px) {
+            .menu-toggle {
+                display: flex;
+            }
+            
+            .nav-links, .search-bar {
+                display: none;
+            }
+            
+            .nav-links.active {
+                display: flex;
+                flex-direction: column;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                right: 0;
+                background-color: var(--header-bg);
+                padding: 1rem;
+                box-shadow: var(--shadow);
+                border-radius: 0 0 15px 15px;
+                animation: slideDown 0.3s ease;
+            }
+            
+            @keyframes slideDown {
+                from {
+                    opacity: 0;
+                    transform: translateY(-20px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+            
+            .nav-links.active li {
+                margin: 0.75rem 0;
+                animation: fadeInLeft 0.3s ease forwards;
+                opacity: 0;
+            }
+            
+            .nav-links.active li:nth-child(1) { animation-delay: 0.1s; }
+            .nav-links.active li:nth-child(2) { animation-delay: 0.2s; }
+            .nav-links.active li:nth-child(3) { animation-delay: 0.3s; }
+            .nav-links.active li:nth-child(4) { animation-delay: 0.4s; }
+            .nav-links.active li:nth-child(5) { animation-delay: 0.5s; }
+            .nav-links.active li:nth-child(6) { animation-delay: 0.6s; }
+            
+            @keyframes fadeInLeft {
+                from {
+                    opacity: 0;
+                    transform: translateX(-20px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateX(0);
+                }
+            }
+            
+            .search-bar.active {
+                display: flex;
+                width: 100%;
+                margin-top: 1rem;
+                border-radius: 15px;
+                animation: slideDown 0.3s ease 0.2s backwards;
+            }
+            
+            .search-bar.active input {
+                width: 100%;
+            }
+            
+            main {
+                margin: 5rem auto 1rem;
+                padding: 0 0.75rem;
+                gap: 1.5rem;
+            }
+            
+            .video-player {
+                border-radius: 16px;
+                margin-bottom: 1rem;
+            }
+            
+            .video-info, .related-videos {
+                padding: 1.5rem;
+                border-radius: 16px;
+            }
+            
+            .video-title {
+                font-size: 1.3rem;
+                margin-bottom: 1rem;
+            }
+            
+            .channel-info {
+                gap: 1rem;
+                padding: 1rem 0;
+            }
+            
+            .channel-avatar {
+                width: 50px;
+                height: 50px;
+            }
+            
+            .related-video-grid {
+                grid-template-columns: 1fr;
+                gap: 1.25rem;
+            }
+            
+            .related-videos .card-info {
+                padding: 1.25rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            main {
+                padding: 0 0.5rem;
+            }
+            
+            .video-title {
+                font-size: 1.2rem;
+            }
+            
+            .video-info, .related-videos {
+                padding: 1.25rem;
+            }
+        }
+
+        /* Large Screen Layout Enhanced */
+        @media (min-width: 1024px) {
+            main {
+                grid-template-columns: 1fr 380px;
+                gap: 3rem;
+            }
+            
+            .video-content {
+                grid-column: 1;
+            }
+            
+            .related-videos {
+                grid-column: 2;
+                grid-row: 1 / span 2;
+                height: fit-content;
+                position: sticky;
+                top: 7rem;
+                max-height: calc(100vh - 8rem);
+                overflow-y: auto;
+            }
+            
+            .related-video-grid {
+                grid-template-columns: 1fr;
+                gap: 1.25rem;
+            }
+            
+            .related-videos .video-card {
+                display: flex;
+                flex-direction: row;
+                height: 120px;
+            }
+            
+            .related-videos .thumbnail {
+                width: 160px;
+                height: 100%;
+                padding-bottom: 0;
+                flex-shrink: 0;
+            }
+            
+            .related-videos .card-info {
+                padding: 1rem;
+                flex-grow: 1;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+            }
+            
+            .related-videos .card-info h3 {
+                font-size: 0.9rem;
+                -webkit-line-clamp: 2;
+                margin-bottom: 0.5rem;
+            }
+            
+            .related-videos .channel {
+                font-size: 0.8rem;
+                margin-bottom: 0.25rem;
+            }
+            
+            .related-videos .stats {
+                font-size: 0.75rem;
+                gap: 0.1rem;
+            }
+        }
+
+        /* Scroll-based animations */
+        .fade-in-up {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.6s ease;
+        }
+
+        .fade-in-up.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Accessibility & Performance */
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+
+        /* Smooth transitions for all elements */
+        * {
+            transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, transform 0.3s ease, opacity 0.3s ease;
+        }
+
+        /* Custom scrollbar */
+        .related-videos::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .related-videos::-webkit-scrollbar-track {
+            background: var(--background-light);
+            border-radius: 3px;
+        }
+
+        .related-videos::-webkit-scrollbar-thumb {
+            background: var(--gradient-primary);
+            border-radius: 3px;
+        }
+
+        .related-videos::-webkit-scrollbar-thumb:hover {
+            background: var(--primary-color);
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="nav-container">
+            <a href="../index.html" class="logo">VidTap</a>
+            
+            <div class="search-bar">
+                <input type="text" placeholder="Cari video...">
+                <button>Cari</button>
+            </div>
+            
+            <div class="menu-toggle" onclick="toggleMenu()">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+            
+            <ul class="nav-links">
+                <li><a href="../index.html">Beranda</a></li>
+                <li><a href="../vidshorts.html">VidShortz</a></li>
+                <li><a href="#">Trending</a></li>
+                <li><a href="../kategori.html">Kategori</a></li>
+                <li><a href="#">Saluran Saya</a></li>
+                <li><a href="#">Riwayat</a></li>
+                <li>
+                    <div class="theme-switch-wrapper">
+                        <label class="theme-switch" for="checkbox">
+                            <input type="checkbox" id="checkbox" />
+                            <div class="slider round">
+                                <svg class="moon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                                </svg>
+                                <svg class="sun" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="12" cy="12" r="5"></circle>
+                                    <line x1="12" y1="1" x2="12" y2="3"></line>
+                                    <line x1="12" y1="21" x2="12" y2="23"></line>
+                                    <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                                    <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                                    <line x1="1" y1="12" x2="3" y2="12"></line>
+                                    <line x1="21" y1="12" x2="23" y2="12"></line>
+                                    <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                                    <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                                </svg>
+                            </div>
+                        </label>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </header>
+    
+    <main>
+        <div class="video-content">
+            <!-- Enhanced Video Player -->
+            <div class="video-player">
+                <iframe 
+                    width="560" 
+                    height="315" 
+                    src="https://www.youtube.com/embed/VQRLujxTm3c?si=tnRKOAzW6cc02wSm" 
+                    title="YouTube video player" 
+                    frameborder="0" 
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                    referrerpolicy="strict-origin-when-cross-origin" 
+                    allowfullscreen>
+                </iframe>
+            </div>
+            
+            <!-- Enhanced Video Information -->
+            <div class="video-info" data-video="https://www.youtube.com/watch?v=VQRLujxTm3c">
+                <h1 class="video-title">Tutorial: Membangun Website Streaming Video Responsive dengan HTML dan CSS</h1>
+                
+                <div class="channel-info">
+                    <div class="channel-avatar">
+                        <img src="/api/placeholder/48/48" alt="channel avatar">
+                    </div>
+                    
+                    <div class="channel-details">
+                        <h3>Web Developer Indonesia</h3>
+                        <div class="channel-meta">Konten edukasi web development terpercaya</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Enhanced Related Videos Section -->
+        <div class="related-videos">
+            <h2 class="related-header">Video Terkait</h2>
+            
+            <div class="related-video-grid">
+                <!-- Related Video 1 -->
+                <a href="/video/2.html" class="video-card" data-video="https://www.youtube.com/watch?v=TWOkT7l0yWQ">
+                    <div class="thumbnail">
+                        <img src="/api/placeholder/280/158" alt="thumbnail CSS Grid" loading="lazy">
+                        <span class="duration">-:-</span>
+                        <div class="play-overlay"></div>
+                    </div>
+                    <div class="card-info">
+                        <h3>Bermain dengan CSS Grid dan Flexbox</h3>
+                        <p class="channel">CSS Master</p>
+                        <div class="stats">
+                            <span>- tayangan</span>
+                            <span>3 hari yang lalu</span>
+                        </div>
+                    </div>
+                </a>
+                
+                <!-- Related Video 2 -->
+                <a href="/video/3.html" class="video-card" data-video="https://www.youtube.com/watch?v=dQw4w9WgXcQ">
+                    <div class="thumbnail">
+                        <img src="/api/placeholder/280/158" alt="thumbnail animasi CSS" loading="lazy">
+                        <span class="duration">-:-</span>
+                        <div class="play-overlay"></div>
+                    </div>
+                    <div class="card-info">
+                        <h3>Tips Animasi CSS yang Smooth</h3>
+                        <p class="channel">UI/UX Pro</p>
+                        <div class="stats">
+                            <span>- tayangan</span>
+                            <span>5 hari yang lalu</span>
+                        </div>
+                    </div>
+                </a>
+                
+                <!-- Related Video 3 -->
+                <a href="/video/4.html" class="video-card" data-video="https://www.youtube.com/watch?v=9bZkp7q19f0">
+                    <div class="thumbnail">
+                        <img src="/api/placeholder/280/158" alt="thumbnail JavaScript" loading="lazy">
+                        <span class="duration">-:-</span>
+                        <div class="play-overlay"></div>
+                    </div>
+                    <div class="card-info">
+                        <h3>Tutorial JavaScript untuk Pemula</h3>
+                        <p class="channel">Coding Indonesia</p>
+                        <div class="stats">
+                            <span>- tayangan</span>
+                            <span>2 minggu yang lalu</span>
+                        </div>
+                    </div>
+                </a>
+                
+                <!-- Related Video 4 -->
+                <a href="/video/5.html" class="video-card" data-video="https://www.youtube.com/watch?v=OYRda7UtuhU">
+                    <div class="thumbnail">
+                        <img src="/api/placeholder/280/158" alt="thumbnail React Native" loading="lazy">
+                        <span class="duration">-:-</span>
+                        <div class="play-overlay"></div>
+                    </div>
+                    <div class="card-info">
+                        <h3>Membuat Aplikasi Mobile dengan React Native</h3>
+                        <p class="channel">React Developers</p>
+                        <div class="stats">
+                            <span>- tayangan</span>
+                            <span>1 bulan yang lalu</span>
+                        </div>
+                    </div>
+                </a>
+                
+                <!-- Related Video 5 -->
+                <a href="/video/6.html" class="video-card" data-video="https://www.youtube.com/watch?v=fKopy74weus">
+                    <div class="thumbnail">
+                        <img src="/api/placeholder/280/158" alt="thumbnail SEO" loading="lazy">
+                        <span class="duration">-:-</span>
+                        <div class="play-overlay"></div>
+                    </div>
+                    <div class="card-info">
+                        <h3>Optimasi SEO untuk Website Anda</h3>
+                        <p class="channel">Digital Marketing Pro</p>
+                        <div class="stats">
+                            <span>- tayangan</span>
+                            <span>2 minggu yang lalu</span>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </main>
+    
+    <footer>
+        <div class="footer-content">
+            <div class="footer-links">
+                <a href="#">Tentang Kami</a>
+                <a href="#">Ketentuan Layanan</a>
+                <a href="#">Kebijakan Privasi</a>
+                <a href="#">Bantuan</a>
+                <a href="#">Kontak</a>
+            </div>
+            
+            <p class="copyright">© 2025 VidTap. Semua hak dilindungi undang-undang.</p>
+        </div>
+    </footer>
+
+    <script>
+        // ===== ENHANCED VIDEO PAGE SCRIPT WITH MODERN ANIMATIONS =====
+        
+        // Theme toggle function (enhanced)
+        function initThemeToggle() {
+            const toggleSwitch = document.querySelector('#checkbox');
+            if (!toggleSwitch) return;
+            
+            function switchTheme(e) {
+                const isLight = e.target.checked;
+                document.documentElement.classList.toggle('light-mode', isLight);
+                document.documentElement.classList.toggle('dark-mode', !isLight);
+                
+                // Store theme preference in memory
+                window.currentTheme = isLight ? 'light' : 'dark';
+                
+                // Add transition effect
+                document.body.style.transition = 'all 0.3s ease';
+            }
+            
+            toggleSwitch.addEventListener('change', switchTheme);
+            
+            // Set initial theme
+            const currentTheme = window.currentTheme || 'dark';
+            toggleSwitch.checked = (currentTheme === 'light');
+        }
+        
+        // Enhanced mobile menu toggle
+        function toggleMenu() {
+            const navLinks = document.querySelector('.nav-links');
+            const searchBar = document.querySelector('.search-bar');
+            const menuToggle = document.querySelector('.menu-toggle');
+            
+            navLinks.classList.toggle('active');
+            searchBar.classList.toggle('active');
+            
+            // Animate hamburger menu
+            menuToggle.classList.toggle('active');
+        }
+        
+        // Intersection Observer for scroll animations
+        function initIntersectionObserver() {
+            const relatedVideoCards = document.querySelectorAll('.related-videos .video-card');
+            
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach((entry, index) => {
+                    if (entry.isIntersecting) {
+                        // Add staggered animation delay
+                        setTimeout(() => {
+                            entry.target.classList.add('visible');
+                        }, index * 150);
+                    }
+                });
+            }, {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            });
+            
+            relatedVideoCards.forEach(card => {
+                observer.observe(card);
+            });
+        }
+        
+        // Enhanced oEmbed functionality for main video
+        function initMainVideoOEmbed() {
+            const mainVideoUrl = 'https://www.youtube.com/watch?v=VQRLujxTm3c';
+            
+            const videoTitle = document.querySelector('.video-title');
+            const channelName = document.querySelector('.channel-details h3');
+            const channelAvatar = document.querySelector('.channel-avatar img');
+            
+            fetchMainVideoData(mainVideoUrl, videoTitle, channelName, channelAvatar);
+        }
+        
+        function fetchMainVideoData(videoUrl, titleElement, channelElement, avatarElement) {
+            const oEmbedUrl = `https://www.youtube.com/oembed?url=${encodeURIComponent(videoUrl)}&format=json`;
+            
+            // Show loading shimmer
+            if (titleElement) titleElement.classList.add('loading-shimmer');
+            if (channelElement) channelElement.classList.add('loading-shimmer');
+            
+            fetch(oEmbedUrl)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Failed to fetch oEmbed data');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('✅ YouTube oEmbed data received:', data);
+                    
+                    // Update title with animation
+                    if (titleElement && data.title) {
+                        titleElement.classList.remove('loading-shimmer');
+                        titleElement.style.opacity = '0';
+                        titleElement.textContent = data.title;
+                        
+                        setTimeout(() => {
+                            titleElement.style.transition = 'opacity 0.5s ease';
+                            titleElement.style.opacity = '1';
+                        }, 100);
+                        
+                        document.title = `${data.title} - VidTap`;
+                    }
+                    
+                    // Update channel with animation
+                    if (channelElement && data.author_name) {
+                        channelElement.classList.remove('loading-shimmer');
+                        channelElement.style.opacity = '0';
+                        channelElement.textContent = data.author_name;
+                        
+                        setTimeout(() => {
+                            channelElement.style.transition = 'opacity 0.5s ease';
+                            channelElement.style.opacity = '1';
+                        }, 200);
+                    }
+                    
+                    // Update meta description
+                    updateVideoMetaDescription(data.title, data.author_name);
+                })
+                .catch(error => {
+                    console.error('❌ Error fetching main video oEmbed data:', error);
+                    // Remove loading shimmer even on error
+                    if (titleElement) titleElement.classList.remove('loading-shimmer');
+                    if (channelElement) channelElement.classList.remove('loading-shimmer');
+                });
+        }
+        
+        // Enhanced related videos oEmbed
+        function initRelatedVideosOEmbed() {
+            const relatedCards = document.querySelectorAll('.related-videos .video-card');
+            
+            relatedCards.forEach((card, index) => {
+                const videoUrl = card.getAttribute('data-video');
+                if (!videoUrl) return;
+                
+                // Add loading shimmer
+                const thumbnail = card.querySelector('.thumbnail');
+                thumbnail.classList.add('loading-shimmer');
+                
+                // Fetch data with staggered loading
+                setTimeout(() => {
+                    fetchRelatedVideoData(card, videoUrl);
+                    setRandomStats(card);
+                }, index * 300);
+            });
+        }
+        
+        function fetchRelatedVideoData(card, videoUrl) {
+            const oEmbedUrl = `https://www.youtube.com/oembed?url=${encodeURIComponent(videoUrl)}&format=json`;
+            
+            fetch(oEmbedUrl)
+                .then(response => response.ok ? response.json() : Promise.reject('oEmbed failed'))
+                .then(data => {
+                    // Remove loading shimmer
+                    const thumbnail = card.querySelector('.thumbnail');
+                    thumbnail.classList.remove('loading-shimmer');
+                    
+                    // Update title with animation
+                    const titleElement = card.querySelector('.card-info h3');
+                    if (titleElement) {
+                        titleElement.style.opacity = '0';
+                        titleElement.textContent = data.title;
+                        setTimeout(() => {
+                            titleElement.style.transition = 'opacity 0.4s ease';
+                            titleElement.style.opacity = '1';
+                        }, 100);
+                    }
+                    
+                    // Update channel with animation
+                    const channelElement = card.querySelector('.channel');
+                    if (channelElement) {
+                        channelElement.style.opacity = '0';
+                        channelElement.textContent = data.author_name;
+                        setTimeout(() => {
+                            channelElement.style.transition = 'opacity 0.4s ease';
+                            channelElement.style.opacity = '1';
+                        }, 200);
+                    }
+                    
+                    // Update thumbnail with fade-in effect
+                    const thumbnailElement = card.querySelector('.thumbnail img');
+                    if (thumbnailElement) {
+                        const videoId = getYoutubeVideoId(videoUrl);
+                        if (videoId) {
+                            const img = new Image();
+                            img.onload = () => {
+                                thumbnailElement.src = img.src;
+                                thumbnailElement.classList.add('loaded');
+                            };
+                            img.src = `https://i.ytimg.com/vi/${videoId}/mqdefault.jpg`;
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.log('Related video oEmbed error:', error);
+                    // Remove loading shimmer even on error
+                    const thumbnail = card.querySelector('.thumbnail');
+                    thumbnail.classList.remove('loading-shimmer');
+                });
+        }
+        
+        function setRandomStats(card) {
+            const viewOptions = ['5.2K', '12K', '45K', '132K', '1.2M', '3.5M', '8.1M'];
+            const timeOptions = ['2 jam yang lalu', '1 hari yang lalu', '3 hari yang lalu', '1 minggu yang lalu', '2 minggu yang lalu', '1 bulan yang lalu'];
+            
+            const statsElements = card.querySelectorAll('.stats span');
+            if (statsElements.length >= 2) {
+                // Animate stats update
+                statsElements[0].style.opacity = '0';
+                statsElements[1].style.opacity = '0';
+                
+                setTimeout(() => {
+                    statsElements[0].textContent = `${viewOptions[Math.floor(Math.random() * viewOptions.length)]} tayangan`;
+                    statsElements[1].textContent = timeOptions[Math.floor(Math.random() * timeOptions.length)];
+                    
+                    statsElements[0].style.transition = 'opacity 0.4s ease';
+                    statsElements[1].style.transition = 'opacity 0.4s ease';
+                    statsElements[0].style.opacity = '1';
+                    statsElements[1].style.opacity = '1';
+                }, 400);
+            }
+        }
+        
+        function updateVideoMetaDescription(title, author) {
+            let metaDesc = document.querySelector('meta[name="description"]');
+            if (!metaDesc) {
+                metaDesc = document.createElement('meta');
+                metaDesc.name = 'description';
+                document.head.appendChild(metaDesc);
+            }
+            metaDesc.content = `Tonton "${title}" oleh ${author} di VidTap. Platform streaming video terbaik untuk konten edukasi dan tutorial.`;
+        }
+        
+        function getYoutubeVideoId(url) {
+            const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+            const match = url.match(regExp);
+            return (match && match[2].length === 11) ? match[2] : null;
+        }
+        
+        // Enhanced lazy loading with fade effects
+        function initLazyLoading() {
+            const images = document.querySelectorAll('img[loading="lazy"]');
+            
+            const imageObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const img = entry.target;
+                        if (img.dataset.src) {
+                            img.src = img.dataset.src;
+                            img.removeAttribute('data-src');
+                        }
+                        
+                        img.addEventListener('load', function() {
+                            this.classList.add('loaded');
+                        });
+                        
+                        if (img.complete) {
+                            img.classList.add('loaded');
+                        }
+                        
+                        imageObserver.unobserve(img);
+                    }
+                });
+            });
+            
+            images.forEach(img => imageObserver.observe(img));
+        }
+        
+        // Ripple effect for related video cards
+        function initRippleEffects() {
+            const relatedCards = document.querySelectorAll('.related-videos .video-card');
+            
+            relatedCards.forEach(card => {
+                card.addEventListener('click', function(e) {
+                    createRippleEffect(e, this);
+                });
+            });
+        }
+        
+        function createRippleEffect(e, element) {
+            const ripple = document.createElement('div');
+            const rect = element.getBoundingClientRect();
+            const size = Math.max(rect.width, rect.height);
+            const x = e.clientX - rect.left - size / 2;
+            const y = e.clientY - rect.top - size / 2;
+            
+            ripple.style.cssText = `
+                position: absolute;
+                border-radius: 50%;
+                background: rgba(255, 77, 77, 0.3);
+                transform: scale(0);
+                animation: ripple 0.6s linear;
+                width: ${size}px;
+                height: ${size}px;
+                left: ${x}px;
+                top: ${y}px;
+                pointer-events: none;
+                z-index: 10;
+            `;
+            
+            element.style.position = 'relative';
+            element.style.overflow = 'hidden';
+            element.appendChild(ripple);
+            
+            setTimeout(() => {
+                ripple.remove();
+            }, 600);
+        }
+        
+        // Smooth scroll enhancement
+        function initSmoothScroll() {
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const target = document.querySelector(this.getAttribute('href'));
+                    if (target) {
+                        target.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                    }
+                });
+            });
+        }
+        
+        // Performance tracking
+        function trackPerformance() {
+            window.addEventListener('load', () => {
+                if ('performance' in window) {
+                    const loadTime = performance.now();
+                    console.log(`🚀 Video page loaded in ${Math.round(loadTime)}ms`);
+                }
+            });
+        }
+        
+        // Initialize everything with enhanced loading sequence
+        document.addEventListener('DOMContentLoaded', function() {
+            // Show loading state
+            document.body.style.opacity = '0';
+            
+            // Initialize all features with staggered timing
+            setTimeout(() => {
+                initThemeToggle();
+                initMainVideoOEmbed();
+                initRelatedVideosOEmbed();
+                initIntersectionObserver();
+                initLazyLoading();
+                initRippleEffects();
+                initSmoothScroll();
+                trackPerformance();
+            }, 100);
+            
+            // Fade in page with enhanced timing
+            setTimeout(() => {
+                document.body.style.transition = 'opacity 0.6s ease';
+                document.body.style.opacity = '1';
+            }, 200);
+            
+            console.log('🎬 Enhanced VidTap Video Page - Modern animations and transitions loaded!');
+        });
+        
+        // Add scroll-based header effects
+        let lastScrollY = window.scrollY;
+        
+        window.addEventListener('scroll', () => {
+            const currentScrollY = window.scrollY;
+            const header = document.querySelector('header');
+            
+            if (currentScrollY > lastScrollY && currentScrollY > 100) {
+                // Scrolling down
+                header.style.transform = 'translateY(-100%)';
+            } else {
+                // Scrolling up
+                header.style.transform = 'translateY(0)';
+            }
+            
+            // Add backdrop blur effect
+            if (currentScrollY > 50) {
+                header.style.backdropFilter = 'blur(20px)';
+                header.style.background = 'rgba(51, 51, 51, 0.95)';
+            } else {
+                header.style.backdropFilter = 'blur(10px)';
+                header.style.background = 'var(--header-bg)';
+            }
+            
+            lastScrollY = currentScrollY;
+        });
+        
+        // Add keyboard navigation support
+        document.addEventListener('keydown', (e) => {
+            const focusedElement = document.activeElement;
+            
+            if (e.key === 'Enter' && focusedElement.classList.contains('video-card')) {
+                focusedElement.click();
+            }
+        });
+        
+        // Enhanced video player interactions
+        function initVideoPlayerEnhancements() {
+            const videoPlayer = document.querySelector('.video-player');
+            const iframe = videoPlayer.querySelector('iframe');
+            
+            // Add fullscreen toggle on double-click
+            videoPlayer.addEventListener('dblclick', () => {
+                if (iframe.requestFullscreen) {
+                    iframe.requestFullscreen();
+                }
+            });
+            
+            // Add loading state
+            iframe.addEventListener('loadstart', () => {
+                videoPlayer.classList.add('loading-shimmer');
+            });
+            
+            iframe.addEventListener('loadeddata', () => {
+                videoPlayer.classList.remove('loading-shimmer');
+            });
+        }
+        
+        // Add CSS for ripple animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes ripple {
+                to {
+                    transform: scale(4);
+                    opacity: 0;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+        
+        // Initialize video player enhancements after DOM load
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(initVideoPlayerEnhancements, 500);
+        });
+    </script>
+</body>
+</html>
