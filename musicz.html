@@ -1,0 +1,1337 @@
+<!DOCTYPE html>
+<html lang="id" class="dark-mode">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VidTap Music - Platform Streaming Musik</title>
+    <meta name="description" content="Platform streaming musik terbaik. Temukan lagu favorit, playlist, dan artis terbaru dari YouTube.">
+    <script>
+        // Theme preference check
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'light') {
+            document.documentElement.classList.add('light-mode');
+        } else {
+            document.documentElement.classList.add('dark-mode');
+        }
+    </script>
+    <style>
+        /* Base Variables & Theme */
+        :root {
+            --primary-color: #ff4d4d;
+            --secondary-color: #333;
+            --text-color: #f5f5f5;
+            --background-dark: #1a1a1a;
+            --background-light: #2d2d2d;
+            --card-background: #2d2d2d;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            --border-color: rgba(255, 255, 255, 0.1);
+            --stats-color: #888;
+            --channel-color: #aaa;
+            --header-bg: #333;
+            --footer-bg: #333;
+            --accent-music: #1db954;
+        }
+
+        html.light-mode {
+            --text-color: #333;
+            --background-dark: #f5f5f5;
+            --background-light: #ffffff;
+            --card-background: #ffffff;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --border-color: rgba(0, 0, 0, 0.1);
+            --stats-color: #666;
+            --channel-color: #555;
+            --header-bg: #ffffff;
+            --footer-bg: #f0f0f0;
+            --secondary-color: #ffffff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--background-dark);
+            color: var(--text-color);
+            line-height: 1.6;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        /* Header Styling */
+        header {
+            background-color: var(--header-bg);
+            padding: 1rem;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            box-shadow: var(--shadow);
+            backdrop-filter: blur(10px);
+            transition: background-color 0.3s;
+        }
+
+        .nav-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .logo::before {
+            content: "🎵";
+            font-size: 1.5rem;
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            align-items: center;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            color: var(--text-color);
+            text-decoration: none;
+            transition: color 0.3s;
+            font-weight: 500;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary-color);
+        }
+
+        .search-bar {
+            display: flex;
+            margin-right: 1rem;
+            border-radius: 25px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+        }
+
+        .search-bar input {
+            padding: 0.75rem 1.25rem;
+            border: none;
+            width: 300px;
+            background-color: var(--background-light);
+            color: var(--text-color);
+            outline: none;
+            transition: all 0.3s;
+        }
+
+        .search-bar input::placeholder {
+            color: var(--stats-color);
+        }
+
+        .search-bar button {
+            background-color: var(--primary-color);
+            border: none;
+            color: white;
+            padding: 0.75rem 1.25rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .search-bar button:hover {
+            background-color: #ff3333;
+        }
+
+        .menu-toggle {
+            display: none;
+            flex-direction: column;
+            justify-content: space-between;
+            width: 30px;
+            height: 21px;
+            cursor: pointer;
+        }
+
+        .menu-toggle span {
+            height: 3px;
+            width: 100%;
+            background-color: var(--text-color);
+            border-radius: 10px;
+            transition: all 0.3s;
+        }
+
+        /* Main Content */
+        main {
+            max-width: 1400px;
+            margin: 6rem auto 2rem;
+            padding: 0 1rem;
+        }
+
+        .page-header {
+            text-align: center;
+            margin-bottom: 3rem;
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-music));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .page-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .page-subtitle {
+            font-size: 1.1rem;
+            color: var(--stats-color);
+            font-weight: 400;
+        }
+
+        /* Music Categories */
+        .category-tabs {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .category-tab {
+            background-color: var(--card-background);
+            color: var(--text-color);
+            border: 2px solid var(--border-color);
+            padding: 0.75rem 1.5rem;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 500;
+            text-decoration: none;
+        }
+
+        .category-tab:hover,
+        .category-tab.active {
+            background-color: var(--accent-music);
+            color: white;
+            border-color: var(--accent-music);
+            transform: translateY(-2px);
+        }
+
+        /* Music Grid */
+        .music-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        /* Music Cards */
+        .music-card {
+            display: block;
+            background-color: var(--card-background);
+            border-radius: 16px;
+            overflow: hidden;
+            text-decoration: none;
+            color: inherit;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow);
+            height: 100%;
+            position: relative;
+        }
+
+        .music-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .music-thumbnail {
+            position: relative;
+            width: 100%;
+            height: 0;
+            padding-bottom: 100%; /* Square ratio for music */
+            overflow: hidden;
+            background: linear-gradient(45deg, var(--primary-color), var(--accent-music));
+        }
+
+        .music-thumbnail img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        .music-card:hover .music-thumbnail img {
+            transform: scale(1.1);
+        }
+
+        .duration {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background-color: rgba(0, 0, 0, 0.85);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 15px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        /* Play Button Overlay */
+        .play-overlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 60px;
+            height: 60px;
+            background-color: rgba(255, 255, 255, 0.95);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .music-card:hover .play-overlay {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1.1);
+        }
+
+        .play-overlay::after {
+            content: "";
+            width: 0;
+            height: 0;
+            border-left: 20px solid var(--accent-music);
+            border-top: 12px solid transparent;
+            border-bottom: 12px solid transparent;
+            margin-left: 4px;
+        }
+
+        /* Card Info */
+        .music-info {
+            padding: 1.25rem;
+        }
+
+        .music-info h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            line-height: 1.4;
+            margin-bottom: 0.5rem;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            color: var(--text-color);
+            transition: color 0.3s ease;
+        }
+
+        .music-card:hover h3 {
+            color: var(--accent-music);
+        }
+
+        .artist {
+            font-size: 0.95rem;
+            color: var(--channel-color);
+            font-weight: 500;
+            margin-bottom: 0.75rem;
+            transition: color 0.3s;
+        }
+
+        .music-stats {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: var(--stats-color);
+            font-size: 0.85rem;
+        }
+
+        .genre-tag {
+            background-color: var(--accent-music);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        /* Music Popup */
+        .music-popup-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.95);
+            z-index: 1001;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .music-popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 90%;
+            max-width: 800px;
+            background-color: var(--card-background);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: slideUp 0.3s ease;
+        }
+
+        .popup-header {
+            padding: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-music));
+            color: white;
+        }
+
+        .popup-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            max-width: 80%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .popup-close {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            font-size: 1.8rem;
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 50%;
+            transition: all 0.3s;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .popup-close:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: rotate(90deg);
+        }
+
+        .popup-video-container {
+            position: relative;
+            padding-bottom: 56.25%;
+            height: 0;
+            overflow: hidden;
+            background-color: #000;
+        }
+
+        .popup-video-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .popup-actions {
+            padding: 1.5rem;
+            text-align: center;
+            background-color: var(--background-light);
+        }
+
+        .full-view-button {
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-music));
+            color: white;
+            border: none;
+            padding: 0.75rem 2rem;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: all 0.3s;
+            box-shadow: var(--shadow);
+        }
+
+        .full-view-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Theme Switch */
+        .theme-switch-wrapper {
+            display: flex;
+            align-items: center;
+        }
+
+        .theme-switch {
+            display: inline-block;
+            height: 28px;
+            position: relative;
+            width: 54px;
+        }
+
+        .theme-switch input {
+            display: none;
+        }
+
+        .slider {
+            background-color: #ccc;
+            bottom: 0;
+            cursor: pointer;
+            left: 0;
+            position: absolute;
+            right: 0;
+            top: 0;
+            transition: .4s;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 6px;
+            border-radius: 34px;
+        }
+
+        .slider:before {
+            background-color: #fff;
+            bottom: 4px;
+            content: "";
+            height: 20px;
+            left: 4px;
+            position: absolute;
+            transition: .4s;
+            width: 20px;
+            border-radius: 50%;
+            z-index: 1;
+        }
+
+        input:checked + .slider {
+            background-color: var(--primary-color);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+
+        .slider .sun {
+            color: #f8d568;
+            font-size: 14px;
+        }
+
+        .slider .moon {
+            color: #f5f5f5;
+            font-size: 14px;
+        }
+
+        /* Footer */
+        footer {
+            background-color: var(--footer-bg);
+            padding: 2rem 1rem;
+            margin-top: 4rem;
+            text-align: center;
+            transition: background-color 0.3s;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .footer-links a {
+            color: var(--text-color);
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .footer-links a:hover {
+            color: var(--primary-color);
+        }
+
+        .copyright {
+            color: var(--stats-color);
+            font-size: 0.9rem;
+            transition: color 0.3s;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideUp {
+            from { 
+                opacity: 0;
+                transform: translate(-50%, -30%);
+            }
+            to { 
+                opacity: 1;
+                transform: translate(-50%, -50%);
+            }
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 992px) {
+            .search-bar input {
+                width: 220px;
+            }
+            
+            .music-popup {
+                width: 95%;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .menu-toggle {
+                display: flex;
+            }
+            
+            .nav-links, .search-bar {
+                display: none;
+            }
+            
+            .nav-links.active {
+                display: flex;
+                flex-direction: column;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                right: 0;
+                background-color: var(--header-bg);
+                padding: 1rem;
+                box-shadow: var(--shadow);
+                border-radius: 0 0 15px 15px;
+            }
+            
+            .nav-links.active li {
+                margin: 0.75rem 0;
+            }
+            
+            .search-bar.active {
+                display: flex;
+                width: 100%;
+                margin-top: 1rem;
+                border-radius: 15px;
+            }
+            
+            .search-bar.active input {
+                width: 100%;
+            }
+            
+            main {
+                margin: 5rem auto 1rem;
+                padding: 0 0.75rem;
+            }
+            
+            .page-title {
+                font-size: 2rem;
+            }
+            
+            .page-subtitle {
+                font-size: 1rem;
+            }
+            
+            .music-grid {
+                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+                gap: 1.25rem;
+            }
+            
+            .category-tabs {
+                gap: 0.5rem;
+            }
+            
+            .category-tab {
+                padding: 0.5rem 1rem;
+                font-size: 0.9rem;
+            }
+            
+            .music-info {
+                padding: 1rem;
+            }
+            
+            .popup-header {
+                padding: 1rem;
+            }
+            
+            .popup-title {
+                font-size: 1.1rem;
+            }
+            
+            .popup-actions {
+                padding: 1rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .music-grid {
+                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+                gap: 1rem;
+            }
+            
+            .page-title {
+                font-size: 1.75rem;
+            }
+            
+            .logo {
+                font-size: 1.5rem;
+            }
+            
+            .category-tabs {
+                justify-content: flex-start;
+                overflow-x: auto;
+                padding-bottom: 0.5rem;
+            }
+            
+            .category-tab {
+                flex-shrink: 0;
+            }
+        }
+
+        /* Loading States */
+        .music-thumbnail img {
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .music-thumbnail img.loaded {
+            opacity: 1;
+        }
+
+        /* Accessibility */
+        .music-card:focus {
+            outline: 2px solid var(--accent-music);
+            outline-offset: 2px;
+        }
+
+        /* Smooth transitions */
+        * {
+            transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="nav-container">
+            <a href="/" class="logo">VidTap Music</a>
+            
+            <div class="search-bar">
+                <input type="text" placeholder="Cari musik, artis, atau album...">
+                <button>🔍</button>
+            </div>
+            
+            <div class="menu-toggle" onclick="toggleMenu()">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+            
+            <ul class="nav-links">
+                <li><a href="/">Beranda</a></li>
+                <li><a href="#" class="active">Musik</a></li>
+                <li><a href="/trending">Trending</a></li>
+                <li><a href="/playlist">Playlist</a></li>
+                <li><a href="/artis">Artis</a></li>
+                <li>
+                    <div class="theme-switch-wrapper">
+                        <label class="theme-switch" for="checkbox">
+                            <input type="checkbox" id="checkbox" />
+                            <div class="slider">
+                                <svg class="moon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                                </svg>
+                                <svg class="sun" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="12" cy="12" r="5"></circle>
+                                    <line x1="12" y1="1" x2="12" y2="3"></line>
+                                    <line x1="12" y1="21" x2="12" y2="23"></line>
+                                    <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                                    <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                                    <line x1="1" y1="12" x2="3" y2="12"></line>
+                                    <line x1="21" y1="12" x2="23" y2="12"></line>
+                                    <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                                    <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                                </svg>
+                            </div>
+                        </label>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </header>
+    
+    <main>
+        <div class="page-header">
+            <h1 class="page-title">VidTap Music</h1>
+            <p class="page-subtitle">Temukan dan nikmati musik favorit Anda dari seluruh dunia</p>
+        </div>
+        
+        <div class="category-tabs">
+            <a href="#" class="category-tab active" data-category="all">Semua</a>
+            <a href="#" class="category-tab" data-category="pop">Pop</a>
+            <a href="#" class="category-tab" data-category="rock">Rock</a>
+            <a href="#" class="category-tab" data-category="jazz">Jazz</a>
+            <a href="#" class="category-tab" data-category="classical">Klasik</a>
+            <a href="#" class="category-tab" data-category="electronic">Elektronik</a>
+            <a href="#" class="category-tab" data-category="indie">Indie</a>
+        </div>
+        
+        <div class="music-grid">
+            <!-- Music Card 1 -->
+            <a href="/music/1.html" class="music-card" data-video="https://www.youtube.com/watch?v=fJ9rUzIMcZQ" data-category="pop">
+                <div class="music-thumbnail">
+                    <img src="/api/placeholder/300/300" alt="Bohemian Rhapsody - Queen" loading="lazy">
+                    <span class="duration">5:55</span>
+                    <div class="play-overlay"></div>
+                </div>
+                <div class="music-info">
+                    <h3>Bohemian Rhapsody</h3>
+                    <p class="artist">Queen</p>
+                    <div class="music-stats">
+                        <span>1.2B views</span>
+                        <span class="genre-tag">Rock</span>
+                    </div>
+                </div>
+            </a>
+            
+            <!-- Music Card 2 -->
+            <a href="/music/2.html" class="music-card" data-video="https://www.youtube.com/watch?v=9bZkp7q19f0" data-category="pop">
+                <div class="music-thumbnail">
+                    <img src="/api/placeholder/300/300" alt="Shape of You - Ed Sheeran" loading="lazy">
+                    <span class="duration">3:53</span>
+                    <div class="play-overlay"></div>
+                </div>
+                <div class="music-info">
+                    <h3>Shape of You</h3>
+                    <p class="artist">Ed Sheeran</p>
+                    <div class="music-stats">
+                        <span>5.8B views</span>
+                        <span class="genre-tag">Pop</span>
+                    </div>
+                </div>
+            </a>
+            
+            <!-- Music Card 3 -->
+            <a href="/music/3.html" class="music-card" data-video="https://www.youtube.com/watch?v=kJQP7kiw5Fk" data-category="pop">
+                <div class="music-thumbnail">
+                    <img src="/api/placeholder/300/300" alt="Despacito - Luis Fonsi" loading="lazy">
+                    <span class="duration">4:41</span>
+                    <div class="play-overlay"></div>
+                </div>
+                <div class="music-info">
+                    <h3>Despacito</h3>
+                    <p class="artist">Luis Fonsi ft. Daddy Yankee</p>
+                    <div class="music-stats">
+                        <span>8.1B views</span>
+                        <span class="genre-tag">Latin</span>
+                    </div>
+                </div>
+            </a>
+            
+            <!-- Music Card 4 -->
+            <a href="/music/4.html" class="music-card" data-video="https://www.youtube.com/watch?v=YQHsXMglC9A" data-category="pop">
+                <div class="music-thumbnail">
+                    <img src="/api/placeholder/300/300" alt="Hello - Adele" loading="lazy">
+                    <span class="duration">6:07</span>
+                    <div class="play-overlay"></div>
+                </div>
+                <div class="music-info">
+                    <h3>Hello</h3>
+                    <p class="artist">Adele</p>
+                    <div class="music-stats">
+                        <span>3.2B views</span>
+                        <span class="genre-tag">Soul</span>
+                    </div>
+                </div>
+            </a>
+            
+            <!-- Music Card 5 -->
+            <a href="/music/5.html" class="music-card" data-video="https://www.youtube.com/watch?v=RgKAFK5djSk" data-category="rock">
+                <div class="music-thumbnail">
+                    <img src="/api/placeholder/300/300" alt="Wrecking Ball - Miley Cyrus" loading="lazy">
+                    <span class="duration">3:41</span>
+                    <div class="play-overlay"></div>
+                </div>
+                <div class="music-info">
+                    <h3>Wrecking Ball</h3>
+                    <p class="artist">Miley Cyrus</p>
+                    <div class="music-stats">
+                        <span>1.1B views</span>
+                        <span class="genre-tag">Pop</span>
+                    </div>
+                </div>
+            </a>
+            
+            <!-- Music Card 6 -->
+            <a href="/music/6.html" class="music-card" data-video="https://www.youtube.com/watch?v=hT_nvWreIhg" data-category="rock">
+                <div class="music-thumbnail">
+                    <img src="/api/placeholder/300/300" alt="Someone Like You - Adele" loading="lazy">
+                    <span class="duration">4:45</span>
+                    <div class="play-overlay"></div>
+                </div>
+                <div class="music-info">
+                    <h3>Someone Like You</h3>
+                    <p class="artist">Adele</p>
+                    <div class="music-stats">
+                        <span>2.8B views</span>
+                        <span class="genre-tag">Ballad</span>
+                    </div>
+                </div>
+            </a>
+            
+            <!-- Music Card 7 -->
+            <a href="/music/7.html" class="music-card" data-video="https://www.youtube.com/watch?v=CevxZvSJLk8" data-category="electronic">
+                <div class="music-thumbnail">
+                    <img src="/api/placeholder/300/300" alt="Kryptonite - 3 Doors Down" loading="lazy">
+                    <span class="duration">3:53</span>
+                    <div class="play-overlay"></div>
+                </div>
+                <div class="music-info">
+                    <h3>Kryptonite</h3>
+                    <p class="artist">3 Doors Down</p>
+                    <div class="music-stats">
+                        <span>180M views</span>
+                        <span class="genre-tag">Rock</span>
+                    </div>
+                </div>
+            </a>
+            
+            <!-- Music Card 8 -->
+            <a href="/music/8.html" class="music-card" data-video="https://www.youtube.com/watch?v=dQw4w9WgXcQ" data-category="pop">
+                <div class="music-thumbnail">
+                    <img src="/api/placeholder/300/300" alt="Never Gonna Give You Up - Rick Astley" loading="lazy">
+                    <span class="duration">3:33</span>
+                    <div class="play-overlay"></div>
+                </div>
+                <div class="music-info">
+                    <h3>Never Gonna Give You Up</h3>
+                    <p class="artist">Rick Astley</p>
+                    <div class="music-stats">
+                        <span>1.4B views</span>
+                        <span class="genre-tag">Pop</span>
+                    </div>
+                </div>
+            </a>
+            
+            <!-- Music Card 9 -->
+            <a href="/music/9.html" class="music-card" data-video="https://www.youtube.com/watch?v=JGwWNGJdvx8" data-category="jazz">
+                <div class="music-thumbnail">
+                    <img src="/api/placeholder/300/300" alt="Fly Me to the Moon - Frank Sinatra" loading="lazy">
+                    <span class="duration">2:28</span>
+                    <div class="play-overlay"></div>
+                </div>
+                <div class="music-info">
+                    <h3>Fly Me to the Moon</h3>
+                    <p class="artist">Frank Sinatra</p>
+                    <div class="music-stats">
+                        <span>85M views</span>
+                        <span class="genre-tag">Jazz</span>
+                    </div>
+                </div>
+            </a>
+            
+            <!-- Music Card 10 -->
+            <a href="/music/10.html" class="music-card" data-video="https://www.youtube.com/watch?v=QH2-TGUlwu4" data-category="rock">
+                <div class="music-thumbnail">
+                    <img src="/api/placeholder/300/300" alt="Numb - Linkin Park" loading="lazy">
+                    <span class="duration">3:07</span>
+                    <div class="play-overlay"></div>
+                </div>
+                <div class="music-info">
+                    <h3>Numb</h3>
+                    <p class="artist">Linkin Park</p>
+                    <div class="music-stats">
+                        <span>2.1B views</span>
+                        <span class="genre-tag">Rock</span>
+                    </div>
+                </div>
+            </a>
+            
+            <!-- Music Card 11 -->
+            <a href="/music/11.html" class="music-card" data-video="https://www.youtube.com/watch?v=0KSOMA3QBU0" data-category="classical">
+                <div class="music-thumbnail">
+                    <img src="/api/placeholder/300/300" alt="Canon in D - Pachelbel" loading="lazy">
+                    <span class="duration">4:20</span>
+                    <div class="play-overlay"></div>
+                </div>
+                <div class="music-info">
+                    <h3>Canon in D</h3>
+                    <p class="artist">Johann Pachelbel</p>
+                    <div class="music-stats">
+                        <span>45M views</span>
+                        <span class="genre-tag">Classical</span>
+                    </div>
+                </div>
+            </a>
+            
+            <!-- Music Card 12 -->
+            <a href="/music/12.html" class="music-card" data-video="https://www.youtube.com/watch?v=pAgnJDJN4VA" data-category="electronic">
+                <div class="music-thumbnail">
+                    <img src="/api/placeholder/300/300" alt="Avicii - Wake Me Up" loading="lazy">
+                    <span class="duration">4:09</span>
+                    <div class="play-overlay"></div>
+                </div>
+                <div class="music-info">
+                    <h3>Wake Me Up</h3>
+                    <p class="artist">Avicii</p>
+                    <div class="music-stats">
+                        <span>2.2B views</span>
+                        <span class="genre-tag">EDM</span>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </main>
+    
+    <footer>
+        <div class="footer-content">
+            <div class="footer-links">
+                <a href="#">Tentang Kami</a>
+                <a href="#">Ketentuan Layanan</a>
+                <a href="#">Kebijakan Privasi</a>
+                <a href="#">Bantuan</a>
+                <a href="#">Kontak</a>
+            </div>
+            <p class="copyright">© 2025 VidTap Music. Semua hak dilindungi undang-undang.</p>
+        </div>
+    </footer>
+
+    <!-- Music Popup -->
+    <div class="music-popup-overlay" id="musicPopup">
+        <div class="music-popup">
+            <div class="popup-header">
+                <h3 class="popup-title"></h3>
+                <button class="popup-close">&times;</button>
+            </div>
+            <div class="popup-video-container">
+                <iframe id="popupIframe" width="100%" height="100%" frameborder="0" 
+                        allowfullscreen allow="accelerometer; autoplay; clipboard-write; 
+                        encrypted-media; gyroscope; picture-in-picture"></iframe>
+            </div>
+            <div class="popup-actions">
+                <button class="full-view-button">🎵 Buka Player Penuh</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ===== MUSIC PAGE SCRIPT =====
+        
+        // Theme toggle function
+        function initThemeToggle() {
+            const toggleSwitch = document.querySelector('#checkbox');
+            if (!toggleSwitch) return;
+            
+            function switchTheme(e) {
+                if (e.target.checked) {
+                    document.documentElement.classList.remove('dark-mode');
+                    document.documentElement.classList.add('light-mode');
+                    localStorage.setItem('theme', 'light');
+                } else {
+                    document.documentElement.classList.remove('light-mode');
+                    document.documentElement.classList.add('dark-mode');
+                    localStorage.setItem('theme', 'dark');
+                }
+            }
+            
+            toggleSwitch.addEventListener('change', switchTheme);
+            const currentTheme = localStorage.getItem('theme') || 'dark';
+            toggleSwitch.checked = (currentTheme === 'light');
+        }
+        
+        // Mobile menu toggle
+        function toggleMenu() {
+            const navLinks = document.querySelector('.nav-links');
+            const searchBar = document.querySelector('.search-bar');
+            navLinks.classList.toggle('active');
+            searchBar.classList.toggle('active');
+        }
+        
+        // Category filtering
+        function initCategoryFiltering() {
+            const categoryTabs = document.querySelectorAll('.category-tab');
+            const musicCards = document.querySelectorAll('.music-card');
+            
+            categoryTabs.forEach(tab => {
+                tab.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    // Remove active class from all tabs
+                    categoryTabs.forEach(t => t.classList.remove('active'));
+                    // Add active class to clicked tab
+                    this.classList.add('active');
+                    
+                    const selectedCategory = this.getAttribute('data-category');
+                    
+                    // Filter music cards
+                    musicCards.forEach(card => {
+                        const cardCategory = card.getAttribute('data-category');
+                        
+                        if (selectedCategory === 'all' || cardCategory === selectedCategory) {
+                            card.style.display = 'block';
+                            // Add animation
+                            card.style.opacity = '0';
+                            card.style.transform = 'translateY(20px)';
+                            setTimeout(() => {
+                                card.style.transition = 'all 0.3s ease';
+                                card.style.opacity = '1';
+                                card.style.transform = 'translateY(0)';
+                            }, 100);
+                        } else {
+                            card.style.display = 'none';
+                        }
+                    });
+                });
+            });
+        }
+        
+        // YouTube oEmbed for music cards
+        function initYouTubeMusicCards() {
+            const musicCards = document.querySelectorAll('.music-card');
+            
+            musicCards.forEach(card => {
+                const videoUrl = card.getAttribute('data-video');
+                if (!videoUrl) return;
+                
+                // Fetch oEmbed data
+                fetchMusicOEmbedData(card, videoUrl);
+                
+                // Load thumbnail image
+                const thumbnailImg = card.querySelector('.music-thumbnail img');
+                if (thumbnailImg) {
+                    thumbnailImg.onload = () => thumbnailImg.classList.add('loaded');
+                }
+            });
+        }
+        
+        function fetchMusicOEmbedData(card, videoUrl) {
+            const oEmbedUrl = `https://www.youtube.com/oembed?url=${encodeURIComponent(videoUrl)}&format=json`;
+            
+            fetch(oEmbedUrl)
+                .then(response => response.ok ? response.json() : Promise.reject('oEmbed failed'))
+                .then(data => {
+                    // Update title
+                    const titleElement = card.querySelector('.music-info h3');
+                    if (titleElement) titleElement.textContent = data.title;
+                    
+                    // Update artist (channel name)
+                    const artistElement = card.querySelector('.artist');
+                    if (artistElement) artistElement.textContent = data.author_name;
+                    
+                    // Update thumbnail
+                    const thumbnailElement = card.querySelector('.music-thumbnail img');
+                    if (thumbnailElement) {
+                        const videoId = getYoutubeVideoId(videoUrl);
+                        if (videoId) {
+                            // Use high quality thumbnail
+                            thumbnailElement.src = `https://i.ytimg.com/vi/${videoId}/maxresdefault.jpg`;
+                            thumbnailElement.onerror = function() {
+                                this.src = `https://i.ytimg.com/vi/${videoId}/mqdefault.jpg`;
+                            };
+                        }
+                    }
+                })
+                .catch(error => console.log('Music oEmbed error:', error));
+        }
+        
+        function getYoutubeVideoId(url) {
+            const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+            const match = url.match(regExp);
+            return (match && match[2].length === 11) ? match[2] : null;
+        }
+        
+        // Music popup functionality
+        function initMusicPopup() {
+            const popup = document.getElementById('musicPopup');
+            if (!popup) return;
+            
+            const popupIframe = document.getElementById('popupIframe');
+            const popupTitle = popup.querySelector('.popup-title');
+            const closeButton = popup.querySelector('.popup-close');
+            const fullViewButton = popup.querySelector('.full-view-button');
+            
+            function isMobileDevice() {
+                return window.innerWidth <= 768;
+            }
+            
+            function openMusicPopup(videoUrl, title, fullViewUrl) {
+                if (isMobileDevice()) {
+                    window.location.href = fullViewUrl;
+                    return;
+                }
+                
+                const videoId = getYoutubeVideoId(videoUrl);
+                if (videoId) {
+                    popupIframe.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0`;
+                    popupTitle.textContent = title;
+                    popup.style.display = 'block';
+                    document.body.style.overflow = 'hidden';
+                    
+                    fullViewButton.onclick = () => window.location.href = fullViewUrl;
+                }
+            }
+            
+            function closeMusicPopup() {
+                popup.style.display = 'none';
+                popupIframe.src = '';
+                document.body.style.overflow = 'auto';
+            }
+            
+            // Event listeners
+            closeButton.addEventListener('click', closeMusicPopup);
+            popup.addEventListener('click', (e) => e.target === popup && closeMusicPopup());
+            document.addEventListener('keydown', (e) => e.key === 'Escape' && closeMusicPopup());
+            
+            // Add click events to music cards
+            const musicCards = document.querySelectorAll('.music-card');
+            musicCards.forEach(card => {
+                card.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const videoUrl = this.getAttribute('data-video');
+                    const musicTitle = this.querySelector('.music-info h3').textContent;
+                    const artist = this.querySelector('.artist').textContent;
+                    const fullTitle = `${musicTitle} - ${artist}`;
+                    const fullViewUrl = this.href || '/';
+                    openMusicPopup(videoUrl, fullTitle, fullViewUrl);
+                });
+            });
+        }
+        
+        // Search functionality
+        function initSearch() {
+            const searchInput = document.querySelector('.search-bar input');
+            const musicCards = document.querySelectorAll('.music-card');
+            
+            if (!searchInput) return;
+            
+            searchInput.addEventListener('input', function() {
+                const searchTerm = this.value.toLowerCase();
+                
+                musicCards.forEach(card => {
+                    const title = card.querySelector('.music-info h3').textContent.toLowerCase();
+                    const artist = card.querySelector('.artist').textContent.toLowerCase();
+                    
+                    if (title.includes(searchTerm) || artist.includes(searchTerm)) {
+                        card.style.display = 'block';
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+                
+                // Reset category filter when searching
+                if (searchTerm) {
+                    document.querySelectorAll('.category-tab').forEach(tab => {
+                        tab.classList.remove('active');
+                    });
+                    document.querySelector('.category-tab[data-category="all"]').classList.add('active');
+                }
+            });
+        }
+        
+        // Intersection Observer for lazy loading and animations
+        function initIntersectionObserver() {
+            const musicCards = document.querySelectorAll('.music-card');
+            
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.opacity = '1';
+                        entry.target.style.transform = 'translateY(0)';
+                    }
+                });
+            }, {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            });
+            
+            musicCards.forEach(card => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(30px)';
+                card.style.transition = 'all 0.6s ease';
+                observer.observe(card);
+            });
+        }
+        
+        // Initialize everything
+        document.addEventListener('DOMContentLoaded', function() {
+            initThemeToggle();
+            initMusicPopup();
+            initYouTubeMusicCards();
+            initCategoryFiltering();
+            initSearch();
+            initIntersectionObserver();
+            
+            console.log('🎵 VidTap Music loaded successfully');
+        });
+        
+        // Add some music-specific enhancements
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add music note animation to play buttons
+            const playOverlays = document.querySelectorAll('.play-overlay');
+            playOverlays.forEach(overlay => {
+                overlay.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translate(-50%, -50%) scale(1.2) rotate(10deg)';
+                });
+                
+                overlay.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translate(-50%, -50%) scale(1.1) rotate(0deg)';
+                });
+            });
+            
+            // Add ripple effect to music cards
+            const musicCards = document.querySelectorAll('.music-card');
+            musicCards.forEach(card => {
+                card.addEventListener('click', function(e) {
+                    const ripple = document.createElement('div');
+                    ripple.style.position = 'absolute';
+                    ripple.style.borderRadius = '50%';
+                    ripple.style.background = 'rgba(29, 185, 84, 0.6)';
+                    ripple.style.transform = 'scale(0)';
+                    ripple.style.animation = 'ripple 0.6s linear';
+                    ripple.style.left = (e.clientX - card.offsetLeft) + 'px';
+                    ripple.style.top = (e.clientY - card.offsetTop) + 'px';
+                    
+                    card.style.position = 'relative';
+                    card.appendChild(ripple);
+                    
+                    setTimeout(() => {
+                        ripple.remove();
+                    }, 600);
+                });
+            });
+            
+            // Add CSS for ripple animation
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes ripple {
+                    to {
+                        transform: scale(4);
+                        opacity: 0;
+                    }
+                }
+            `;
+            document.head.appendChild(style);
+        });
+    </script>
+</body>
+</html>

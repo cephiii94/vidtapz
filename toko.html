@@ -1,0 +1,3591 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AlfaAat - Sistem Manajemen Toko Retail</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsbarcode/3.11.5/JsBarcode.all.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #2563eb;
+            --secondary-color: #1e40af;
+            --accent-color: #3b82f6;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8fafc;
+            --text-primary: #1f2937;
+            --text-secondary: #6b7280;
+            --border-color: #e5e7eb;
+            --shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        [data-theme="dark"] {
+            --bg-primary: #1f2937;
+            --bg-secondary: #111827;
+            --text-primary: #f9fafb;
+            --text-secondary: #d1d5db;
+            --border-color: #374151;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-secondary);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        .app-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: 280px;
+            background: var(--bg-primary);
+            border-right: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            z-index: 1000;
+        }
+
+        .sidebar.collapsed {
+            width: 70px;
+        }
+
+        .sidebar-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        .sidebar-toggle {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 0.375rem;
+            color: var(--text-secondary);
+        }
+
+        .sidebar-toggle:hover {
+            background: var(--bg-secondary);
+        }
+
+        .sidebar-nav {
+            padding: 1rem 0;
+        }
+
+        .nav-item {
+            margin: 0.25rem 0;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1.5rem;
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            background: var(--accent-color);
+            color: white;
+        }
+
+        .nav-icon {
+            width: 20px;
+            height: 20px;
+            margin-right: 0.75rem;
+            flex-shrink: 0;
+        }
+
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+            transition: margin-left 0.3s ease;
+        }
+
+        .main-content.expanded {
+            margin-left: 70px;
+        }
+
+        .header {
+            background: var(--bg-primary);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: between;
+            align-items: center;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-left: auto;
+        }
+
+        .theme-toggle {
+            background: none;
+            border: 1px solid var(--border-color);
+            padding: 0.5rem;
+            border-radius: 0.375rem;
+            cursor: pointer;
+            color: var(--text-primary);
+        }
+
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: var(--bg-secondary);
+            border-radius: 0.5rem;
+            cursor: pointer;
+        }
+
+        .content {
+            padding: 2rem;
+        }
+
+        .page {
+            display: none;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        .login-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+        }
+
+        .login-card {
+            background: var(--bg-primary);
+            padding: 2rem;
+            border-radius: 1rem;
+            box-shadow: var(--shadow-lg);
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .login-header h1 {
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--secondary-color);
+        }
+
+        .btn-secondary {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-success {
+            background: var(--success-color);
+            color: white;
+        }
+
+        .btn-warning {
+            background: var(--warning-color);
+            color: white;
+        }
+
+        .btn-danger {
+            background: var(--danger-color);
+            color: white;
+        }
+
+        .btn-full {
+            width: 100%;
+        }
+
+        .card {
+            background: var(--bg-primary);
+            border-radius: 0.75rem;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        .card-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .card-body {
+            padding: 1.5rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+            color: white;
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 100px;
+            height: 100px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            transform: translate(30px, -30px);
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            opacity: 0.9;
+        }
+
+        .table-container {
+            background: var(--bg-primary);
+            border-radius: 0.75rem;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+        }
+
+        .table-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .table-actions {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .search-box {
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-width: 250px;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .data-table th {
+            background: var(--bg-secondary);
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+        }
+
+        .data-table tr:hover {
+            background: var(--bg-secondary);
+        }
+
+        .badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .badge-success {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success-color);
+        }
+
+        .badge-warning {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--warning-color);
+        }
+
+        .badge-danger {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger-color);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+        }
+
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: var(--bg-primary);
+            border-radius: 1rem;
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-body {
+            padding: 1.5rem;
+        }
+
+        .modal-footer {
+            padding: 1.5rem;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-secondary);
+        }
+
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 1rem 1.5rem;
+            border-radius: 0.5rem;
+            color: white;
+            z-index: 3000;
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+        }
+
+        .toast.show {
+            transform: translateX(0);
+        }
+
+        .toast-success {
+            background: var(--success-color);
+        }
+
+        .toast-error {
+            background: var(--danger-color);
+        }
+
+        .toast-warning {
+            background: var(--warning-color);
+        }
+
+        .scanner-container {
+            text-align: center;
+            padding: 2rem;
+            border: 2px dashed var(--border-color);
+            border-radius: 1rem;
+            margin: 1rem 0;
+        }
+
+        .scanner-result {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: var(--bg-secondary);
+            border-radius: 0.5rem;
+            display: none;
+        }
+
+        .product-image {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 0.5rem;
+        }
+
+        .barcode-display {
+            text-align: center;
+            margin: 1rem 0;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 400px;
+            margin: 1rem 0;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .pagination button {
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--border-color);
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            border-radius: 0.375rem;
+            cursor: pointer;
+        }
+
+        .pagination button:hover,
+        .pagination button.active {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .grid {
+            display: grid;
+            gap: 1.5rem;
+        }
+
+        .grid-2 {
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        }
+
+        .grid-3 {
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        }
+
+        .grid-4 {
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+
+            .sidebar.mobile-open {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+            .header {
+                padding: 1rem;
+            }
+
+            .content {
+                padding: 1rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .table-header {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .search-box {
+                min-width: auto;
+            }
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 0.5rem;
+        }
+
+        .status-online {
+            background: var(--success-color);
+        }
+
+        .status-offline {
+            background: var(--danger-color);
+        }
+
+        .status-away {
+            background: var(--warning-color);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .file-upload {
+            position: relative;
+            display: inline-block;
+            cursor: pointer;
+            padding: 0.75rem 1.5rem;
+            background: var(--bg-secondary);
+            border: 2px dashed var(--border-color);
+            border-radius: 0.5rem;
+            text-align: center;
+            transition: all 0.2s ease;
+        }
+
+        .file-upload:hover {
+            border-color: var(--primary-color);
+            background: rgba(37, 99, 235, 0.05);
+        }
+
+        .file-upload input {
+            position: absolute;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+
+        .calendar-container {
+            background: var(--bg-primary);
+            border-radius: 0.75rem;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+        }
+
+        .calendar-header {
+            padding: 1rem;
+            background: var(--primary-color);
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+        }
+
+        .calendar-day {
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            min-height: 80px;
+            position: relative;
+        }
+
+        .calendar-day.today {
+            background: rgba(37, 99, 235, 0.1);
+        }
+
+        .calendar-day.other-month {
+            color: var(--text-secondary);
+            background: var(--bg-secondary);
+        }
+
+        .shift-indicator {
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--success-color);
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Page -->
+    <div id="loginPage" class="login-container">
+        <div class="login-card">
+            <div class="login-header">
+                <h1>AlfaAat</h1>
+                <p>Sistem Manajemen Toko Retail</p>
+            </div>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label class="form-label">Username</label>
+                    <input type="text" id="username" class="form-input" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Password</label>
+                    <input type="password" id="password" class="form-input" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Level Akses</label>
+                    <select id="userRole" class="form-input">
+                        <option value="admin">Admin</option>
+                        <option value="manager">Manager</option>
+                        <option value="kasir">Kasir</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary btn-full">
+                    <span id="loginLoading" class="loading" style="display: none;"></span>
+                    Masuk
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Main Application -->
+    <div id="mainApp" class="app-container" style="display: none;">
+        <!-- Sidebar -->
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">AlfaAat</div>
+                <button class="sidebar-toggle" onclick="toggleSidebar()">☰</button>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-item">
+                    <a class="nav-link active" onclick="showPage('dashboard')">
+                        <span class="nav-icon">📊</span>
+                        <span class="nav-text">Dashboard</span>
+                    </a>
+                </div>
+                <div class="nav-item">
+                    <a class="nav-link" onclick="showPage('database')">
+                        <span class="nav-icon">🗃️</span>
+                        <span class="nav-text">Database</span>
+                    </a>
+                </div>
+                <div class="nav-item">
+                    <a class="nav-link" onclick="showPage('catalog')">
+                        <span class="nav-icon">📦</span>
+                        <span class="nav-text">Katalog Produk</span>
+                    </a>
+                </div>
+                <div class="nav-item">
+                    <a class="nav-link" onclick="showPage('inventory')">
+                        <span class="nav-icon">📋</span>
+                        <span class="nav-text">Manajemen Inventaris</span>
+                    </a>
+                </div>
+                <div class="nav-item">
+                    <a class="nav-link" onclick="showPage('schedule')">
+                        <span class="nav-icon">📅</span>
+                        <span class="nav-text">Jadwal Shift</span>
+                    </a>
+                </div>
+                <div class="nav-item">
+                    <a class="nav-link" onclick="showPage('employees')">
+                        <span class="nav-icon">👥</span>
+                        <span class="nav-text">Data Karyawan</span>
+                    </a>
+                </div>
+                <div class="nav-item">
+                    <a class="nav-link" onclick="showPage('barcode')">
+                        <span class="nav-icon">📋</span>
+                        <span class="nav-text">Generate Barcode</span>
+                    </a>
+                </div>
+                <div class="nav-item">
+                    <a class="nav-link" onclick="showPage('scanner')">
+                        <span class="nav-icon">📷</span>
+                        <span class="nav-text">Scan Produk</span>
+                    </a>
+                </div>
+                <div class="nav-item">
+                    <a class="nav-link" onclick="showPage('reports')">
+                        <span class="nav-icon">📈</span>
+                        <span class="nav-text">Rekap Penjualan</span>
+                    </a>
+                </div>
+            </nav>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content" id="mainContent">
+            <!-- Header -->
+            <div class="header">
+                <div class="header-left">
+                    <button class="sidebar-toggle mobile-only" onclick="toggleMobileSidebar()">☰</button>
+                    <h2 id="pageTitle">Dashboard</h2>
+                </div>
+                <div class="header-right">
+                    <button class="theme-toggle" onclick="toggleTheme()">🌙</button>
+                    <div class="user-menu" onclick="showUserMenu()">
+                        <span class="status-dot status-online"></span>
+                        <span id="currentUser">Admin</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Content Area -->
+            <div class="content">
+                <!-- Dashboard Page -->
+                <div id="dashboard" class="page active">
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-value" id="totalSales">Rp 0</div>
+                            <div class="stat-label">Total Penjualan Hari Ini</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="totalProducts">0</div>
+                            <div class="stat-label">Total Produk</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="lowStockCount">0</div>
+                            <div class="stat-label">Stok Hampir Habis</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="profitMargin">0%</div>
+                            <div class="stat-label">Margin Keuntungan</div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-2">
+                        <div class="card">
+                            <div class="card-header">
+                                <h3>Grafik Penjualan</h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="chart-container">
+                                    <canvas id="salesChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-header">
+                                <h3>Produk Terlaris</h3>
+                            </div>
+                            <div class="card-body">
+                                <div id="topProducts">
+                                    <!-- Top products will be loaded here -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Notifikasi Stok</h3>
+                        </div>
+                        <div class="card-body">
+                            <div id="stockNotifications">
+                                <!-- Stock notifications will be loaded here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Database Page -->
+                <div id="database" class="page">
+                    <div class="table-container">
+                        <div class="table-header">
+                            <h3>Database Produk & Pelanggan</h3>
+                            <div class="table-actions">
+                                <input type="text" class="search-box" id="dbSearch" placeholder="Cari produk atau pelanggan...">
+                                <button class="btn btn-success" onclick="showAddModal()">+ Tambah</button>
+                                <button class="btn btn-secondary" onclick="importData()">Import</button>
+                                <button class="btn btn-secondary" onclick="exportData()">Export</button>
+                            </div>
+                        </div>
+                        <div style="overflow-x: auto;">
+                            <table class="data-table" id="dataTable">
+                                <thead>
+                                    <tr>
+                                        <th><input type="checkbox" id="selectAll"></th>
+                                        <th>Kode</th>
+                                        <th>Nama</th>
+                                        <th>Kategori</th>
+                                        <th>Harga</th>
+                                        <th>Stok</th>
+                                        <th>Status</th>
+                                        <th>Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="dataTableBody">
+                                    <!-- Data will be loaded here -->
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="pagination" id="pagination">
+                            <!-- Pagination will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Catalog Page -->
+                <div id="catalog" class="page">
+                    <div class="grid grid-3">
+                        <div class="card">
+                            <div class="card-header">
+                                <h3>Kategori Produk</h3>
+                            </div>
+                            <div class="card-body">
+                                <div id="categoryList">
+                                    <!-- Categories will be loaded here -->
+                                </div>
+                                <button class="btn btn-primary" onclick="addCategory()">+ Tambah Kategori</button>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-header">
+                                <h3>Jadwal Diskon</h3>
+                            </div>
+                            <div class="card-body">
+                                <div id="discountSchedule">
+                                    <!-- Discount schedule will be loaded here -->
+                                </div>
+                                <button class="btn btn-warning" onclick="scheduleDiscount()">Atur Diskon</button>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-header">
+                                <h3>Kode Produk</h3>
+                            </div>
+                            <div class="card-body">
+                                <div id="productCodes">
+                                    <!-- Product codes will be loaded here -->
+                                </div>
+                                <button class="btn btn-secondary" onclick="generateProductCode()">Generate Kode</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Inventory Page -->
+                <div id="inventory" class="page">
+                    <div class="grid grid-2">
+                        <div class="card">
+                            <div class="card-header">
+                                <h3>Manajemen Stok</h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-container">
+                                    <div style="overflow-x: auto;">
+                                        <table class="data-table">
+                                            <thead>
+                                                <tr>
+                                                    <th>Produk</th>
+                                                    <th>Stok Saat Ini</th>
+                                                    <th>Minimum Stok</th>
+                                                    <th>Status</th>
+                                                    <th>Aksi</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="inventoryTableBody">
+                                                <!-- Inventory data will be loaded here -->
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-header">
+                                <h3>Riwayat Perubahan Stok</h3>
+                            </div>
+                            <div class="card-body">
+                                <div id="stockHistory">
+                                    <!-- Stock history will be loaded here -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Produk Perlu Reorder</h3>
+                        </div>
+                        <div class="card-body">
+                            <div id="reorderList">
+                                <!-- Reorder list will be loaded here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Schedule Page -->
+                <div id="schedule" class="page">
+                    <div class="calendar-container">
+                        <div class="calendar-header">
+                            <button class="btn btn-secondary" onclick="previousMonth()">❮</button>
+                            <h3 id="calendarMonth">November 2024</h3>
+                            <button class="btn btn-secondary" onclick="nextMonth()">❯</button>
+                        </div>
+                        <div class="calendar-grid" id="calendarGrid">
+                            <!-- Calendar will be loaded here -->
+                        </div>
+                    </div>
+
+                    <div class="card" style="margin-top: 1.5rem;">
+                        <div class="card-header">
+                            <h3>Jadwal Shift Karyawan</h3>
+                            <button class="btn btn-primary" onclick="addShift()">+ Tambah Shift</button>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-container">
+                                <div style="overflow-x: auto;">
+                                    <table class="data-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Karyawan</th>
+                                                <th>Tanggal</th>
+                                                <th>Shift</th>
+                                                <th>Jam Masuk</th>
+                                                <th>Jam Pulang</th>
+                                                <th>Status</th>
+                                                <th>Aksi</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="shiftTableBody">
+                                            <!-- Shift data will be loaded here -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Employees Page -->
+                <div id="employees" class="page">
+                    <div class="table-container">
+                        <div class="table-header">
+                            <h3>Data Karyawan</h3>
+                            <div class="table-actions">
+                                <input type="text" class="search-box" id="employeeSearch" placeholder="Cari karyawan...">
+                                <button class="btn btn-success" onclick="addEmployee()">+ Tambah Karyawan</button>
+                            </div>
+                        </div>
+                        <div style="overflow-x: auto;">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Nama</th>
+                                        <th>Posisi</th>
+                                        <th>Email</th>
+                                        <th>Telepon</th>
+                                        <th>Status</th>
+                                        <th>Gaji</th>
+                                        <th>Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="employeeTableBody">
+                                    <!-- Employee data will be loaded here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Barcode Page -->
+                <div id="barcode" class="page">
+                    <div class="grid grid-2">
+                        <div class="card">
+                            <div class="card-header">
+                                <h3>Generate Barcode</h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="form-group">
+                                    <label class="form-label">Pilih Produk</label>
+                                    <select class="form-input" id="barcodeProduct" onchange="updateBarcodePreview()">
+                                        <option value="">Pilih produk...</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Jumlah Barcode</label>
+                                    <input type="number" class="form-input" id="barcodeQuantity" value="1" min="1">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Format Barcode</label>
+                                    <select class="form-input" id="barcodeFormat">
+                                        <option value="CODE128">CODE128</option>
+                                        <option value="EAN13">EAN13</option>
+                                        <option value="CODE39">CODE39</option>
+                                    </select>
+                                </div>
+                                <div class="table-actions">
+                                    <button class="btn btn-primary" onclick="generateBarcode()">Generate</button>
+                                    <button class="btn btn-secondary" onclick="printBarcode()">Cetak</button>
+                                    <button class="btn btn-secondary" onclick="exportBarcodePDF()">PDF</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-header">
+                                <h3>Preview Barcode</h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="barcode-display" id="barcodePreview">
+                                    <p>Pilih produk untuk melihat preview barcode</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Batch Generate</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-group">
+                                <input type="checkbox" id="selectAllProducts">
+                                <label for="selectAllProducts">Pilih Semua Produk</label>
+                            </div>
+                            <div id="productCheckboxes">
+                                <!-- Product checkboxes will be loaded here -->
+                            </div>
+                            <button class="btn btn-primary" onclick="batchGenerateBarcode()">Generate Batch</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Scanner Page -->
+                <div id="scanner" class="page">
+                    <div class="grid grid-2">
+                        <div class="card">
+                            <div class="card-header">
+                                <h3>Scanner Produk</h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="scanner-container">
+                                    <div id="scannerArea">
+                                        <p>📷 Klik untuk mengaktifkan scanner</p>
+                                        <p>atau masukkan kode produk secara manual</p>
+                                    </div>
+                                    <div class="form-group" style="margin-top: 1rem;">
+                                        <input type="text" class="form-input" id="manualScanInput" placeholder="Masukkan kode produk...">
+                                        <button class="btn btn-primary" onclick="manualScan()" style="margin-top: 0.5rem;">Cari</button>
+                                    </div>
+                                </div>
+                                <div class="scanner-result" id="scannerResult">
+                                    <!-- Scan result will be displayed here -->
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-header">
+                                <h3>Detail Produk</h3>
+                            </div>
+                            <div class="card-body">
+                                <div id="productDetail">
+                                    <p>Scan produk untuk melihat detail</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Update Status Produk</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">Status Produk</label>
+                                    <select class="form-input" id="productStatus">
+                                        <option value="tersedia">Tersedia</option>
+                                        <option value="hampir_habis">Hampir Habis</option>
+                                        <option value="tidak_tersedia">Tidak Tersedia</option>
+                                        <option value="rusak">Rusak</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Catatan</label>
+                                    <input type="text" class="form-input" id="statusNotes" placeholder="Catatan tambahan...">
+                                </div>
+                            </div>
+                            <button class="btn btn-success" onclick="updateProductStatus()">Update Status</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Reports Page -->
+                <div id="reports" class="page">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Filter Laporan</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">Jenis Rekap</label>
+                                    <select class="form-input" id="reportType" onchange="updateReportData()">
+                                        <option value="harian">Harian</option>
+                                        <option value="mingguan">Mingguan</option>
+                                        <option value="bulanan">Bulanan</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Tanggal Mulai</label>
+                                    <input type="date" class="form-input" id="startDate" onchange="updateReportData()">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Tanggal Selesai</label>
+                                    <input type="date" class="form-input" id="endDate" onchange="updateReportData()">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Pencarian</label>
+                                    <input type="text" class="form-input" id="reportSearch" placeholder="Cari produk...">
+                                </div>
+                            </div>
+                            <div class="table-actions">
+                                <button class="btn btn-primary" onclick="generateReport()">Generate</button>
+                                <button class="btn btn-success" onclick="exportReportExcel()">Export Excel</button>
+                                <button class="btn btn-secondary" onclick="exportReportPDF()">Export PDF</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Rekap Penjualan</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-container">
+                                <div style="overflow-x: auto;">
+                                    <table class="data-table" id="reportTable">
+                                        <thead id="reportTableHead">
+                                            <tr>
+                                                <th>No</th>
+                                                <th>Kode Produk</th>
+                                                <th>Nama Produk</th>
+                                                <th>Stok</th>
+                                                <th>Terjual</th>
+                                                <th>Retur</th>
+                                                <th>Total</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="reportTableBody">
+                                            <!-- Report data will be loaded here -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-2">
+                        <div class="card">
+                            <div class="card-header">
+                                <h3>Grafik Penjualan</h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="chart-container">
+                                    <canvas id="reportChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-header">
+                                <h3>Ringkasan</h3>
+                            </div>
+                            <div class="card-body">
+                                <div id="reportSummary">
+                                    <!-- Report summary will be loaded here -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <!-- Add/Edit Product Modal -->
+    <div id="productModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="productModalTitle">Tambah Produk</h3>
+                <button class="close-btn" onclick="closeModal('productModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="productForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Kode Produk</label>
+                            <input type="text" class="form-input" id="productCode" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Nama Produk</label>
+                            <input type="text" class="form-input" id="productName" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Kategori</label>
+                            <select class="form-input" id="productCategory" required>
+                                <option value="">Pilih kategori...</option>
+                                <option value="pakaian">Pakaian</option>
+                                <option value="elektronik">Elektronik</option>
+                                <option value="makanan">Makanan</option>
+                                <option value="aksesoris">Aksesoris</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Harga</label>
+                            <input type="number" class="form-input" id="productPrice" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Stok</label>
+                            <input type="number" class="form-input" id="productStock" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Minimum Stok</label>
+                            <input type="number" class="form-input" id="productMinStock" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Deskripsi</label>
+                        <textarea class="form-input" id="productDescription" rows="3"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Foto Produk</label>
+                        <div class="file-upload">
+                            <input type="file" id="productImage" accept="image/*" multiple>
+                            <span>Klik untuk upload foto</span>
+                        </div>
+                        <div id="imagePreview"></div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('productModal')">Batal</button>
+                <button class="btn btn-primary" onclick="saveProduct()">Simpan</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Employee Modal -->
+    <div id="employeeModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="employeeModalTitle">Tambah Karyawan</h3>
+                <button class="close-btn" onclick="closeModal('employeeModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="employeeForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">ID Karyawan</label>
+                            <input type="text" class="form-input" id="employeeId" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Nama Lengkap</label>
+                            <input type="text" class="form-input" id="employeeName" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Posisi</label>
+                            <select class="form-input" id="employeePosition" required>
+                                <option value="">Pilih posisi...</option>
+                                <option value="kasir">Kasir</option>
+                                <option value="admin">Admin</option>
+                                <option value="manager">Manager</option>
+                                <option value="supervisor">Supervisor</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Email</label>
+                            <input type="email" class="form-input" id="employeeEmail" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Telepon</label>
+                            <input type="tel" class="form-input" id="employeePhone" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Gaji</label>
+                            <input type="number" class="form-input" id="employeeSalary" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Alamat</label>
+                        <textarea class="form-input" id="employeeAddress" rows="3"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('employeeModal')">Batal</button>
+                <button class="btn btn-primary" onclick="saveEmployee()">Simpan</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Shift Modal -->
+    <div id="shiftModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Atur Jadwal Shift</h3>
+                <button class="close-btn" onclick="closeModal('shiftModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="shiftForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Karyawan</label>
+                            <select class="form-input" id="shiftEmployee" required>
+                                <option value="">Pilih karyawan...</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Tanggal</label>
+                            <input type="date" class="form-input" id="shiftDate" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Shift</label>
+                            <select class="form-input" id="shiftType" required>
+                                <option value="">Pilih shift...</option>
+                                <option value="pagi">Pagi (08:00 - 16:00)</option>
+                                <option value="siang">Siang (16:00 - 24:00)</option>
+                                <option value="malam">Malam (24:00 - 08:00)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Status</label>
+                            <select class="form-input" id="shiftStatus">
+                                <option value="scheduled">Dijadwalkan</option>
+                                <option value="completed">Selesai</option>
+                                <option value="absent">Tidak Masuk</option>
+                            </select>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('shiftModal')">Batal</button>
+                <button class="btn btn-primary" onclick="saveShift()">Simpan</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast">
+        <span id="toastMessage"></span>
+    </div>
+
+    <script>
+        // Global Variables
+        let currentUser = null;
+        let currentPage = 'dashboard';
+        let products = [];
+        let employees = [];
+        let shifts = [];
+        let currentTheme = 'light';
+        let currentDate = new Date();
+        let salesChart = null;
+        let reportChart = null;
+
+        // Application Initialization
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM loaded, initializing app...'); // Debug log
+            initializeApp();
+        });
+
+        function initializeApp() {
+            console.log('Initializing app...'); // Debug log
+            
+            // Load saved theme
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            currentTheme = savedTheme;
+
+            // Load sample data
+            loadSampleData();
+            
+            // Initialize event listeners
+            initializeEventListeners();
+            
+            // Check if user is logged in
+            const savedUser = localStorage.getItem('currentUser');
+            if (savedUser) {
+                try {
+                    currentUser = JSON.parse(savedUser);
+                    console.log('Found saved user:', currentUser); // Debug log
+                    showMainApp();
+                } catch (e) {
+                    console.log('Error parsing saved user, clearing storage'); // Debug log
+                    localStorage.removeItem('currentUser');
+                }
+            } else {
+                console.log('No saved user found, showing login'); // Debug log
+            }
+        }
+
+        function initializeEventListeners() {
+            console.log('Setting up event listeners...'); // Debug log
+            
+            // Login form
+            const loginForm = document.getElementById('loginForm');
+            if (loginForm) {
+                loginForm.addEventListener('submit', handleLogin);
+                console.log('Login form listener added'); // Debug log
+            } else {
+                console.error('Login form not found!'); // Debug log
+            }
+            
+            // Search functionality
+            const dbSearch = document.getElementById('dbSearch');
+            if (dbSearch) {
+                dbSearch.addEventListener('input', searchDatabase);
+            }
+            
+            const employeeSearch = document.getElementById('employeeSearch');
+            if (employeeSearch) {
+                employeeSearch.addEventListener('input', searchEmployees);
+            }
+            
+            const reportSearch = document.getElementById('reportSearch');
+            if (reportSearch) {
+                reportSearch.addEventListener('input', searchReports);
+            }
+            
+            const manualScanInput = document.getElementById('manualScanInput');
+            if (manualScanInput) {
+                manualScanInput.addEventListener('input', handleManualScan);
+            }
+            
+            // File upload
+            const productImageInput = document.getElementById('productImage');
+            if (productImageInput) {
+                productImageInput.addEventListener('change', handleImageUpload);
+            }
+            
+            // Select all functionality
+            const selectAllCheckbox = document.getElementById('selectAll');
+            if (selectAllCheckbox) {
+                selectAllCheckbox.addEventListener('change', toggleSelectAll);
+            }
+            
+            const selectAllProductsCheckbox = document.getElementById('selectAllProducts');
+            if (selectAllProductsCheckbox) {
+                selectAllProductsCheckbox.addEventListener('change', toggleSelectAllProducts);
+            }
+            
+            console.log('Event listeners setup complete'); // Debug log
+        }
+
+        // Authentication Functions
+        function handleLogin(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value.trim();
+            const role = document.getElementById('userRole').value;
+            
+            console.log('Login attempt:', { username, password, role }); // Debug log
+            
+            // Show loading
+            const loadingElement = document.getElementById('loginLoading');
+            if (loadingElement) {
+                loadingElement.style.display = 'inline-block';
+            }
+            
+            // Simple validation - accept any non-empty username and password
+            setTimeout(() => {
+                if (username.length > 0 && password.length > 0) {
+                    currentUser = {
+                        username: username,
+                        role: role,
+                        loginTime: new Date().toISOString()
+                    };
+                    
+                    localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                    console.log('User logged in:', currentUser); // Debug log
+                    
+                    showMainApp();
+                    showToast('Login berhasil! Selamat datang ' + username, 'success');
+                } else {
+                    showToast('Username dan password wajib diisi!', 'error');
+                    console.log('Login failed: empty fields'); // Debug log
+                }
+                
+                if (loadingElement) {
+                    loadingElement.style.display = 'none';
+                }
+            }, 500); // Reduced timeout for faster response
+        }
+
+        function showMainApp() {
+            console.log('Showing main app for user:', currentUser); // Debug log
+            
+            // Hide login page
+            const loginPage = document.getElementById('loginPage');
+            if (loginPage) {
+                loginPage.style.display = 'none';
+            }
+            
+            // Show main app
+            const mainApp = document.getElementById('mainApp');
+            if (mainApp) {
+                mainApp.style.display = 'flex';
+            }
+            
+            // Update current user display
+            const currentUserElement = document.getElementById('currentUser');
+            if (currentUserElement && currentUser) {
+                currentUserElement.textContent = currentUser.username + ' (' + currentUser.role + ')';
+            }
+            
+            // Load dashboard data
+            loadDashboardData();
+            updateDashboardStats();
+            
+            console.log('Main app displayed successfully'); // Debug log
+        }
+
+        function logout() {
+            localStorage.removeItem('currentUser');
+            currentUser = null;
+            document.getElementById('loginPage').style.display = 'flex';
+            document.getElementById('mainApp').style.display = 'none';
+            
+            // Clear forms
+            document.getElementById('loginForm').reset();
+        }
+
+        // Navigation Functions
+        function showPage(pageId) {
+            // Hide all pages
+            document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
+            
+            // Show selected page
+            document.getElementById(pageId).classList.add('active');
+            
+            // Update navigation
+            document.querySelectorAll('.nav-link').forEach(link => link.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // Update page title
+            const titles = {
+                'dashboard': 'Dashboard',
+                'database': 'Database',
+                'catalog': 'Katalog Produk',
+                'inventory': 'Manajemen Inventaris',
+                'schedule': 'Jadwal Shift',
+                'employees': 'Data Karyawan',
+                'barcode': 'Generate Barcode',
+                'scanner': 'Scan Produk',
+                'reports': 'Rekap Penjualan'
+            };
+            document.getElementById('pageTitle').textContent = titles[pageId] || pageId;
+            
+            currentPage = pageId;
+            
+            // Load page-specific data
+            loadPageData(pageId);
+        }
+
+        function loadPageData(pageId) {
+            switch(pageId) {
+                case 'dashboard':
+                    loadDashboardData();
+                    break;
+                case 'database':
+                    loadDatabaseData();
+                    break;
+                case 'catalog':
+                    loadCatalogData();
+                    break;
+                case 'inventory':
+                    loadInventoryData();
+                    break;
+                case 'schedule':
+                    loadScheduleData();
+                    break;
+                case 'employees':
+                    loadEmployeeData();
+                    break;
+                case 'barcode':
+                    loadBarcodeData();
+                    break;
+                case 'scanner':
+                    initializeScanner();
+                    break;
+                case 'reports':
+                    loadReportData();
+                    break;
+            }
+        }
+
+        // Sample Data Loading
+        function loadSampleData() {
+            // Sample products
+            products = [
+                {
+                    id: 1,
+                    code: 'P001',
+                    name: 'Kemeja Putih',
+                    category: 'pakaian',
+                    price: 150000,
+                    stock: 45,
+                    minStock: 5,
+                    description: 'Kemeja putih berkualitas tinggi',
+                    image: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iIzMzNiIvPjx0ZXh0IHg9IjUwIiB5PSI1NSIgZm9udC1zaXplPSIxNiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iI2ZmZiI+Q2VsYW5hPC90ZXh0Pjwvc3ZnPg==',
+                    barcode: '1234567890124',
+                    status: 'tersedia'
+                },
+                {
+                    id: 3,
+                    code: 'P003',
+                    name: 'Smartphone Android',
+                    category: 'elektronik',
+                    price: 3500000,
+                    stock: 12,
+                    minStock: 2,
+                    description: 'Smartphone Android terbaru',
+                    image: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iIzAwNyIvPjx0ZXh0IHg9IjUwIiB5PSI1NSIgZm9udC1zaXplPSIxNCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iI2ZmZiI+UGhvbmU8L3RleHQ+PC9zdmc+',
+                    barcode: '1234567890125',
+                    status: 'tersedia'
+                },
+                {
+                    id: 4,
+                    code: 'P004',
+                    name: 'Roti Tawar',
+                    category: 'makanan',
+                    price: 15000,
+                    stock: 2,
+                    minStock: 10,
+                    description: 'Roti tawar segar',
+                    image: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iI2Y4NSIvPjx0ZXh0IHg9IjUwIiB5PSI1NSIgZm9udC1zaXplPSIxNiIgdGV4dC1hbmNob3I9Im1pZGRsZSI+Um90aTwvdGV4dD48L3N2Zz4=',
+                    barcode: '1234567890126',
+                    status: 'hampir_habis'
+                },
+                {
+                    id: 5,
+                    code: 'P005',
+                    name: 'Jam Tangan',
+                    category: 'aksesoris',
+                    price: 450000,
+                    stock: 8,
+                    minStock: 3,
+                    description: 'Jam tangan analog',
+                    image: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48Y2lyY2xlIGN4PSI1MCIgY3k9IjUwIiByPSI0NSIgZmlsbD0iI2ZmZCIgc3Ryb2tlPSIjMzMzIiBzdHJva2Utd2lkdGg9IjIiLz48dGV4dCB4PSI1MCIgeT0iNTUiIGZvbnQtc2l6ZT0iMTQiIHRleHQtYW5jaG9yPSJtaWRkbGUiPkphbTwvdGV4dD48L3N2Zz4=',
+                    barcode: '1234567890127',
+                    status: 'tersedia'
+                }
+            ];
+
+            // Sample employees
+            employees = [
+                {
+                    id: 'EMP001',
+                    name: 'Budi Santoso',
+                    position: 'kasir',
+                    email: 'budi@alfaaat.com',
+                    phone: '081234567890',
+                    salary: 3000000,
+                    address: 'Jl. Merdeka No. 123',
+                    status: 'aktif'
+                },
+                {
+                    id: 'EMP002',
+                    name: 'Siti Rahayu',
+                    position: 'admin',
+                    email: 'siti@alfaaat.com',
+                    phone: '081234567891',
+                    salary: 3500000,
+                    address: 'Jl. Sudirman No. 456',
+                    status: 'aktif'
+                },
+                {
+                    id: 'EMP003',
+                    name: 'Ahmad Yusuf',
+                    position: 'supervisor',
+                    email: 'ahmad@alfaaat.com',
+                    phone: '081234567892',
+                    salary: 4500000,
+                    address: 'Jl. Thamrin No. 789',
+                    status: 'aktif'
+                }
+            ];
+
+            // Sample shifts
+            shifts = [
+                {
+                    id: 1,
+                    employeeId: 'EMP001',
+                    employeeName: 'Budi Santoso',
+                    date: '2024-11-25',
+                    shift: 'pagi',
+                    startTime: '08:00',
+                    endTime: '16:00',
+                    status: 'scheduled'
+                },
+                {
+                    id: 2,
+                    employeeId: 'EMP002',
+                    employeeName: 'Siti Rahayu',
+                    date: '2024-11-25',
+                    shift: 'siang',
+                    startTime: '16:00',
+                    endTime: '24:00',
+                    status: 'scheduled'
+                }
+            ];
+
+            // Save to localStorage
+            localStorage.setItem('products', JSON.stringify(products));
+            localStorage.setItem('employees', JSON.stringify(employees));
+            localStorage.setItem('shifts', JSON.stringify(shifts));
+        }
+
+        // Dashboard Functions
+        function loadDashboardData() {
+            updateDashboardStats();
+            createSalesChart();
+            loadTopProducts();
+            loadStockNotifications();
+        }
+
+        function updateDashboardStats() {
+            // Calculate stats
+            const totalSales = products.reduce((sum, product) => sum + (product.price * (product.stock * 0.1)), 0);
+            const totalProducts = products.length;
+            const lowStockCount = products.filter(p => p.stock <= p.minStock).length;
+            const profitMargin = 25; // Example profit margin
+
+            // Update UI
+            document.getElementById('totalSales').textContent = formatCurrency(totalSales);
+            document.getElementById('totalProducts').textContent = totalProducts;
+            document.getElementById('lowStockCount').textContent = lowStockCount;
+            document.getElementById('profitMargin').textContent = profitMargin + '%';
+        }
+
+        function createSalesChart() {
+            const ctx = document.getElementById('salesChart').getContext('2d');
+            
+            if (salesChart) {
+                salesChart.destroy();
+            }
+
+            const data = {
+                labels: ['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min'],
+                datasets: [{
+                    label: 'Penjualan',
+                    data: [1200000, 1900000, 3000000, 5000000, 2000000, 3000000, 4500000],
+                    borderColor: 'rgb(37, 99, 235)',
+                    backgroundColor: 'rgba(37, 99, 235, 0.1)',
+                    tension: 0.4
+                }]
+            };
+
+            salesChart = new Chart(ctx, {
+                type: 'line',
+                data: data,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return formatCurrency(value);
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function loadTopProducts() {
+            const topProducts = products.slice(0, 5);
+            const html = topProducts.map(product => `
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.5rem 0; border-bottom: 1px solid var(--border-color);">
+                    <div>
+                        <strong>${product.name}</strong><br>
+                        <small>${product.category}</small>
+                    </div>
+                    <div style="text-align: right;">
+                        <div>${formatCurrency(product.price)}</div>
+                        <small>Stok: ${product.stock}</small>
+                    </div>
+                </div>
+            `).join('');
+            
+            document.getElementById('topProducts').innerHTML = html;
+        }
+
+        function loadStockNotifications() {
+            const lowStockProducts = products.filter(p => p.stock <= p.minStock);
+            const html = lowStockProducts.length > 0 ? lowStockProducts.map(product => `
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.75rem; background: rgba(245, 158, 11, 0.1); border-radius: 0.5rem; margin-bottom: 0.5rem;">
+                    <div>
+                        <strong>${product.name}</strong><br>
+                        <small>Stok tersisa: ${product.stock} (Min: ${product.minStock})</small>
+                    </div>
+                    <span class="badge badge-warning">Stok Rendah</span>
+                </div>
+            `).join('') : '<p>Tidak ada produk dengan stok rendah</p>';
+            
+            document.getElementById('stockNotifications').innerHTML = html;
+        }
+
+        // Database Functions
+        function loadDatabaseData() {
+            renderDataTable();
+        }
+
+        function renderDataTable() {
+            const tbody = document.getElementById('dataTableBody');
+            const html = products.map(product => `
+                <tr>
+                    <td><input type="checkbox" value="${product.id}"></td>
+                    <td>${product.code}</td>
+                    <td>
+                        <div style="display: flex; align-items: center; gap: 0.5rem;">
+                            <img src="${product.image}" alt="${product.name}" class="product-image" style="width: 40px; height: 40px;">
+                            ${product.name}
+                        </div>
+                    </td>
+                    <td><span class="badge badge-success">${product.category}</span></td>
+                    <td>${formatCurrency(product.price)}</td>
+                    <td>${product.stock}</td>
+                    <td><span class="badge ${getStatusBadgeClass(product.status)}">${getStatusText(product.status)}</span></td>
+                    <td>
+                        <button class="btn btn-secondary" onclick="editProduct(${product.id})" style="margin-right: 0.5rem;">Edit</button>
+                        <button class="btn btn-danger" onclick="deleteProduct(${product.id})">Hapus</button>
+                    </td>
+                </tr>
+            `).join('');
+            
+            tbody.innerHTML = html;
+        }
+
+        function searchDatabase() {
+            const searchTerm = document.getElementById('dbSearch').value.toLowerCase();
+            const filteredProducts = products.filter(product => 
+                product.name.toLowerCase().includes(searchTerm) ||
+                product.code.toLowerCase().includes(searchTerm) ||
+                product.category.toLowerCase().includes(searchTerm)
+            );
+            
+            const tbody = document.getElementById('dataTableBody');
+            const html = filteredProducts.map(product => `
+                <tr>
+                    <td><input type="checkbox" value="${product.id}"></td>
+                    <td>${product.code}</td>
+                    <td>
+                        <div style="display: flex; align-items: center; gap: 0.5rem;">
+                            <img src="${product.image}" alt="${product.name}" class="product-image" style="width: 40px; height: 40px;">
+                            ${product.name}
+                        </div>
+                    </td>
+                    <td><span class="badge badge-success">${product.category}</span></td>
+                    <td>${formatCurrency(product.price)}</td>
+                    <td>${product.stock}</td>
+                    <td><span class="badge ${getStatusBadgeClass(product.status)}">${getStatusText(product.status)}</span></td>
+                    <td>
+                        <button class="btn btn-secondary" onclick="editProduct(${product.id})" style="margin-right: 0.5rem;">Edit</button>
+                        <button class="btn btn-danger" onclick="deleteProduct(${product.id})">Hapus</button>
+                    </td>
+                </tr>
+            `).join('');
+            
+            tbody.innerHTML = html;
+        }
+
+        // Product Management Functions
+        function showAddModal() {
+            document.getElementById('productModalTitle').textContent = 'Tambah Produk';
+            document.getElementById('productForm').reset();
+            document.getElementById('imagePreview').innerHTML = '';
+            showModal('productModal');
+        }
+
+        function editProduct(id) {
+            const product = products.find(p => p.id === id);
+            if (product) {
+                document.getElementById('productModalTitle').textContent = 'Edit Produk';
+                document.getElementById('productCode').value = product.code;
+                document.getElementById('productName').value = product.name;
+                document.getElementById('productCategory').value = product.category;
+                document.getElementById('productPrice').value = product.price;
+                document.getElementById('productStock').value = product.stock;
+                document.getElementById('productMinStock').value = product.minStock;
+                document.getElementById('productDescription').value = product.description;
+                
+                // Set current product id for editing
+                document.getElementById('productForm').dataset.editId = id;
+                
+                showModal('productModal');
+            }
+        }
+
+        function saveProduct() {
+            const form = document.getElementById('productForm');
+            const editId = form.dataset.editId;
+            
+            const productData = {
+                code: document.getElementById('productCode').value,
+                name: document.getElementById('productName').value,
+                category: document.getElementById('productCategory').value,
+                price: parseInt(document.getElementById('productPrice').value),
+                stock: parseInt(document.getElementById('productStock').value),
+                minStock: parseInt(document.getElementById('productMinStock').value),
+                description: document.getElementById('productDescription').value,
+                status: 'tersedia'
+            };
+
+            if (editId) {
+                // Update existing product
+                const index = products.findIndex(p => p.id === parseInt(editId));
+                if (index !== -1) {
+                    products[index] = { ...products[index], ...productData };
+                    showToast('Produk berhasil diperbarui!', 'success');
+                }
+                delete form.dataset.editId;
+            } else {
+                // Add new product
+                const newProduct = {
+                    id: Date.now(),
+                    ...productData,
+                    image: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iI2VlZSIvPjx0ZXh0IHg9IjUwIiB5PSI1NSIgZm9udC1zaXplPSIxNCIgdGV4dC1hbmNob3I9Im1pZGRsZSI+UHJvZHVrPC90ZXh0Pjwvc3ZnPg==',
+                    barcode: generateBarcode()
+                };
+                products.push(newProduct);
+                showToast('Produk berhasil ditambahkan!', 'success');
+            }
+
+            // Save to localStorage
+            localStorage.setItem('products', JSON.stringify(products));
+            
+            // Refresh UI
+            renderDataTable();
+            updateDashboardStats();
+            
+            // Close modal
+            closeModal('productModal');
+        }
+
+        function deleteProduct(id) {
+            if (confirm('Apakah Anda yakin ingin menghapus produk ini?')) {
+                products = products.filter(p => p.id !== id);
+                localStorage.setItem('products', JSON.stringify(products));
+                renderDataTable();
+                updateDashboardStats();
+                showToast('Produk berhasil dihapus!', 'success');
+            }
+        }
+
+        // Employee Functions
+        function loadEmployeeData() {
+            renderEmployeeTable();
+        }
+
+        function renderEmployeeTable() {
+            const tbody = document.getElementById('employeeTableBody');
+            const html = employees.map(employee => `
+                <tr>
+                    <td>${employee.id}</td>
+                    <td>${employee.name}</td>
+                    <td><span class="badge badge-success">${employee.position}</span></td>
+                    <td>${employee.email}</td>
+                    <td>${employee.phone}</td>
+                    <td><span class="badge ${employee.status === 'aktif' ? 'badge-success' : 'badge-danger'}">${employee.status}</span></td>
+                    <td>${formatCurrency(employee.salary)}</td>
+                    <td>
+                        <button class="btn btn-secondary" onclick="editEmployee('${employee.id}')" style="margin-right: 0.5rem;">Edit</button>
+                        <button class="btn btn-danger" onclick="deleteEmployee('${employee.id}')">Hapus</button>
+                    </td>
+                </tr>
+            `).join('');
+            
+            tbody.innerHTML = html;
+        }
+
+        function addEmployee() {
+            document.getElementById('employeeModalTitle').textContent = 'Tambah Karyawan';
+            document.getElementById('employeeForm').reset();
+            showModal('employeeModal');
+        }
+
+        function editEmployee(id) {
+            const employee = employees.find(e => e.id === id);
+            if (employee) {
+                document.getElementById('employeeModalTitle').textContent = 'Edit Karyawan';
+                document.getElementById('employeeId').value = employee.id;
+                document.getElementById('employeeName').value = employee.name;
+                document.getElementById('employeePosition').value = employee.position;
+                document.getElementById('employeeEmail').value = employee.email;
+                document.getElementById('employeePhone').value = employee.phone;
+                document.getElementById('employeeSalary').value = employee.salary;
+                document.getElementById('employeeAddress').value = employee.address;
+                
+                document.getElementById('employeeForm').dataset.editId = id;
+                showModal('employeeModal');
+            }
+        }
+
+        function saveEmployee() {
+            const form = document.getElementById('employeeForm');
+            const editId = form.dataset.editId;
+            
+            const employeeData = {
+                id: document.getElementById('employeeId').value,
+                name: document.getElementById('employeeName').value,
+                position: document.getElementById('employeePosition').value,
+                email: document.getElementById('employeeEmail').value,
+                phone: document.getElementById('employeePhone').value,
+                salary: parseInt(document.getElementById('employeeSalary').value),
+                address: document.getElementById('employeeAddress').value,
+                status: 'aktif'
+            };
+
+            if (editId) {
+                const index = employees.findIndex(e => e.id === editId);
+                if (index !== -1) {
+                    employees[index] = { ...employees[index], ...employeeData };
+                    showToast('Data karyawan berhasil diperbarui!', 'success');
+                }
+                delete form.dataset.editId;
+            } else {
+                employees.push(employeeData);
+                showToast('Karyawan berhasil ditambahkan!', 'success');
+            }
+
+            localStorage.setItem('employees', JSON.stringify(employees));
+            renderEmployeeTable();
+            closeModal('employeeModal');
+        }
+
+        function deleteEmployee(id) {
+            if (confirm('Apakah Anda yakin ingin menghapus karyawan ini?')) {
+                employees = employees.filter(e => e.id !== id);
+                localStorage.setItem('employees', JSON.stringify(employees));
+                renderEmployeeTable();
+                showToast('Karyawan berhasil dihapus!', 'success');
+            }
+        }
+
+        function searchEmployees() {
+            const searchTerm = document.getElementById('employeeSearch').value.toLowerCase();
+            const filteredEmployees = employees.filter(employee => 
+                employee.name.toLowerCase().includes(searchTerm) ||
+                employee.id.toLowerCase().includes(searchTerm) ||
+                employee.position.toLowerCase().includes(searchTerm)
+            );
+            
+            const tbody = document.getElementById('employeeTableBody');
+            const html = filteredEmployees.map(employee => `
+                <tr>
+                    <td>${employee.id}</td>
+                    <td>${employee.name}</td>
+                    <td><span class="badge badge-success">${employee.position}</span></td>
+                    <td>${employee.email}</td>
+                    <td>${employee.phone}</td>
+                    <td><span class="badge ${employee.status === 'aktif' ? 'badge-success' : 'badge-danger'}">${employee.status}</span></td>
+                    <td>${formatCurrency(employee.salary)}</td>
+                    <td>
+                        <button class="btn btn-secondary" onclick="editEmployee('${employee.id}')" style="margin-right: 0.5rem;">Edit</button>
+                        <button class="btn btn-danger" onclick="deleteEmployee('${employee.id}')">Hapus</button>
+                    </td>
+                </tr>
+            `).join('');
+            
+            tbody.innerHTML = html;
+        }
+
+        // Barcode Functions
+        function loadBarcodeData() {
+            const select = document.getElementById('barcodeProduct');
+            const html = '<option value="">Pilih produk...</option>' + 
+                products.map(product => `<option value="${product.id}">${product.name}</option>`).join('');
+            select.innerHTML = html;
+            
+            loadProductCheckboxes();
+        }
+
+        function loadProductCheckboxes() {
+            const container = document.getElementById('productCheckboxes');
+            const html = products.map(product => `
+                <div style="margin: 0.5rem 0;">
+                    <input type="checkbox" id="product_${product.id}" value="${product.id}">
+                    <label for="product_${product.id}" style="margin-left: 0.5rem;">${product.name}</label>
+                </div>
+            `).join('');
+            container.innerHTML = html;
+        }
+
+        function updateBarcodePreview() {
+            const productId = document.getElementById('barcodeProduct').value;
+            if (productId) {
+                const product = products.find(p => p.id === parseInt(productId));
+                if (product) {
+                    const preview = document.getElementById('barcodePreview');
+                    preview.innerHTML = `
+                        <div>
+                            <strong>${product.name}</strong><br>
+                            <small>Kode: ${product.code}</small><br>
+                            <canvas id="barcodeCanvas"></canvas>
+                        </div>
+                    `;
+                    
+                    // Generate barcode
+                    JsBarcode("#barcodeCanvas", product.barcode || product.code, {
+                        format: "CODE128",
+                        width: 2,
+                        height: 100,
+                        displayValue: true
+                    });
+                }
+            }
+        }
+
+        function generateBarcode() {
+            const productId = document.getElementById('barcodeProduct').value;
+            const quantity = document.getElementById('barcodeQuantity').value;
+            const format = document.getElementById('barcodeFormat').value;
+            
+            if (!productId) {
+                showToast('Pilih produk terlebih dahulu!', 'error');
+                return;
+            }
+            
+            const product = products.find(p => p.id === parseInt(productId));
+            if (product) {
+                const preview = document.getElementById('barcodePreview');
+                let html = `<h4>${product.name}</h4>`;
+                
+                for (let i = 0; i < quantity; i++) {
+                    html += `<canvas id="barcode_${i}" style="margin: 1rem 0;"></canvas><br>`;
+                }
+                
+                preview.innerHTML = html;
+                
+                // Generate multiple barcodes
+                for (let i = 0; i < quantity; i++) {
+                    JsBarcode(`#barcode_${i}`, product.barcode || product.code, {
+                        format: format,
+                        width: 2,
+                        height: 100,
+                        displayValue: true
+                    });
+                }
+                
+                showToast(`${quantity} barcode berhasil di-generate!`, 'success');
+            }
+        }
+
+        function batchGenerateBarcode() {
+            const checkboxes = document.querySelectorAll('#productCheckboxes input[type="checkbox"]:checked');
+            if (checkboxes.length === 0) {
+                showToast('Pilih minimal satu produk!', 'error');
+                return;
+            }
+            
+            const preview = document.getElementById('barcodePreview');
+            let html = '<h4>Batch Barcode Generation</h4>';
+            
+            checkboxes.forEach((checkbox, index) => {
+                const productId = parseInt(checkbox.value);
+                const product = products.find(p => p.id === productId);
+                if (product) {
+                    html += `
+                        <div style="margin: 1rem 0; padding: 1rem; border: 1px solid var(--border-color); border-radius: 0.5rem;">
+                            <strong>${product.name}</strong><br>
+                            <canvas id="batch_barcode_${index}"></canvas>
+                        </div>
+                    `;
+                }
+            });
+            
+            preview.innerHTML = html;
+            
+            // Generate barcodes
+            checkboxes.forEach((checkbox, index) => {
+                const productId = parseInt(checkbox.value);
+                const product = products.find(p => p.id === productId);
+                if (product) {
+                    JsBarcode(`#batch_barcode_${index}`, product.barcode || product.code, {
+                        format: "CODE128",
+                        width: 2,
+                        height: 80,
+                        displayValue: true
+                    });
+                }
+            });
+            
+            showToast(`${checkboxes.length} barcode berhasil di-generate!`, 'success');
+        }
+
+        function printBarcode() {
+            const preview = document.getElementById('barcodePreview');
+            if (preview.innerHTML.includes('canvas')) {
+                const printWindow = window.open('', '_blank');
+                printWindow.document.write(`
+                    <html>
+                        <head><title>Print Barcode</title></head>
+                        <body>${preview.innerHTML}</body>
+                    </html>
+                `);
+                printWindow.document.close();
+                printWindow.print();
+            } else {
+                showToast('Generate barcode terlebih dahulu!', 'error');
+            }
+        }
+
+        function exportBarcodePDF() {
+            const preview = document.getElementById('barcodePreview');
+            if (preview.innerHTML.includes('canvas')) {
+                const { jsPDF } = window.jspdf;
+                const pdf = new jsPDF();
+                
+                // This is a simplified version - in real implementation,
+                // you would need to convert canvas to image and add to PDF
+                pdf.text('Barcode Export', 20, 20);
+                pdf.save('barcode.pdf');
+                
+                showToast('Barcode berhasil diekspor ke PDF!', 'success');
+            } else {
+                showToast('Generate barcode terlebih dahulu!', 'error');
+            }
+        }
+
+        // Scanner Functions
+        function initializeScanner() {
+            document.getElementById('scannerArea').onclick = function() {
+                showToast('Scanner aktif! (Simulasi)', 'success');
+                // In real implementation, this would initialize camera scanner
+            };
+        }
+
+        function manualScan() {
+            const code = document.getElementById('manualScanInput').value;
+            if (code) {
+                searchProductByCode(code);
+            }
+        }
+
+        function handleManualScan() {
+            const code = document.getElementById('manualScanInput').value;
+            if (code.length >= 3) {
+                searchProductByCode(code);
+            }
+        }
+
+        function searchProductByCode(code) {
+            const product = products.find(p => 
+                p.code.toLowerCase().includes(code.toLowerCase()) || 
+                p.barcode === code ||
+                p.name.toLowerCase().includes(code.toLowerCase())
+            );
+            
+            if (product) {
+                displayScanResult(product);
+                
+                // Auto-save scan data after 3 seconds
+                setTimeout(() => {
+                    saveScanData(product);
+                }, 3000);
+            } else {
+                document.getElementById('scannerResult').style.display = 'block';
+                document.getElementById('scannerResult').innerHTML = `
+                    <div style="text-align: center; color: var(--danger-color);">
+                        <p>❌ Produk tidak ditemukan</p>
+                        <p>Kode: ${code}</p>
+                    </div>
+                `;
+            }
+        }
+
+        function displayScanResult(product) {
+            const result = document.getElementById('scannerResult');
+            const detail = document.getElementById('productDetail');
+            
+            result.style.display = 'block';
+            result.innerHTML = `
+                <div style="text-align: center; color: var(--success-color);">
+                    <p>✅ Produk ditemukan!</p>
+                    <p><strong>${product.name}</strong></p>
+                </div>
+            `;
+            
+            detail.innerHTML = `
+                <div style="display: flex; gap: 1rem; align-items: start;">
+                    <img src="${product.image}" alt="${product.name}" style="width: 100px; height: 100px; object-fit: cover; border-radius: 0.5rem;">
+                    <div style="flex: 1;">
+                        <h4>${product.name}</h4>
+                        <p><strong>Kode:</strong> ${product.code}</p>
+                        <p><strong>Kategori:</strong> ${product.category}</p>
+                        <p><strong>Harga:</strong> ${formatCurrency(product.price)}</p>
+                        <p><strong>Stok:</strong> ${product.stock}</p>
+                        <p><strong>Status:</strong> <span class="badge ${getStatusBadgeClass(product.status)}">${getStatusText(product.status)}</span></p>
+                        <p><strong>Deskripsi:</strong> ${product.description}</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        function saveScanData(product) {
+            // Save scan history
+            const scanHistory = JSON.parse(localStorage.getItem('scanHistory') || '[]');
+            scanHistory.push({
+                productId: product.id,
+                productName: product.name,
+                timestamp: new Date().toISOString(),
+                user: currentUser.username
+            });
+            localStorage.setItem('scanHistory', JSON.stringify(scanHistory));
+            
+            showToast('Data scan tersimpan otomatis', 'success');
+        }
+
+        function updateProductStatus() {
+            const status = document.getElementById('productStatus').value;
+            const notes = document.getElementById('statusNotes').value;
+            
+            // Get current product from scan result
+            const productDetail = document.getElementById('productDetail').innerHTML;
+            if (productDetail.includes('Kode:')) {
+                showToast(`Status produk diperbarui menjadi: ${getStatusText(status)}`, 'success');
+                document.getElementById('statusNotes').value = '';
+            } else {
+                showToast('Scan produk terlebih dahulu!', 'error');
+            }
+        }
+
+        // Schedule Functions
+        function loadScheduleData() {
+            loadCalendar();
+            renderShiftTable();
+            loadEmployeeOptions();
+        }
+
+        function loadCalendar() {
+            const calendarGrid = document.getElementById('calendarGrid');
+            const monthNames = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+                'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+            
+            document.getElementById('calendarMonth').textContent = 
+                `${monthNames[currentDate.getMonth()]} ${currentDate.getFullYear()}`;
+            
+            // Generate calendar days
+            const firstDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+            const lastDay = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
+            const startDate = new Date(firstDay);
+            startDate.setDate(startDate.getDate() - firstDay.getDay());
+            
+            const days = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
+            let html = days.map(day => `<div style="padding: 0.5rem; font-weight: bold; background: var(--bg-secondary);">${day}</div>`).join('');
+            
+            for (let i = 0; i < 42; i++) {
+                const date = new Date(startDate);
+                date.setDate(startDate.getDate() + i);
+                
+                const isCurrentMonth = date.getMonth() === currentDate.getMonth();
+                const isToday = date.toDateString() === new Date().toDateString();
+                const hasShift = shifts.some(shift => shift.date === date.toISOString().split('T')[0]);
+                
+                html += `
+                    <div class="calendar-day ${isCurrentMonth ? '' : 'other-month'} ${isToday ? 'today' : ''}" 
+                         onclick="selectDate('${date.toISOString().split('T')[0]}')">
+                        <div>${date.getDate()}</div>
+                        ${hasShift ? '<div class="shift-indicator"></div>' : ''}
+                    </div>
+                `;
+            }
+            
+            calendarGrid.innerHTML = html;
+        }
+
+        function previousMonth() {
+            currentDate.setMonth(currentDate.getMonth() - 1);
+            loadCalendar();
+        }
+
+        function nextMonth() {
+            currentDate.setMonth(currentDate.getMonth() + 1);
+            loadCalendar();
+        }
+
+        function selectDate(date) {
+            document.getElementById('shiftDate').value = date;
+            showModal('shiftModal');
+        }
+
+        function renderShiftTable() {
+            const tbody = document.getElementById('shiftTableBody');
+            const html = shifts.map(shift => `
+                <tr>
+                    <td>${shift.employeeName}</td>
+                    <td>${formatDate(shift.date)}</td>
+                    <td><span class="badge badge-success">${shift.shift}</span></td>
+                    <td>${shift.startTime}</td>
+                    <td>${shift.endTime}</td>
+                    <td><span class="badge ${getShiftStatusBadgeClass(shift.status)}">${getShiftStatusText(shift.status)}</span></td>
+                    <td>
+                        <button class="btn btn-secondary" onclick="editShift(${shift.id})" style="margin-right: 0.5rem;">Edit</button>
+                        <button class="btn btn-danger" onclick="deleteShift(${shift.id})">Hapus</button>
+                    </td>
+                </tr>
+            `).join('');
+            
+            tbody.innerHTML = html;
+        }
+
+        function loadEmployeeOptions() {
+            const select = document.getElementById('shiftEmployee');
+            const html = '<option value="">Pilih karyawan...</option>' + 
+                employees.map(emp => `<option value="${emp.id}">${emp.name}</option>`).join('');
+            select.innerHTML = html;
+        }
+
+        function addShift() {
+            document.getElementById('shiftForm').reset();
+            delete document.getElementById('shiftForm').dataset.editId;
+            showModal('shiftModal');
+        }
+
+        function editShift(id) {
+            const shift = shifts.find(s => s.id === id);
+            if (shift) {
+                document.getElementById('shiftEmployee').value = shift.employeeId;
+                document.getElementById('shiftDate').value = shift.date;
+                document.getElementById('shiftType').value = shift.shift;
+                document.getElementById('shiftStatus').value = shift.status;
+                
+                document.getElementById('shiftForm').dataset.editId = id;
+                showModal('shiftModal');
+            }
+        }
+
+        function saveShift() {
+            const form = document.getElementById('shiftForm');
+            const editId = form.dataset.editId;
+            
+            const employeeId = document.getElementById('shiftEmployee').value;
+            const employee = employees.find(e => e.id === employeeId);
+            
+            const shiftData = {
+                employeeId: employeeId,
+                employeeName: employee ? employee.name : '',
+                date: document.getElementById('shiftDate').value,
+                shift: document.getElementById('shiftType').value,
+                status: document.getElementById('shiftStatus').value
+            };
+            
+            // Set shift times based on type
+            const shiftTimes = {
+                'pagi': { startTime: '08:00', endTime: '16:00' },
+                'siang': { startTime: '16:00', endTime: '24:00' },
+                'malam': { startTime: '24:00', endTime: '08:00' }
+            };
+            
+            shiftData.startTime = shiftTimes[shiftData.shift].startTime;
+            shiftData.endTime = shiftTimes[shiftData.shift].endTime;
+
+            if (editId) {
+                const index = shifts.findIndex(s => s.id === parseInt(editId));
+                if (index !== -1) {
+                    shifts[index] = { ...shifts[index], ...shiftData };
+                    showToast('Jadwal shift berhasil diperbarui!', 'success');
+                }
+                delete form.dataset.editId;
+            } else {
+                const newShift = {
+                    id: Date.now(),
+                    ...shiftData
+                };
+                shifts.push(newShift);
+                showToast('Jadwal shift berhasil ditambahkan!', 'success');
+            }
+
+            localStorage.setItem('shifts', JSON.stringify(shifts));
+            renderShiftTable();
+            loadCalendar();
+            closeModal('shiftModal');
+        }
+
+        function deleteShift(id) {
+            if (confirm('Apakah Anda yakin ingin menghapus jadwal shift ini?')) {
+                shifts = shifts.filter(s => s.id !== id);
+                localStorage.setItem('shifts', JSON.stringify(shifts));
+                renderShiftTable();
+                loadCalendar();
+                showToast('Jadwal shift berhasil dihapus!', 'success');
+            }
+        }
+
+        // Inventory Functions
+        function loadInventoryData() {
+            renderInventoryTable();
+            loadStockHistory();
+            loadReorderList();
+        }
+
+        function renderInventoryTable() {
+            const tbody = document.getElementById('inventoryTableBody');
+            const html = products.map(product => `
+                <tr>
+                    <td>
+                        <div style="display: flex; align-items: center; gap: 0.5rem;">
+                            <img src="${product.image}" alt="${product.name}" class="product-image" style="width: 40px; height: 40px;">
+                            ${product.name}
+                        </div>
+                    </td>
+                    <td>${product.stock}</td>
+                    <td>${product.minStock}</td>
+                    <td><span class="badge ${getInventoryStatusBadgeClass(product)}">${getInventoryStatusText(product)}</span></td>
+                    <td>
+                        <button class="btn btn-secondary" onclick="adjustStock(${product.id})" style="margin-right: 0.5rem;">Adjust</button>
+                        <button class="btn btn-warning" onclick="setMinStock(${product.id})">Set Min</button>
+                    </td>
+                </tr>
+            `).join('');
+            
+            tbody.innerHTML = html;
+        }
+
+        function loadStockHistory() {
+            const stockHistory = JSON.parse(localStorage.getItem('stockHistory') || '[]');
+            const container = document.getElementById('stockHistory');
+            
+            if (stockHistory.length === 0) {
+                container.innerHTML = '<p>Belum ada riwayat perubahan stok</p>';
+                return;
+            }
+            
+            const html = stockHistory.slice(-10).reverse().map(history => `
+                <div style="padding: 0.75rem; border-bottom: 1px solid var(--border-color);">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <strong>${history.productName}</strong><br>
+                            <small>${history.type}: ${history.change > 0 ? '+' : ''}${history.change}</small>
+                        </div>
+                        <div style="text-align: right;">
+                            <div>${formatDate(history.timestamp)}</div>
+                            <small>by ${history.user}</small>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+            
+            container.innerHTML = html;
+        }
+
+        function loadReorderList() {
+            const reorderProducts = products.filter(p => p.stock <= p.minStock);
+            const container = document.getElementById('reorderList');
+            
+            if (reorderProducts.length === 0) {
+                container.innerHTML = '<p>Tidak ada produk yang perlu direorder</p>';
+                return;
+            }
+            
+            const html = reorderProducts.map(product => `
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; background: rgba(245, 158, 11, 0.1); border-radius: 0.5rem; margin-bottom: 0.5rem;">
+                    <div>
+                        <strong>${product.name}</strong><br>
+                        <small>Stok: ${product.stock} / Min: ${product.minStock}</small><br>
+                        <small>Rekomendasi order: ${product.minStock * 5} unit</small>
+                    </div>
+                    <button class="btn btn-warning" onclick="createReorder(${product.id})">Buat Order</button>
+                </div>
+            `).join('');
+            
+            container.innerHTML = html;
+        }
+
+        function adjustStock(productId) {
+            const product = products.find(p => p.id === productId);
+            if (product) {
+                const newStock = prompt(`Stok saat ini: ${product.stock}\nMasukkan stok baru:`, product.stock);
+                if (newStock !== null && !isNaN(newStock)) {
+                    const change = parseInt(newStock) - product.stock;
+                    product.stock = parseInt(newStock);
+                    
+                    // Update product status based on new stock
+                    if (product.stock <= 0) {
+                        product.status = 'tidak_tersedia';
+                    } else if (product.stock <= product.minStock) {
+                        product.status = 'hampir_habis';
+                    } else {
+                        product.status = 'tersedia';
+                    }
+                    
+                    // Record stock history
+                    const stockHistory = JSON.parse(localStorage.getItem('stockHistory') || '[]');
+                    stockHistory.push({
+                        productId: product.id,
+                        productName: product.name,
+                        type: change > 0 ? 'Penambahan' : 'Pengurangan',
+                        change: change,
+                        timestamp: new Date().toISOString(),
+                        user: currentUser.username
+                    });
+                    
+                    localStorage.setItem('products', JSON.stringify(products));
+                    localStorage.setItem('stockHistory', JSON.stringify(stockHistory));
+                    
+                    renderInventoryTable();
+                    loadStockHistory();
+                    loadReorderList();
+                    updateDashboardStats();
+                    
+                    showToast('Stok berhasil diperbarui!', 'success');
+                }
+            }
+        }
+
+        function setMinStock(productId) {
+            const product = products.find(p => p.id === productId);
+            if (product) {
+                const newMinStock = prompt(`Minimum stok saat ini: ${product.minStock}\nMasukkan minimum stok baru:`, product.minStock);
+                if (newMinStock !== null && !isNaN(newMinStock)) {
+                    product.minStock = parseInt(newMinStock);
+                    
+                    localStorage.setItem('products', JSON.stringify(products));
+                    renderInventoryTable();
+                    loadReorderList();
+                    
+                    showToast('Minimum stok berhasil diperbarui!', 'success');
+                }
+            }
+        }
+
+        function createReorder(productId) {
+            const product = products.find(p => p.id === productId);
+            if (product) {
+                const orderQuantity = prompt(`Buat order untuk: ${product.name}\nMasukkan jumlah yang akan dipesan:`, product.minStock * 5);
+                if (orderQuantity !== null && !isNaN(orderQuantity)) {
+                    // In real app, this would create a purchase order
+                    showToast(`Order untuk ${orderQuantity} unit ${product.name} berhasil dibuat!`, 'success');
+                }
+            }
+        }
+
+        // Catalog Functions
+        function loadCatalogData() {
+            loadCategories();
+            loadDiscountSchedule();
+            loadProductCodes();
+        }
+
+        function loadCategories() {
+            const categories = [...new Set(products.map(p => p.category))];
+            const container = document.getElementById('categoryList');
+            
+            const html = categories.map(category => `
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.5rem; border-bottom: 1px solid var(--border-color);">
+                    <div>
+                        <strong>${category}</strong><br>
+                        <small>${products.filter(p => p.category === category).length} produk</small>
+                    </div>
+                    <button class="btn btn-secondary" onclick="editCategory('${category}')">Edit</button>
+                </div>
+            `).join('');
+            
+            container.innerHTML = html;
+        }
+
+        function loadDiscountSchedule() {
+            const container = document.getElementById('discountSchedule');
+            // Sample discount schedule
+            const discounts = [
+                { name: 'Flash Sale Weekend', discount: '20%', start: '2024-11-30', end: '2024-12-01' },
+                { name: 'Diskon Akhir Tahun', discount: '15%', start: '2024-12-20', end: '2024-12-31' }
+            ];
+            
+            const html = discounts.map(discount => `
+                <div style="padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 0.5rem; margin-bottom: 0.5rem;">
+                    <strong>${discount.name}</strong><br>
+                    <small>Diskon: ${discount.discount}</small><br>
+                    <small>${formatDate(discount.start)} - ${formatDate(discount.end)}</small>
+                </div>
+            `).join('');
+            
+            container.innerHTML = html;
+        }
+
+        function loadProductCodes() {
+            const container = document.getElementById('productCodes');
+            const html = products.slice(0, 10).map(product => `
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.5rem; border-bottom: 1px solid var(--border-color);">
+                    <div>
+                        <strong>${product.code}</strong><br>
+                        <small>${product.name}</small>
+                    </div>
+                    <span class="badge badge-success">${product.category}</span>
+                </div>
+            `).join('');
+            
+            container.innerHTML = html;
+        }
+
+        function addCategory() {
+            const categoryName = prompt('Masukkan nama kategori baru:');
+            if (categoryName) {
+                showToast(`Kategori "${categoryName}" berhasil ditambahkan!`, 'success');
+                // In real app, this would add to categories list
+            }
+        }
+
+        function scheduleDiscount() {
+            showToast('Fitur jadwal diskon akan segera hadir!', 'warning');
+        }
+
+        function generateProductCode() {
+            const newCode = 'P' + String(Date.now()).slice(-6);
+            showToast(`Kode produk baru: ${newCode}`, 'success');
+        }
+
+        // Report Functions
+        function loadReportData() {
+            // Set default dates
+            const today = new Date();
+            const lastWeek = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
+            
+            document.getElementById('startDate').value = lastWeek.toISOString().split('T')[0];
+            document.getElementById('endDate').value = today.toISOString().split('T')[0];
+            
+            generateReport();
+        }
+
+        function generateReport() {
+            const reportType = document.getElementById('reportType').value;
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+            
+            // Generate sample report data
+            const reportData = products.map((product, index) => {
+                const sales = Math.floor(Math.random() * 50) + 1;
+                const returns = Math.floor(Math.random() * 5);
+                const dailySales = Array(7).fill(0).map(() => Math.floor(Math.random() * 10));
+                
+                return {
+                    no: index + 1,
+                    code: product.code,
+                    name: product.name,
+                    stock: product.stock,
+                    sold: sales,
+                    returns: returns,
+                    total: sales - returns,
+                    dailySales: dailySales
+                };
+            });
+            
+            renderReportTable(reportData, reportType);
+            createReportChart(reportData);
+            generateReportSummary(reportData);
+        }
+
+        function renderReportTable(data, reportType) {
+            const thead = document.getElementById('reportTableHead');
+            const tbody = document.getElementById('reportTableBody');
+            
+            // Dynamic table headers based on report type
+            let headers = '<th>No</th><th>Kode Produk</th><th>Nama Produk</th>';
+            
+            if (reportType === 'harian') {
+                headers += '<th>Hari 1</th><th>Hari 2</th><th>Hari 3</th><th>Hari 4</th><th>Hari 5</th><th>Hari 6</th><th>Hari 7</th>';
+            } else if (reportType === 'mingguan') {
+                headers += '<th>Minggu 1</th><th>Minggu 2</th><th>Minggu 3</th><th>Minggu 4</th>';
+            } else {
+                headers += '<th>Jan</th><th>Feb</th><th>Mar</th><th>Apr</th><th>Mei</th><th>Jun</th>';
+            }
+            
+            headers += '<th>Stok</th><th>Terjual</th><th>Retur</th><th>Total</th>';
+            thead.innerHTML = `<tr>${headers}</tr>`;
+            
+            const html = data.map(item => {
+                let row = `<td>${item.no}</td><td>${item.code}</td><td>${item.name}</td>`;
+                
+                // Add period-specific data
+                if (reportType === 'harian') {
+                    item.dailySales.forEach(sale => {
+                        row += `<td>${sale}</td>`;
+                    });
+                } else {
+                    // Sample data for other periods
+                    for (let i = 0; i < (reportType === 'mingguan' ? 4 : 6); i++) {
+                        row += `<td>${Math.floor(Math.random() * 20)}</td>`;
+                    }
+                }
+                
+                row += `<td>${item.stock}</td><td>${item.sold}</td><td>${item.returns}</td><td><strong>${item.total}</strong></td>`;
+                return `<tr>${row}</tr>`;
+            }).join('');
+            
+            tbody.innerHTML = html;
+        }
+
+        function createReportChart(data) {
+            const ctx = document.getElementById('reportChart').getContext('2d');
+            
+            if (reportChart) {
+                reportChart.destroy();
+            }
+
+            const chartData = {
+                labels: data.slice(0, 10).map(item => item.name),
+                datasets: [{
+                    label: 'Terjual',
+                    data: data.slice(0, 10).map(item => item.sold),
+                    backgroundColor: 'rgba(37, 99, 235, 0.8)',
+                    borderColor: 'rgb(37, 99, 235)',
+                    borderWidth: 1
+                }]
+            };
+
+            reportChart = new Chart(ctx, {
+                type: 'bar',
+                data: chartData,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        function generateReportSummary(data) {
+            const totalSold = data.reduce((sum, item) => sum + item.sold, 0);
+            const totalReturns = data.reduce((sum, item) => sum + item.returns, 0);
+            const totalRevenue = data.reduce((sum, item) => sum + (item.sold * 50000), 0); // Assume avg price 50k
+            const topProduct = data.reduce((max, item) => item.sold > max.sold ? item : max);
+            
+            const container = document.getElementById('reportSummary');
+            container.innerHTML = `
+                <div class="stats-grid" style="grid-template-columns: 1fr; gap: 1rem;">
+                    <div style="padding: 1rem; background: var(--bg-secondary); border-radius: 0.5rem;">
+                        <h4>Total Penjualan</h4>
+                        <p style="font-size: 1.5rem; font-weight: bold; color: var(--primary-color);">${totalSold} unit</p>
+                    </div>
+                    <div style="padding: 1rem; background: var(--bg-secondary); border-radius: 0.5rem;">
+                        <h4>Total Retur</h4>
+                        <p style="font-size: 1.5rem; font-weight: bold; color: var(--danger-color);">${totalReturns} unit</p>
+                    </div>
+                    <div style="padding: 1rem; background: var(--bg-secondary); border-radius: 0.5rem;">
+                        <h4>Estimasi Pendapatan</h4>
+                        <p style="font-size: 1.5rem; font-weight: bold; color: var(--success-color);">${formatCurrency(totalRevenue)}</p>
+                    </div>
+                    <div style="padding: 1rem; background: var(--bg-secondary); border-radius: 0.5rem;">
+                        <h4>Produk Terlaris</h4>
+                        <p style="font-size: 1.2rem; font-weight: bold;">${topProduct.name}</p>
+                        <p>${topProduct.sold} unit terjual</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        function updateReportData() {
+            generateReport();
+        }
+
+        function searchReports() {
+            // Implementation for report search
+            generateReport();
+        }
+
+        function exportReportExcel() {
+            const reportData = []; // Get current report data
+            const ws = XLSX.utils.json_to_sheet(reportData);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Laporan Penjualan");
+            XLSX.writeFile(wb, "laporan_penjualan.xlsx");
+            showToast('Laporan berhasil diekspor ke Excel!', 'success');
+        }
+
+        function exportReportPDF() {
+            const { jsPDF } = window.jspdf;
+            const pdf = new jsPDF();
+            pdf.text('Laporan Penjualan AlfaAat', 20, 20);
+            pdf.save('laporan_penjualan.pdf');
+            showToast('Laporan berhasil diekspor ke PDF!', 'success');
+        }
+
+        // Utility Functions
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('id-ID', {
+                style: 'currency',
+                currency: 'IDR',
+                minimumFractionDigits: 0
+            }).format(amount);
+        }
+
+        function formatDate(dateString) {
+            return new Date(dateString).toLocaleDateString('id-ID');
+        }
+
+        function generateBarcode() {
+            return '1234567890' + String(Date.now()).slice(-3);
+        }
+
+        function getStatusBadgeClass(status) {
+            const classes = {
+                'tersedia': 'badge-success',
+                'hampir_habis': 'badge-warning',
+                'tidak_tersedia': 'badge-danger',
+                'rusak': 'badge-danger'
+            };
+            return classes[status] || 'badge-secondary';
+        }
+
+        function getStatusText(status) {
+            const texts = {
+                'tersedia': 'Tersedia',
+                'hampir_habis': 'Hampir Habis',
+                'tidak_tersedia': 'Tidak Tersedia',
+                'rusak': 'Rusak'
+            };
+            return texts[status] || status;
+        }
+
+        function getShiftStatusBadgeClass(status) {
+            const classes = {
+                'scheduled': 'badge-warning',
+                'completed': 'badge-success',
+                'absent': 'badge-danger'
+            };
+            return classes[status] || 'badge-secondary';
+        }
+
+        function getShiftStatusText(status) {
+            const texts = {
+                'scheduled': 'Dijadwalkan',
+                'completed': 'Selesai',
+                'absent': 'Tidak Masuk'
+            };
+            return texts[status] || status;
+        }
+
+        function getInventoryStatusBadgeClass(product) {
+            if (product.stock <= 0) return 'badge-danger';
+            if (product.stock <= product.minStock) return 'badge-warning';
+            return 'badge-success';
+        }
+
+        function getInventoryStatusText(product) {
+            if (product.stock <= 0) return 'Habis';
+            if (product.stock <= product.minStock) return 'Stok Rendah';
+            return 'Stok Aman';
+        }
+
+        // Modal Functions
+        function showModal(modalId) {
+            document.getElementById(modalId).classList.add('active');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        // Toast Functions
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toastMessage');
+            
+            toast.className = `toast toast-${type}`;
+            toastMessage.textContent = message;
+            toast.classList.add('show');
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        // Theme Functions
+        function toggleTheme() {
+            currentTheme = currentTheme === 'light' ? 'dark' : 'light';
+            document.documentElement.setAttribute('data-theme', currentTheme);
+            localStorage.setItem('theme', currentTheme);
+            
+            const themeButton = document.querySelector('.theme-toggle');
+            themeButton.textContent = currentTheme === 'light' ? '🌙' : '☀️';
+        }
+
+        // Sidebar Functions
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('mainContent');
+            
+            sidebar.classList.toggle('collapsed');
+            mainContent.classList.toggle('expanded');
+        }
+
+        function toggleMobileSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('mobile-open');
+        }
+
+        // User Menu Functions
+        function showUserMenu() {
+            const menu = document.createElement('div');
+            menu.style.cssText = `
+                position: absolute;
+                top: 100%;
+                right: 0;
+                background: var(--bg-primary);
+                border: 1px solid var(--border-color);
+                border-radius: 0.5rem;
+                box-shadow: var(--shadow-lg);
+                min-width: 200px;
+                z-index: 1000;
+            `;
+            
+            menu.innerHTML = `
+                <div style="padding: 1rem; border-bottom: 1px solid var(--border-color);">
+                    <strong>${currentUser.username}</strong><br>
+                    <small>${currentUser.role}</small>
+                </div>
+                <div style="padding: 0.5rem;">
+                    <button class="btn btn-secondary" onclick="showProfile()" style="width: 100%; margin-bottom: 0.5rem;">Profile</button>
+                    <button class="btn btn-secondary" onclick="showSettings()" style="width: 100%; margin-bottom: 0.5rem;">Pengaturan</button>
+                    <button class="btn btn-danger" onclick="logout()" style="width: 100%;">Logout</button>
+                </div>
+            `;
+            
+            // Position menu
+            const userMenuButton = document.querySelector('.user-menu');
+            const rect = userMenuButton.getBoundingClientRect();
+            menu.style.position = 'fixed';
+            menu.style.top = rect.bottom + 5 + 'px';
+            menu.style.right = window.innerWidth - rect.right + 'px';
+            
+            document.body.appendChild(menu);
+            
+            // Close menu when clicking outside
+            setTimeout(() => {
+                document.addEventListener('click', function closeMenu(e) {
+                    if (!menu.contains(e.target)) {
+                        menu.remove();
+                        document.removeEventListener('click', closeMenu);
+                    }
+                });
+            }, 100);
+        }
+
+        function showProfile() {
+            showToast('Fitur profile akan segera tersedia!', 'warning');
+        }
+
+        function showSettings() {
+            showToast('Fitur pengaturan akan segera tersedia!', 'warning');
+        }
+
+        // Data Import/Export Functions
+        function importData() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.xlsx,.xls,.csv';
+            input.onchange = function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        try {
+                            const data = new Uint8Array(e.target.result);
+                            const workbook = XLSX.read(data, { type: 'array' });
+                            const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+                            const jsonData = XLSX.utils.sheet_to_json(firstSheet);
+                            
+                            // Process imported data
+                            let importedCount = 0;
+                            jsonData.forEach(row => {
+                                if (row.code && row.name) {
+                                    const newProduct = {
+                                        id: Date.now() + importedCount,
+                                        code: row.code,
+                                        name: row.name,
+                                        category: row.category || 'lainnya',
+                                        price: parseInt(row.price) || 0,
+                                        stock: parseInt(row.stock) || 0,
+                                        minStock: parseInt(row.minStock) || 5,
+                                        description: row.description || '',
+                                        status: 'tersedia',
+                                        image: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iI2VlZSIvPjx0ZXh0IHg9IjUwIiB5PSI1NSIgZm9udC1zaXplPSIxNCIgdGV4dC1hbmNob3I9Im1pZGRsZSI+UHJvZHVrPC90ZXh0Pjwvc3ZnPg==',
+                                        barcode: generateBarcode()
+                                    };
+                                    products.push(newProduct);
+                                    importedCount++;
+                                }
+                            });
+                            
+                            localStorage.setItem('products', JSON.stringify(products));
+                            renderDataTable();
+                            updateDashboardStats();
+                            showToast(`${importedCount} produk berhasil diimpor!`, 'success');
+                        } catch (error) {
+                            console.error('Import error:', error);
+                            showToast('Gagal mengimpor data. Pastikan format file benar.', 'error');
+                        }
+                    };
+                    reader.readAsArrayBuffer(file);
+                }
+            };
+            input.click();
+        }
+
+        function exportData() {
+            const exportData = products.map(product => ({
+                code: product.code,
+                name: product.name,
+                category: product.category,
+                price: product.price,
+                stock: product.stock,
+                minStock: product.minStock,
+                description: product.description,
+                status: product.status
+            }));
+            
+            const ws = XLSX.utils.json_to_sheet(exportData);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Data Produk");
+            XLSX.writeFile(wb, "data_produk_alfaaat.xlsx");
+            showToast('Data berhasil diekspor!', 'success');
+        }
+
+        // Select All Functions
+        function toggleSelectAll() {
+            const selectAll = document.getElementById('selectAll');
+            const checkboxes = document.querySelectorAll('#dataTableBody input[type="checkbox"]');
+            
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = selectAll.checked;
+            });
+            
+            updateSelectedCount();
+        }
+
+        function toggleSelectAllProducts() {
+            const selectAll = document.getElementById('selectAllProducts');
+            const checkboxes = document.querySelectorAll('#productCheckboxes input[type="checkbox"]');
+            
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = selectAll.checked;
+            });
+        }
+
+        function updateSelectedCount() {
+            const selected = document.querySelectorAll('#dataTableBody input[type="checkbox"]:checked');
+            if (selected.length > 0) {
+                // Show bulk actions
+                console.log(`${selected.length} items selected`);
+            }
+        }
+
+        // Image Upload Functions
+        function handleImageUpload() {
+            const files = document.getElementById('productImage').files;
+            const preview = document.getElementById('imagePreview');
+            preview.innerHTML = '';
+            
+            Array.from(files).forEach((file, index) => {
+                if (file.type.startsWith('image/')) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const img = document.createElement('img');
+                        img.src = e.target.result;
+                        img.style.cssText = 'width: 100px; height: 100px; object-fit: cover; border-radius: 0.5rem; margin: 0.5rem;';
+                        preview.appendChild(img);
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+        }
+
+        // Performance Monitoring
+        function logPerformance(action, startTime) {
+            const endTime = performance.now();
+            console.log(`${action} took ${endTime - startTime} milliseconds`);
+        }
+
+        // Error Handling
+        window.addEventListener('error', function(e) {
+            console.error('Application error:', e.error);
+            showToast('Terjadi kesalahan sistem. Silakan refresh halaman.', 'error');
+        });
+
+        // Auto-save functionality
+        setInterval(() => {
+            if (currentUser) {
+                const appState = {
+                    products: products,
+                    employees: employees,
+                    shifts: shifts,
+                    lastSaved: new Date().toISOString()
+                };
+                localStorage.setItem('appState', JSON.stringify(appState));
+            }
+        }, 60000); // Auto-save every minute
+
+        // Notification System
+        function checkNotifications() {
+            const lowStockProducts = products.filter(p => p.stock <= p.minStock);
+            if (lowStockProducts.length > 0) {
+                // Show notification badge or alert
+                console.log(`${lowStockProducts.length} products have low stock`);
+            }
+        }
+
+        // Run notifications check every 5 minutes
+        setInterval(checkNotifications, 300000);
+
+        // Mobile Responsiveness
+        function handleResize() {
+            const isMobile = window.innerWidth <= 768;
+            const sidebar = document.getElementById('sidebar');
+            
+            if (isMobile) {
+                sidebar.classList.remove('mobile-open');
+            }
+        }
+
+        window.addEventListener('resize', handleResize);
+
+        // Keyboard Shortcuts
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey) {
+                switch(e.key) {
+                    case 's':
+                        e.preventDefault();
+                        // Save current form or data
+                        showToast('Data tersimpan!', 'success');
+                        break;
+                    case 'f':
+                        e.preventDefault();
+                        // Focus search box
+                        const searchBox = document.querySelector('.search-box:not([style*="display: none"])');
+                        if (searchBox) searchBox.focus();
+                        break;
+                    case 'n':
+                        e.preventDefault();
+                        // New item based on current page
+                        if (currentPage === 'database') {
+                            showAddModal();
+                        } else if (currentPage === 'employees') {
+                            addEmployee();
+                        }
+                        break;
+                }
+            }
+            
+            // ESC to close modals
+            if (e.key === 'Escape') {
+                const activeModal = document.querySelector('.modal.active');
+                if (activeModal) {
+                    activeModal.classList.remove('active');
+                }
+            }
+        });
+
+        // Print Functionality
+        function printPage() {
+            window.print();
+        }
+
+        // Data Validation
+        function validateProductData(data) {
+            const errors = [];
+            
+            if (!data.code) errors.push('Kode produk wajib diisi');
+            if (!data.name) errors.push('Nama produk wajib diisi');
+            if (!data.category) errors.push('Kategori wajib dipilih');
+            if (!data.price || data.price <= 0) errors.push('Harga harus lebih dari 0');
+            if (data.stock < 0) errors.push('Stok tidak boleh negatif');
+            if (data.minStock < 0) errors.push('Minimum stok tidak boleh negatif');
+            
+            return errors;
+        }
+
+        // Backup and Restore
+        function backupData() {
+            const backup = {
+                version: '1.0',
+                timestamp: new Date().toISOString(),
+                data: {
+                    products: products,
+                    employees: employees,
+                    shifts: shifts,
+                    settings: {
+                        theme: currentTheme,
+                        user: currentUser
+                    }
+                }
+            };
+            
+            const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `alfaaat_backup_${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+            
+            showToast('Backup berhasil dibuat!', 'success');
+        }
+
+        function restoreData() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.json';
+            input.onchange = function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        try {
+                            const backup = JSON.parse(e.target.result);
+                            if (backup.version && backup.data) {
+                                products = backup.data.products || [];
+                                employees = backup.data.employees || [];
+                                shifts = backup.data.shifts || [];
+                                
+                                localStorage.setItem('products', JSON.stringify(products));
+                                localStorage.setItem('employees', JSON.stringify(employees));
+                                localStorage.setItem('shifts', JSON.stringify(shifts));
+                                
+                                // Refresh all data
+                                loadPageData(currentPage);
+                                updateDashboardStats();
+                                
+                                showToast('Data berhasil dipulihkan!', 'success');
+                            } else {
+                                throw new Error('Invalid backup format');
+                            }
+                        } catch (error) {
+                            console.error('Restore error:', error);
+                            showToast('Gagal memulihkan data. File backup tidak valid.', 'error');
+                        }
+                    };
+                    reader.readAsText(file);
+                }
+            };
+            input.click();
+        }
+
+        // Help System
+        function showHelp() {
+            const helpModal = document.createElement('div');
+            helpModal.className = 'modal active';
+            helpModal.innerHTML = `
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3>Bantuan - AlfaAat</h3>
+                        <button class="close-btn" onclick="this.closest('.modal').remove()">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <h4>Navigasi Utama:</h4>
+                        <ul>
+                            <li><strong>Dashboard:</strong> Ringkasan statistik dan grafik penjualan</li>
+                            <li><strong>Database:</strong> Kelola data produk dan pelanggan</li>
+                            <li><strong>Katalog:</strong> Atur kategori produk dan diskon</li>
+                            <li><strong>Inventaris:</strong> Manajemen stok dan reorder</li>
+                            <li><strong>Jadwal Shift:</strong> Atur jadwal kerja karyawan</li>
+                            <li><strong>Data Karyawan:</strong> Kelola informasi karyawan</li>
+                            <li><strong>Barcode:</strong> Generate dan cetak barcode</li>
+                            <li><strong>Scanner:</strong> Scan produk dengan barcode</li>
+                            <li><strong>Laporan:</strong> Rekap penjualan dan analisis</li>
+                        </ul>
+                        
+                        <h4>Keyboard Shortcuts:</h4>
+                        <ul>
+                            <li><kbd>Ctrl + S</kbd>: Simpan data</li>
+                            <li><kbd>Ctrl + F</kbd>: Fokus ke pencarian</li>
+                            <li><kbd>Ctrl + N</kbd>: Tambah item baru</li>
+                            <li><kbd>Esc</kbd>: Tutup modal</li>
+                        </ul>
+                        
+                        <h4>Fitur Lainnya:</h4>
+                        <ul>
+                            <li>Auto-save setiap menit</li>
+                            <li>Export/Import Excel</li>
+                            <li>Mode gelap/terang</li>
+                            <li>Notifikasi stok rendah</li>
+                            <li>Backup dan restore data</li>
+                        </ul>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-primary" onclick="this.closest('.modal').remove()">Tutup</button>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(helpModal);
+        }
+
+        // Add help button to header
+        document.addEventListener('DOMContentLoaded', function() {
+            const headerRight = document.querySelector('.header-right');
+            if (headerRight) {
+                const helpButton = document.createElement('button');
+                helpButton.className = 'theme-toggle';
+                helpButton.textContent = '❓';
+                helpButton.onclick = showHelp;
+                helpButton.title = 'Bantuan';
+                headerRight.insertBefore(helpButton, headerRight.firstChild);
+            }
+        });
+
+        console.log('🎉 AlfaAat Retail Management System berhasil dimuat!');
+        console.log('📖 Tekan tombol bantuan (❓) untuk melihat panduan penggunaan');
+    </script>
+</body>
+</html>iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iI2VlZSIvPjx0ZXh0IHg9IjUwIiB5PSI1NSIgZm9udC1zaXplPSIxNiIgdGV4dC1hbmNob3I9Im1pZGRsZSI+S2VtZWphPC90ZXh0Pjwvc3ZnPg==',
+                    barcode: '1234567890123',
+                    status: 'tersedia'
+                },
+                {
+                    id: 2,
+                    code: 'P002',
+                    name: 'Celana Jeans',
+                    category: 'pakaian',
+                    price: 200000,
+                    stock: 30,
+                    minStock: 3,
+                    description: 'Celana jeans premium',
+                    image: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0
