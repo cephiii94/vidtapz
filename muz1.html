@@ -1,0 +1,935 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VidTap Music - Platform Streaming Musik</title>
+    <style>
+        :root {
+            --primary-color: #4a90e2;
+            --primary-hover: #6bb6ff;
+            --background-dark: #1a1a1a;
+            --background-light: #f5f5f5;
+            --card-dark: #2a2a2a;
+            --card-light: #fff;
+            --text-dark: #fff;
+            --text-light: #222;
+        }
+
+        html.light-mode {
+            --background-dark: #f5f5f5;
+            --card-dark: #fff;
+            --text-dark: #222;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: var(--background-dark);
+            color: var(--text-dark);
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-hover) 100%);
+            padding: 1rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--primary-color);
+            font-weight: bold;
+            font-size: 1.5rem;
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            transition: opacity 0.3s;
+        }
+
+        .nav-links a:hover {
+            opacity: 0.7;
+        }
+
+        /* Main Content */
+        .main-content {
+            padding: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .hero {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .hero h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            opacity: 0.8;
+        }
+
+        /* Filter Buttons */
+        .filters {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 0.5rem 1rem;
+            background: #333;
+            border: none;
+            color: white;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .filter-btn:hover,
+        .filter-btn.active {
+            background: var(--primary-color);
+        }
+
+        /* Music Grid */
+        .music-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .music-card {
+            background: var(--card-dark);
+            border-radius: 10px;
+            padding: 1rem;
+            transition: transform 0.3s;
+            cursor: pointer;
+        }
+
+        .music-card:hover {
+            box-shadow: 0 4px 16px var(--primary-color, #4a90e2, 0.15);
+        }
+
+        .music-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .thumbnail {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(45deg, var(--primary-color), var(--primary-hover));
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        .song-details h3 {
+            margin-bottom: 0.5rem;
+        }
+
+        .song-details p {
+            opacity: 0.7;
+            font-size: 0.9rem;
+        }
+
+        .duration {
+            margin-left: auto;
+            font-weight: bold;
+        }
+
+        /* Mini Player */
+        .mini-player {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #333;
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            z-index: 1000;
+        }
+
+        .player-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            flex: 1;
+        }
+
+        .player-thumbnail {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(45deg, var(--primary-color), var(--primary-hover));
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        .player-controls {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            flex: 2;
+            justify-content: center;
+        }
+
+        .control-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.2rem;
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 50%;
+            transition: background 0.3s;
+        }
+
+        .control-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .play-btn {
+            font-size: 1.8rem;
+            background: var(--primary-color);
+        }
+
+        .player-extras {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            flex: 1;
+            justify-content: flex-end;
+        }
+
+        /* Pop-up Full Player */
+        .popup-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: none;
+            z-index: 2000;
+            backdrop-filter: blur(10px);
+        }
+
+        .popup-player {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
+            border-radius: 20px;
+            padding: 3rem;
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.3s;
+        }
+
+        .close-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .popup-thumbnail {
+            width: 200px;
+            height: 200px;
+            background: linear-gradient(45deg, var(--primary-color), var(--primary-hover));
+            border-radius: 20px;
+            margin: 0 auto 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+        }
+
+        .popup-song-info h2 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .popup-song-info p {
+            opacity: 0.7;
+            font-size: 1.1rem;
+            margin-bottom: 2rem;
+        }
+
+        .progress-container {
+            margin: 2rem 0;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: #444;
+            border-radius: 3px;
+            cursor: pointer;
+            margin: 1rem 0;
+        }
+
+        .progress {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary-color), var(--primary-hover));
+            border-radius: 3px;
+            width: 0%;
+            transition: width 0.1s;
+        }
+
+        .time-display {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9rem;
+            opacity: 0.7;
+        }
+
+        .popup-controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        .popup-control-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 1rem;
+            border-radius: 50%;
+            transition: all 0.3s;
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .popup-control-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: scale(1.1);
+        }
+
+        .popup-play-btn {
+            font-size: 2rem;
+            background: linear-gradient(45deg, var(--primary-color), var(--primary-hover));
+            width: 80px;
+            height: 80px;
+        }
+
+        .volume-controls {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .volume-slider {
+            width: 100px;
+            height: 4px;
+            background: #444;
+            border-radius: 2px;
+            outline: none;
+            cursor: pointer;
+        }
+
+        /* Footer */
+        .footer {
+            background: #222;
+            padding: 2rem;
+            text-align: center;
+            margin-top: 3rem;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .footer-links a {
+            color: white;
+            text-decoration: none;
+            opacity: 0.7;
+            transition: opacity 0.3s;
+        }
+
+        .footer-links a:hover {
+            opacity: 1;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+            
+            .mini-player {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+            
+            .popup-player {
+                padding: 2rem;
+            }
+            
+            .popup-thumbnail {
+                width: 150px;
+                height: 150px;
+                font-size: 3rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <nav class="nav">
+            <a href="index.html" class="logo" style="display:flex;align-items:center;gap:0.5rem;text-decoration:none;color:var(--primary-color);font-weight:bold;font-size:1.5rem;">
+                <span style="font-size:1.7rem;">🎵</span>
+                VidTap Music
+            </a>
+            <ul class="nav-links">
+                <li><a href="index.html">Beranda</a></li>
+                <li><a href="#musik">Musik</a></li>
+                <li><a href="#trending">Trending</a></li>
+                <li><a href="#playlist">Playlist</a></li>
+                <li><a href="#artis">Artis</a></li>
+            </ul>
+            <div style="margin-left:1rem;">
+                <label style="cursor:pointer;">
+                    <input type="checkbox" id="themeSwitch" style="accent-color:var(--primary-color);vertical-align:middle;">
+                    <span id="themeLabel" style="margin-left:0.5rem;">🌙</span>
+                </label>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Hero Section -->
+        <section class="hero">
+            <h1>VidTap Music</h1>
+            <p>Temukan dan nikmati musik favorit Anda dari seluruh dunia</p>
+        </section>
+
+        <!-- Filter Buttons -->
+        <div class="filters">
+            <button class="filter-btn active" data-filter="all">Semua</button>
+            <button class="filter-btn" data-filter="pop">Pop</button>
+            <button class="filter-btn" data-filter="rock">Rock</button>
+            <button class="filter-btn" data-filter="jazz">Jazz</button>
+            <button class="filter-btn" data-filter="klasik">Klasik</button>
+            <button class="filter-btn" data-filter="elektronik">Elektronik</button>
+            <button class="filter-btn" data-filter="indie">Indie</button>
+        </div>
+
+        <!-- Music Grid -->
+        <div class="music-grid">
+            <div class="music-card" data-genre="rock" onclick="playMusic('Bohemian Rhapsody', 'Queen', '5:55')">
+                <div class="music-info">
+                    <div class="thumbnail"><img style="width:100%;height:100%;object-fit:cover;display:none"></div>
+                    <div class="song-details">
+                        <h3>Bohemian Rhapsody</h3>
+                        <p>Queen • 1.2B views • Rock</p>
+                    </div>
+                    <div class="duration">5:55</div>
+                </div>
+            </div>
+
+            <div class="music-card" data-genre="pop" onclick="playMusic('Shape of You', 'Ed Sheeran', '3:53')">
+                <div class="music-info">
+                    <div class="thumbnail"><img style="width:100%;height:100%;object-fit:cover;display:none"></div>
+                    <div class="song-details">
+                        <h3>Shape of You</h3>
+                        <p>Ed Sheeran • 5.8B views • Pop</p>
+                    </div>
+                    <div class="duration">3:53</div>
+                </div>
+            </div>
+
+            <div class="music-card" data-genre="latin" onclick="playMusic('Despacito', 'Luis Fonsi ft. Daddy Yankee', '4:41')">
+                <div class="music-info">
+                    <div class="thumbnail"><img style="width:100%;height:100%;object-fit:cover;display:none"></div>
+                    <div class="song-details">
+                        <h3>Despacito</h3>
+                        <p>Luis Fonsi ft. Daddy Yankee • 8.1B views • Latin</p>
+                    </div>
+                    <div class="duration">4:41</div>
+                </div>
+            </div>
+
+            <div class="music-card" data-genre="soul" onclick="playMusic('Hello', 'Adele', '6:07')">
+                <div class="music-info">
+                    <div class="thumbnail"><img style="width:100%;height:100%;object-fit:cover;display:none"></div>
+                    <div class="song-details">
+                        <h3>Hello</h3>
+                        <p>Adele • 3.2B views • Soul</p>
+                    </div>
+                    <div class="duration">6:07</div>
+                </div>
+            </div>
+
+            <div class="music-card" data-genre="pop" onclick="playMusic('Wrecking Ball', 'Miley Cyrus', '3:41')">
+                <div class="music-info">
+                    <div class="thumbnail"><img style="width:100%;height:100%;object-fit:cover;display:none"></div>
+                    <div class="song-details">
+                        <h3>Wrecking Ball</h3>
+                        <p>Miley Cyrus • 1.1B views • Pop</p>
+                    </div>
+                    <div class="duration">3:41</div>
+                </div>
+            </div>
+
+            <div class="music-card" data-genre="ballad" onclick="playMusic('Someone Like You', 'Adele', '4:45')">
+                <div class="music-info">
+                    <div class="thumbnail"><img style="width:100%;height:100%;object-fit:cover;display:none"></div>
+                    <div class="song-details">
+                        <h3>Someone Like You</h3>
+                        <p>Adele • 2.8B views • Ballad</p>
+                    </div>
+                    <div class="duration">4:45</div>
+                </div>
+            </div>
+
+            <div class="music-card" data-genre="rock" onclick="playMusic('Kryptonite', '3 Doors Down', '3:53')">
+                <div class="music-info">
+                    <div class="thumbnail"><img style="width:100%;height:100%;object-fit:cover;display:none"></div>
+                    <div class="song-details">
+                        <h3>Kryptonite</h3>
+                        <p>3 Doors Down • 180M views • Rock</p>
+                    </div>
+                    <div class="duration">3:53</div>
+                </div>
+            </div>
+
+            <div class="music-card" data-genre="pop" onclick="playMusic('Never Gonna Give You Up', 'Rick Astley', '3:33')">
+                <div class="music-info">
+                    <div class="thumbnail"><img style="width:100%;height:100%;object-fit:cover;display:none"></div>
+                    <div class="song-details">
+                        <h3>Never Gonna Give You Up</h3>
+                        <p>Rick Astley • 1.4B views • Pop</p>
+                    </div>
+                    <div class="duration">3:33</div>
+                </div>
+            </div>
+
+            <div class="music-card" data-genre="jazz" onclick="playMusic('Fly Me to the Moon', 'Frank Sinatra', '2:28')">
+                <div class="music-info">
+                    <div class="thumbnail"><img style="width:100%;height:100%;object-fit:cover;display:none"></div>
+                    <div class="song-details">
+                        <h3>Fly Me to the Moon</h3>
+                        <p>Frank Sinatra • 85M views • Jazz</p>
+                    </div>
+                    <div class="duration">2:28</div>
+                </div>
+            </div>
+
+            <div class="music-card" data-genre="rock" onclick="playMusic('Numb', 'Linkin Park', '3:07')">
+                <div class="music-info">
+                    <div class="thumbnail"><img style="width:100%;height:100%;object-fit:cover;display:none"></div>
+                    <div class="song-details">
+                        <h3>Numb</h3>
+                        <p>Linkin Park • 2.1B views • Rock</p>
+                    </div>
+                    <div class="duration">3:07</div>
+                </div>
+            </div>
+
+            <div class="music-card" data-genre="klasik" onclick="playMusic('Canon in D', 'Johann Pachelbel', '4:20')">
+                <div class="music-info">
+                    <div class="thumbnail"><img style="width:100%;height:100%;object-fit:cover;display:none"></div>
+                    <div class="song-details">
+                        <h3>Canon in D</h3>
+                        <p>Johann Pachelbel • 45M views • Classical</p>
+                    </div>
+                    <div class="duration">4:20</div>
+                </div>
+            </div>
+
+            <div class="music-card" data-genre="elektronik" onclick="playMusic('Wake Me Up', 'Avicii', '4:09')">
+                <div class="music-info">
+                    <div class="thumbnail"><img style="width:100%;height:100%;object-fit:cover;display:none"></div>
+                    <div class="song-details">
+                        <h3>Wake Me Up</h3>
+                        <p>Avicii • 2.2B views • EDM</p>
+                    </div>
+                    <div class="duration">4:09</div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Mini Player -->
+    <div class="mini-player" id="miniPlayer" style="display: none;">
+        <div class="player-info">
+            <div class="player-thumbnail" onclick="openFullPlayer()">🎵</div>
+            <div>
+                <div id="currentSong">Select a song</div>
+                <div id="currentArtist" style="opacity: 0.7; font-size: 0.9rem;"></div>
+            </div>
+        </div>
+        <div class="player-controls">
+            <button class="control-btn">♡</button>
+            <button class="control-btn">🔀</button>
+            <button class="control-btn">⏮</button>
+            <button class="control-btn play-btn" id="playBtn">▶</button>
+            <button class="control-btn">⏭</button>
+            <button class="control-btn">🔁</button>
+        </div>
+        <div class="player-extras">
+            <span id="currentTime">0:00</span>
+            <span>/</span>
+            <span id="totalTime">0:00</span>
+            <button class="control-btn">🔊</button>
+            <button class="control-btn">📋</button>
+            <button class="control-btn">⛶</button>
+        </div>
+    </div>
+
+    <!-- Pop-up Full Player -->
+    <div class="popup-overlay" id="popupOverlay">
+        <div class="popup-player">
+            <button class="close-btn" onclick="closeFullPlayer()">×</button>
+            
+            <div class="popup-thumbnail">🎵</div>
+            
+            <div class="popup-song-info">
+                <h2 id="popupSongTitle">Select a song</h2>
+                <p id="popupArtist"></p>
+            </div>
+            
+            <div class="progress-container">
+                <div class="progress-bar" onclick="setProgress(event)">
+                    <div class="progress" id="progress"></div>
+                </div>
+                <div class="time-display">
+                    <span id="popupCurrentTime">0:00</span>
+                    <span id="popupTotalTime">0:00</span>
+                </div>
+            </div>
+            
+            <div class="popup-controls">
+                <button class="popup-control-btn">⏮</button>
+                <button class="popup-control-btn popup-play-btn" id="popupPlayBtn">▶</button>
+                <button class="popup-control-btn">⏭</button>
+            </div>
+            
+            <div class="volume-controls">
+                <span>🔊</span>
+                <input type="range" class="volume-slider" min="0" max="100" value="50" id="volumeSlider">
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-links">
+            <a href="#tentang">Tentang Kami</a>
+            <a href="#ketentuan">Ketentuan Layanan</a>
+            <a href="#privasi">Kebijakan Privasi</a>
+            <a href="#bantuan">Bantuan</a>
+            <a href="#kontak">Kontak</a>
+        </div>
+        <p>© 2025 VidTap Music. Semua hak dilindungi undang-undang.</p>
+    </footer>
+
+    <script>
+        let currentSong = null;
+        let isPlaying = false;
+        let currentTime = 0;
+        let totalTime = 0;
+        let progressInterval;
+
+        // Filter functionality
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                // Remove active class from all buttons
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                // Add active class to clicked button
+                btn.classList.add('active');
+                
+                const filter = btn.dataset.filter;
+                const cards = document.querySelectorAll('.music-card');
+                
+                cards.forEach(card => {
+                    if (filter === 'all' || card.dataset.genre === filter) {
+                        card.style.display = 'block';
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+            });
+        });
+
+        // Play music function
+        function playMusic(title, artist, duration) {
+            currentSong = { title, artist, duration };
+            
+            // Update mini player
+            document.getElementById('currentSong').textContent = title;
+            document.getElementById('currentArtist').textContent = artist;
+            document.getElementById('totalTime').textContent = duration;
+            document.getElementById('miniPlayer').style.display = 'flex';
+            
+            // Update popup player
+            document.getElementById('popupSongTitle').textContent = title;
+            document.getElementById('popupArtist').textContent = artist;
+            document.getElementById('popupTotalTime').textContent = duration;
+            
+            // Reset progress
+            currentTime = 0;
+            updateProgress();
+            
+            // Start playing
+            togglePlay();
+        }
+
+        // Toggle play/pause
+        function togglePlay() {
+            isPlaying = !isPlaying;
+            const playBtn = document.getElementById('playBtn');
+            const popupPlayBtn = document.getElementById('popupPlayBtn');
+            
+            if (isPlaying) {
+                playBtn.textContent = '⏸';
+                popupPlayBtn.textContent = '⏸';
+                startProgress();
+            } else {
+                playBtn.textContent = '▶';
+                popupPlayBtn.textContent = '▶';
+                stopProgress();
+            }
+        }
+
+        // Progress simulation
+        function startProgress() {
+            if (progressInterval) clearInterval(progressInterval);
+            
+            progressInterval = setInterval(() => {
+                if (currentSong && isPlaying) {
+                    currentTime += 1;
+                    
+                    // Convert duration to seconds for calculation
+                    const durationParts = currentSong.duration.split(':');
+                    const totalSeconds = parseInt(durationParts[0]) * 60 + parseInt(durationParts[1]);
+                    
+                    if (currentTime >= totalSeconds) {
+                        currentTime = totalSeconds;
+                        togglePlay(); // Stop playing when song ends
+                    }
+                    
+                    updateProgress();
+                }
+            }, 1000);
+        }
+
+        function stopProgress() {
+            if (progressInterval) {
+                clearInterval(progressInterval);
+                progressInterval = null;
+            }
+        }
+
+        function updateProgress() {
+            if (currentSong) {
+                // Convert duration to seconds
+                const durationParts = currentSong.duration.split(':');
+                const totalSeconds = parseInt(durationParts[0]) * 60 + parseInt(durationParts[1]);
+                
+                // Calculate progress percentage
+                const progressPercent = (currentTime / totalSeconds) * 100;
+                
+                // Update progress bar
+                document.getElementById('progress').style.width = progressPercent + '%';
+                
+                // Update time display
+                const currentMinutes = Math.floor(currentTime / 60);
+                const currentSeconds = currentTime % 60;
+                const timeString = `${currentMinutes}:${currentSeconds.toString().padStart(2, '0')}`;
+                
+                document.getElementById('currentTime').textContent = timeString;
+                document.getElementById('popupCurrentTime').textContent = timeString;
+            }
+        }
+
+        // Set progress by clicking on progress bar
+        function setProgress(event) {
+            if (currentSong) {
+                const progressBar = event.currentTarget;
+                const rect = progressBar.getBoundingClientRect();
+                const clickX = event.clientX - rect.left;
+                const width = rect.width;
+                const percentage = (clickX / width) * 100;
+                
+                // Convert duration to seconds
+                const durationParts = currentSong.duration.split(':');
+                const totalSeconds = parseInt(durationParts[0]) * 60 + parseInt(durationParts[1]);
+                
+                currentTime = Math.floor((percentage / 100) * totalSeconds);
+                updateProgress();
+            }
+        }
+
+        // Open full player popup
+        function openFullPlayer() {
+            if (currentSong) {
+                document.getElementById('popupOverlay').style.display = 'block';
+                document.body.style.overflow = 'hidden'; // Prevent background scrolling
+            }
+        }
+
+        // Close full player popup
+        function closeFullPlayer() {
+            document.getElementById('popupOverlay').style.display = 'none';
+            document.body.style.overflow = 'auto'; // Restore scrolling
+        }
+
+        // Close popup when clicking outside
+        document.getElementById('popupOverlay').addEventListener('click', (e) => {
+            if (e.target === document.getElementById('popupOverlay')) {
+                closeFullPlayer();
+            }
+        });
+
+        // Play button event listeners
+        document.getElementById('playBtn').addEventListener('click', togglePlay);
+        document.getElementById('popupPlayBtn').addEventListener('click', togglePlay);
+
+        // Volume control
+        document.getElementById('volumeSlider').addEventListener('input', (e) => {
+            const volume = e.target.value;
+            // Here you would control the actual audio volume
+            console.log('Volume set to:', volume + '%');
+        });
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space' && currentSong) {
+                e.preventDefault();
+                togglePlay();
+            } else if (e.code === 'Escape') {
+                closeFullPlayer();
+            }
+        });
+
+        // Theme switch logic
+        function applyTheme(theme) {
+            if (theme === 'light') {
+                document.documentElement.classList.add('light-mode');
+                document.getElementById('themeSwitch').checked = true;
+                document.getElementById('themeLabel').textContent = '☀️';
+            } else {
+                document.documentElement.classList.remove('light-mode');
+                document.getElementById('themeSwitch').checked = false;
+                document.getElementById('themeLabel').textContent = '🌙';
+            }
+        }
+        const savedTheme = localStorage.getItem('theme') || 'dark';
+        applyTheme(savedTheme);
+
+        document.getElementById('themeSwitch').addEventListener('change', function() {
+            const theme = this.checked ? 'light' : 'dark';
+            localStorage.setItem('theme', theme);
+            applyTheme(theme);
+        });
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('VidTap Music loaded successfully!');
+        });
+
+
+        document.querySelectorAll('.music-card').forEach(async card => {
+    const vid = card.dataset.videoId;
+    if (!vid) return;
+    try {
+        const res = await fetch(`https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${vid}&format=json`);
+        if (!res.ok) return;
+        const data = await res.json();
+        // Thumbnail
+        const img = card.querySelector('.thumbnail img');
+        if (img && data.thumbnail_url) {
+            img.src = data.thumbnail_url;
+            img.style.display = 'block';
+            card.querySelector('.thumbnail').textContent = '';
+            card.querySelector('.thumbnail').appendChild(img);
+        }
+        // Judul
+        const h3 = card.querySelector('.song-details h3');
+        if (h3 && data.title) h3.textContent = data.title;
+        // Artis
+        const p = card.querySelector('.song-details p');
+        if (p && data.author_name) {
+            let old = p.textContent.split('•');
+            old[0] = data.author_name + ' ';
+            p.textContent = old.join('•');
+        }
+    } catch {}
+});
+    </script>
+</body>
+</html>
