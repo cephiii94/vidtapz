@@ -1,6 +1,7 @@
 /* Variabel warna dan pengaturan tema */
 :root {
-    --primary-color: #4a90e2;      /* soft blue */
+    /* Variabel tema - akan diubah saat toggle tema */
+    --primary-color: #ff4d4d;
     --secondary-color: #333;
     --text-color: #f5f5f5;
     --background-dark: #1a1a1a;
@@ -16,7 +17,6 @@
 
 /* Tema Light Mode */
 html.light-mode {
-    --primary-color: #4a90e2;      /* soft blue */
     --text-color: #333;
     --background-dark: #f5f5f5;
     --background-light: #ffffff;
@@ -439,7 +439,7 @@ a.video-card:hover .thumbnail::after {
 
 .slider:before {
     background-color: #fff;
-    bottom : 4px;
+    bottom: 4px;
     content: "";
     height: 16px;
     left: 4px;
