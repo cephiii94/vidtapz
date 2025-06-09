@@ -1,0 +1,549 @@
+/* Variabel warna dan pengaturan tema */
+:root {
+    --primary-color: #4a90e2;      /* soft blue */
+    --secondary-color: #333;
+    --text-color: #f5f5f5;
+    --background-dark: #1a1a1a;
+    --background-light: #2d2d2d;
+    --card-background: #2d2d2d;
+    --shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+    --border-color: rgba(255, 255, 255, 0.1);
+    --stats-color: #888;
+    --channel-color: #aaa;
+    --header-bg: #333;
+    --footer-bg: #333;
+}
+
+/* Tema Light Mode */
+html.light-mode {
+    --primary-color: #4a90e2;      /* soft blue */
+    --text-color: #333;
+    --background-dark: #f5f5f5;
+    --background-light: #ffffff;
+    --card-background: #ffffff;
+    --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    --border-color: rgba(0, 0, 0, 0.1);
+    --stats-color: #666;
+    --channel-color: #555;
+    --header-bg: #ffffff;
+    --footer-bg: #f0f0f0;
+    --secondary-color: #ffffff;
+}
+
+/* Reset CSS */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background-color: var(--background-dark);
+    color: var(--text-color);
+    line-height: 1.6;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+/* Styling untuk header */
+header {
+    background-color: var(--header-bg);
+    padding: 1rem;
+    position: fixed;
+    width: 100%;
+    top: 0;
+    z-index: 1000;
+    box-shadow: var(--shadow);
+    transition: background-color 0.3s;
+}
+
+.nav-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.logo {
+    font-size: 1.8rem;
+    font-weight: bold;
+    color: var(--primary-color);
+    text-decoration: none;
+}
+
+.nav-links {
+    display: flex;
+    list-style: none;
+    align-items: center;
+}
+
+.nav-links li {
+    margin-left: 2rem;
+}
+
+.nav-links a {
+    color: var(--text-color);
+    text-decoration: none;
+    transition: color 0.3s;
+}
+
+.nav-links a:hover {
+    color: var(--primary-color);
+}
+
+/* Styling untuk search bar */
+.search-bar {
+    display: flex;
+    margin-right: 1rem;
+}
+
+.search-bar input {
+    padding: 0.5rem;
+    border: none;
+    border-radius: 4px 0 0 4px;
+    width: 250px;
+    background-color: var(--background-light);
+    color: var(--text-color);
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.search-bar button {
+    background-color: var(--primary-color);
+    border: none;
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 0 4px 4px 0;
+    cursor: pointer;
+}
+
+/* Styling untuk menu toggle pada mobile */
+.menu-toggle {
+    display: none;
+    flex-direction: column;
+    justify-content: space-between;
+    width: 30px;
+    height: 21px;
+    cursor: pointer;
+}
+
+.menu-toggle span {
+    height: 3px;
+    width: 100%;
+    background-color: var(--text-color);
+    border-radius: 10px;
+    transition: background-color 0.3s;
+}
+
+/* Styling untuk konten utama */
+main {
+    max-width: 1200px;
+    margin: 6rem auto 2rem;
+    padding: 0 1rem;
+}
+
+/* Styling untuk grid video */
+.video-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem;
+    margin-top: 1rem;
+}
+
+/* Styling untuk video cards */
+.video-card {
+    background-color: var(--card-background);
+    border-radius: 8px;
+    overflow: hidden;
+    transition: transform 0.3s, background-color 0.3s, box-shadow 0.3s;
+    box-shadow: var(--shadow);
+}
+
+.video-card:hover {
+    transform: translateY(-5px);
+}
+
+/* Styling untuk thumbnail */
+.thumbnail {
+    position: relative;
+    padding-bottom: 56.25%; /* Rasio 16:9 */
+    height: 0;
+    overflow: hidden;
+}
+
+.thumbnail img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: all 0.3s ease;
+}
+
+.duration {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    background-color: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.8rem;
+}
+
+/* Styling untuk informasi kartu */
+.card-info {
+    padding: 1rem;
+}
+
+.card-info h3 {
+    font-size: 1rem;
+    margin-bottom: 0.5rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    transition: color 0.3s ease;
+}
+
+.channel {
+    font-size: 0.9rem;
+    color: var(--channel-color);
+    margin-bottom: 0.5rem;
+    transition: color 0.3s;
+}
+
+.stats {
+    display: flex;
+    justify-content: space-between;
+    color: var(--stats-color);
+    font-size: 0.8rem;
+    transition: color 0.3s;
+}
+
+/* Styling untuk footer */
+footer {
+    background-color: var(--footer-bg);
+    padding: 2rem 1rem;
+    margin-top: 3rem;
+    text-align: center;
+    transition: background-color 0.3s;
+}
+
+.footer-content {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.footer-links {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    margin-bottom: 1.5rem;
+}
+
+.footer-links a {
+    color: var(--text-color);
+    text-decoration: none;
+    transition: color 0.3s;
+}
+
+.footer-links a:hover {
+    color: var(--primary-color);
+}
+
+.copyright {
+    color: var(--stats-color);
+    font-size: 0.9rem;
+    transition: color 0.3s;
+}
+
+/* Styling untuk link video-card */
+a.video-card {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+    background-color: var(--card-background);
+    border-radius: 8px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    box-shadow: var(--shadow);
+    height: 100%;
+}
+
+/* Efek hover untuk video card */
+a.video-card:hover {
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+    background-color: var(--card-background);
+    filter: brightness(1.05);
+}
+
+/* Efek untuk thumbnail saat hover */
+a.video-card:hover .thumbnail img {
+    transform: scale(1.05);
+    filter: brightness(1.1);
+}
+
+/* Styling untuk judul video saat hover */
+a.video-card:hover h3 {
+    color: var(--primary-color);
+}
+
+/* Efek focus untuk aksesibilitas */
+a.video-card:focus {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+}
+
+/* Indikator play saat hover */
+a.video-card:hover .thumbnail::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 50px;
+    height: 50px;
+    background-color: rgba(255, 77, 77, 0.8);
+    border-radius: 50%;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M8 5v14l11-7z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 24px;
+    opacity: 0.9;
+    transition: all 0.2s ease;
+}
+
+/* Styling untuk popup video */
+.video-popup-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.9);
+    z-index: 1001;
+}
+
+.video-popup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 80%;
+    max-width: 900px;
+    background-color: var(--card-background);
+    border-radius: 8px;
+    z-index: 1002;
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    transition: background-color 0.3s;
+}
+
+.popup-header {
+    padding: 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--border-color);
+    transition: border-color 0.3s;
+}
+
+.popup-title {
+    font-size: 1.2rem;
+    color: var(--text-color);
+    max-width: 80%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    transition: color 0.3s;
+}
+
+.popup-close {
+    background: none;
+    border: none;
+    color: var(--text-color);
+    font-size: 1.5rem;
+    cursor: pointer;
+    transition: color 0.3s;
+}
+
+.popup-close:hover {
+    color: var(--primary-color);
+}
+
+.popup-video-container {
+    position: relative;
+    padding-bottom: 56.25%;
+    height: 0;
+    overflow: hidden;
+    background-color: #000;
+}
+
+.popup-video-container iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: none;
+}
+
+.full-view-button {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    margin: 1rem;
+    transition: background-color 0.3s;
+}
+
+.full-view-button:hover {
+    background-color: #ff3333;
+}
+
+/* Styling untuk theme switch */
+.theme-switch-wrapper {
+    display: flex;
+    align-items: center;
+}
+
+.theme-switch {
+    display: inline-block;
+    height: 24px;
+    position: relative;
+    width: 50px;
+}
+
+.theme-switch input {
+    display: none;
+}
+
+.slider {
+    background-color: #ccc;
+    bottom: 0;
+    cursor: pointer;
+    left: 0;
+    position: absolute;
+    right: 0;
+    top: 0;
+    transition: .4s;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 5px;
+}
+
+.slider:before {
+    background-color: #fff;
+    bottom : 4px;
+    content: "";
+    height: 16px;
+    left: 4px;
+    position: absolute;
+    transition: .4s;
+    width: 16px;
+    z-index: 1;
+}
+
+input:checked + .slider {
+    background-color: var(--primary-color);
+}
+
+input:checked + .slider:before {
+    transform: translateX(26px);
+}
+
+.slider.round {
+    border-radius: 34px;
+}
+
+.slider.round:before {
+    border-radius: 50%;
+}
+
+/* Icons untuk light/dark mode */
+.slider .sun {
+    color: #f8d568;
+    font-size: 12px;
+    margin-left: auto;
+}
+
+.slider .moon {
+    color: #f5f5f5;
+    font-size: 12px;
+    margin-right: auto;
+}
+
+/* Responsive Design */
+@media (max-width: 992px) {
+    .search-bar input {
+        width: 200px;
+    }
+    
+    .video-popup {
+        width: 90%;
+    }
+}
+
+@media (max-width: 768px) {
+    .menu-toggle {
+        display: flex;
+    }
+    
+    .nav-links, .search-bar {
+        display: none;
+    }
+    
+    .nav-links.active {
+        display: flex;
+        flex-direction: column;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background-color: var(--header-bg);
+        padding: 1rem;
+        box-shadow: var(--shadow);
+    }
+    
+    .nav-links.active li {
+        margin: 0.5rem 0;
+    }
+    
+    .search-bar.active {
+        display: flex;
+        width: 100%;
+        margin-top: 1rem;
+    }
+    
+    .search-bar.active input {
+        width: 100%;
+    }
+    
+    .video-grid {
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    }
+    
+    /* Tambahan untuk theme switch di mobile */
+    .theme-switch-wrapper {
+        margin-top: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .logo {
+        font-size: 1.5rem;
+    }
+    
+    .video-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .video-actions {
+        flex-wrap: wrap;
+    }
+}

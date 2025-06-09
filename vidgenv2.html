@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VidTapz - Video Generator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 1.1rem;
+        }
+
+        .main-content {
+            padding: 30px;
+        }
+
+        .form-section {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #333;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+        }
+
+        .btn-success {
+            background: #28a745;
+        }
+
+        .video-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .video-card {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+
+        .video-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+        }
+
+        .video-thumbnail {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+        }
+
+        .video-info {
+            padding: 15px;
+        }
+
+        .video-title {
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: #333;
+        }
+
+        .video-meta {
+            color: #666;
+            font-size: 12px;
+            margin-bottom: 10px;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #667eea;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .manual-mode {
+            display: none;
+        }
+
+        .code-preview {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            max-height: 400px;
+            overflow-y: auto;
+            margin-top: 20px;
+        }
+
+        .toggle-btn {
+            background: #17a2b8;
+            margin-bottom: 15px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+                border-radius: 15px;
+            }
+            
+            .header {
+                padding: 20px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .main-content {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎬 VidTapz Generator</h1>
+            <p>Generate and manage your video collection with auto-fetch metadata</p>
+        </div>
+
+        <div class="main-content">
+            <!-- Add Video Section -->
+            <div class="form-section">
+                <h2>📹 Add Video</h2>
+                
+                <div class="form-group">
+                    <label for="videoUrl">Video URL *</label>
+                    <input type="url" id="videoUrl" placeholder="Paste YouTube or Dailymotion URL here...">
+                </div>
+
+                <div class="form-group">
+                    <label for="category">Category</label>
+                    <select id="category">
+                        <option value="entertainment">Entertainment</option>
+                        <option value="music">Music</option>
+                        <option value="gaming">Gaming</option>
+                        <option value="education">Education</option>
+                        <option value="technology">Technology</option>
+                        <option value="sports">Sports</option>
+                        <option value="news">News</option>
+                        <option value="comedy">Comedy</option>
+                        <option value="lifestyle">Lifestyle</option>
+                        <option value="tutorial">Tutorial</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="duration">Duration (optional)</label>
+                    <input type="text" id="duration" placeholder="e.g., 5:30">
+                </div>
+
+                <div class="form-group">
+                    <label for="views">Views (optional)</label>
+                    <input type="text" id="views" placeholder="e.g., 1.2M">
+                </div>
+
+                <button class="btn" onclick="addVideo()">🚀 Auto Fetch & Add</button>
+                <button class="btn toggle-btn" onclick="toggleManualMode()">✏️ Manual Entry Mode</button>
+
+                <div class="loading" id="loading">
+                    <p>🔄 Fetching video data...</p>
+                </div>
+
+                <!-- Manual Entry Mode -->
+                <div class="manual-mode" id="manualMode">
+                    <h3>Manual Entry</h3>
+                    <div class="form-group">
+                        <label for="manualTitle">Title *</label>
+                        <input type="text" id="manualTitle" placeholder="Video title">
+                    </div>
+                    <div class="form-group">
+                        <label for="manualDescription">Description</label>
+                        <textarea id="manualDescription" rows="3" placeholder="Video description"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="manualThumbnail">Thumbnail URL</label>
+                        <input type="url" id="manualThumbnail" placeholder="Thumbnail image URL">
+                    </div>
+                    <button class="btn btn-success" onclick="addManualVideo()">➕ Add Manual Video</button>
+                </div>
+            </div>
+
+            <!-- Stats -->
+            <div class="stats">
+                <div class="stat-item">
+                    <div class="stat-number" id="totalVideos">0</div>
+                    <div class="stat-label">Total Videos</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="youtubeCount">0</div>
+                    <div class="stat-label">YouTube</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="dailymotionCount">0</div>
+                    <div class="stat-label">Dailymotion</div>
+                </div>
+            </div>
+
+            <!-- Video Collection -->
+            <div class="form-section">
+                <h2>📚 Video Collection</h2>
+                <button class="btn btn-danger" onclick="clearAll()">🗑️ Clear All</button>
+                <button class="btn btn-secondary" onclick="togglePreview()">👁️ Preview Code</button>
+                <button class="btn btn-success" onclick="downloadJS()">💾 Download JS</button>
+                <button class="btn" onclick="copyCode()">📋 Copy Code</button>
+
+                <div class="code-preview" id="codePreview" style="display: none;">
+                    <pre id="generatedCode">No videos added yet. Start by adding a video URL above...</pre>
+                </div>
+
+                <div class="video-grid" id="videoGrid">
+                    <div style="grid-column: 1/-1; text-align: center; color: #666; padding: 40px;">
+                        <p>📽️ No videos added yet<br>Start by adding a video URL above...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let videos = [];
+        let nextId = 1;
+
+        // Platform detection
+        function detectPlatform(url) {
+            if (url.includes('youtube.com') || url.includes('youtu.be')) {
+                return 'youtube';
+            } else if (url.includes('dailymotion.com')) {
+                return 'dailymotion';
+            }
+            return 'unknown';
+        }
+
+        // Extract video ID
+        function extractVideoId(url, platform) {
+            if (platform === 'youtube') {
+                const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+                const match = url.match(regExp);
+                return (match && match[2].length === 11) ? match[2] : null;
+            } else if (platform === 'dailymotion') {
+                const regExp = /^.+dailymotion.com\/(video|hub)\/([^_]+)[^#]*(#video=([^_&]+))?/;
+                const match = url.match(regExp);
+                return match ? match[2] : null;
+            }
+            return null;
+        }
+
+        // Generate thumbnail URL
+        function generateThumbnail(videoId, platform) {
+            if (platform === 'youtube') {
+                return `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
+            } else if (platform === 'dailymotion') {
+                return `https://www.dailymotion.com/thumbnail/video/${videoId}`;
+            }
+            return '';
+        }
+
+        // Generate embed HTML
+        function generateEmbedHtml(videoId, platform) {
+            if (platform === 'youtube') {
+                return `<iframe width="100%" height="500" src="https://www.youtube.com/embed/${videoId}?autoplay=1" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>`;
+            } else if (platform === 'dailymotion') {
+                return `<iframe width="100%" height="500" src="https://www.dailymotion.com/embed/video/${videoId}?autoplay=1" frameborder="0" allow="autoplay; web-share" allowfullscreen></iframe>`;
+            }
+            return '';
+        }
+
+        // Mock function to simulate API fetch (in real app, you'd use actual APIs)
+        async function fetchVideoMetadata(videoId, platform) {
+            // Simulate API delay
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
+            // Mock data - in real app, fetch from YouTube/Dailymotion API
+            const mockTitles = [
+                "Amazing Video Content",
+                "Tutorial: How to Code",
+                "Music Video 2024",
+                "Gaming Highlights",
+                "Educational Content",
+                "Sports Compilation",
+                "Comedy Sketch",
+                "Travel Vlog Adventure"
+            ];
+            
+            const mockDescriptions = [
+                "This is an amazing video with great content",
+                "Learn something new with this tutorial",
+                "Latest music video with awesome beats",
+                "Best gaming moments compilation",
+                "Educational content for everyone",
+                "Sports highlights and analysis",
+                "Funny comedy sketch to make you laugh",
+                "Amazing travel adventure vlog"
+            ];
+
+            return {
+                title: mockTitles[Math.floor(Math.random() * mockTitles.length)],
+                description: mockDescriptions[Math.floor(Math.random() * mockDescriptions.length)]
+            };
+        }
+
+        // Add video function
+        async function addVideo() {
+            const url = document.getElementById('videoUrl').value.trim();
+            const category = document.getElementById('category').value;
+            const duration = document.getElementById('duration').value.trim() || 'N/A';
+            const views = document.getElementById('views').value.trim() || 'N/A';
+
+            if (!url) {
+                alert('Please enter a video URL');
+                return;
+            }
+
+            const platform = detectPlatform(url);
+            if (platform === 'unknown') {
+                alert('Unsupported platform. Please use YouTube or Dailymotion URLs.');
+                return;
+            }
+
+            const videoId = extractVideoId(url, platform);
+            if (!videoId) {
+                alert('Could not extract video ID from URL');
+                return;
+            }
+
+            // Show loading
+            document.getElementById('loading').style.display = 'block';
+
+            try {
+                // Fetch metadata (mock function)
+                const metadata = await fetchVideoMetadata(videoId, platform);
+
+                const video = {
+                    id: nextId++,
+                    title: metadata.title,
+                    description: metadata.description,
+                    category: category,
+                    platform: platform,
+                    videoId: videoId,
+                    duration: duration,
+                    views: views,
+                    thumbnail: generateThumbnail(videoId, platform),
+                    embedHtml: generateEmbedHtml(videoId, platform)
+                };
+
+                videos.push(video);
+                updateDisplay();
+                clearForm();
+
+                // Hide loading
+                document.getElementById('loading').style.display = 'none';
+                
+                alert('Video added successfully!');
+
+            } catch (error) {
+                document.getElementById('loading').style.display = 'none';
+                alert('Failed to fetch video metadata. Please try manual entry.');
+            }
+        }
+
+        // Add manual video
+        function addManualVideo() {
+            const url = document.getElementById('videoUrl').value.trim();
+            const title = document.getElementById('manualTitle').value.trim();
+            const description = document.getElementById('manualDescription').value.trim();
+            const thumbnail = document.getElementById('manualThumbnail').value.trim();
+            const category = document.getElementById('category').value;
+            const duration = document.getElementById('duration').value.trim() || 'N/A';
+            const views = document.getElementById('views').value.trim() || 'N/A';
+
+            if (!url || !title) {
+                alert('Please fill in URL and Title');
+                return;
+            }
+
+            const platform = detectPlatform(url);
+            if (platform === 'unknown') {
+                alert('Unsupported platform. Please use YouTube or Dailymotion URLs.');
+                return;
+            }
+
+            const videoId = extractVideoId(url, platform);
+            if (!videoId) {
+                alert('Could not extract video ID from URL');
+                return;
+            }
+
+            const video = {
+                id: nextId++,
+                title: title,
+                description: description || 'No description provided',
+                category: category,
+                platform: platform,
+                videoId: videoId,
+                duration: duration,
+                views: views,
+                thumbnail: thumbnail || generateThumbnail(videoId, platform),
+                embedHtml: generateEmbedHtml(videoId, platform)
+            };
+
+            videos.push(video);
+            updateDisplay();
+            clearForm();
+            toggleManualMode(); // Hide manual mode after adding
+            
+            alert('Video added successfully!');
+        }
+
+        // Toggle manual mode
+        function toggleManualMode() {
+            const manualMode = document.getElementById('manualMode');
+            manualMode.style.display = manualMode.style.display === 'none' ? 'block' : 'none';
+        }
+
+        // Clear form
+        function clearForm() {
+            document.getElementById('videoUrl').value = '';
+            document.getElementById('duration').value = '';
+            document.getElementById('views').value = '';
+            document.getElementById('manualTitle').value = '';
+            document.getElementById('manualDescription').value = '';
+            document.getElementById('manualThumbnail').value = '';
+        }
+
+        // Update display
+        function updateDisplay() {
+            updateStats();
+            renderVideoGrid();
+            updateCodePreview();
+        }
+
+        // Update stats
+        function updateStats() {
+            const total = videos.length;
+            const youtube = videos.filter(v => v.platform === 'youtube').length;
+            const dailymotion = videos.filter(v => v.platform === 'dailymotion').length;
+
+            document.getElementById('totalVideos').textContent = total;
+            document.getElementById('youtubeCount').textContent = youtube;
+            document.getElementById('dailymotionCount').textContent = dailymotion;
+        }
+
+        // Render video grid
+        function renderVideoGrid() {
+            const grid = document.getElementById('videoGrid');
+            
+            if (videos.length === 0) {
+                grid.innerHTML = `
+                    <div style="grid-column: 1/-1; text-align: center; color: #666; padding: 40px;">
+                        <p>📽️ No videos added yet<br>Start by adding a video URL above...</p>
+                    </div>
+                `;
+                return;
+            }
+
+            grid.innerHTML = videos.map(video => `
+                <div class="video-card">
+                    <img src="${video.thumbnail}" alt="${video.title}" class="video-thumbnail" 
+                         onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjE4MCIgdmlld0JveD0iMCAwIDMwMCAxODAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIzMDAiIGhlaWdodD0iMTgwIiBmaWxsPSIjRjNGNEY2Ii8+CjxwYXRoIGQ9Ik0xMjUgNzVMMTc1IDEwNUwxMjUgMTM1Vjc1WiIgZmlsbD0iIzk3OTBBMiIvPgo8L3N2Zz4K';">
+                    <div class="video-info">
+                        <div class="video-title">${video.title}</div>
+                        <div class="video-meta">
+                            <span style="background: ${video.platform === 'youtube' ? '#FF0000' : '#FF6600'}; color: white; padding: 2px 6px; border-radius: 4px; font-size: 10px;">
+                                ${video.platform.toUpperCase()}
+                            </span>
+                            <span style="margin-left: 10px;">${video.category}</span>
+                        </div>
+                        <div class="video-meta">
+                            Duration: ${video.duration} | Views: ${video.views}
+                        </div>
+                        <button class="btn btn-danger" onclick="removeVideo(${video.id})" style="margin-top: 10px; padding: 5px 10px; font-size: 12px;">
+                            🗑️ Remove
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Remove video
+        function removeVideo(id) {
+            if (confirm('Are you sure you want to remove this video?')) {
+                videos = videos.filter(v => v.id !== id);
+                updateDisplay();
+            }
+        }
+
+        // Clear all videos
+        function clearAll() {
+            if (confirm('Are you sure you want to clear all videos?')) {
+                videos = [];
+                nextId = 1;
+                updateDisplay();
+            }
+        }
+
+        // Generate JavaScript code - FIXED VERSION
+        function generateJS() {
+            if (videos.length === 0) {
+                return 'No videos added yet. Start by adding a video URL above...';
+            }
+
+            const jsCode = `// VidTapz Video Collection - Additional Videos
+// Generated on: ${new Date().toISOString()}
+// Total videos: ${videos.length}
+
+const videoTambahan = [
+${videos.map(video => `    ${JSON.stringify(video, null, 4).replace(/\n/g, '\n    ')}`).join(',\n')}
+];
+
+// Otomatis tambah ke videosData yang sudah ada
+document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(() => {
+        if (typeof videosData !== 'undefined') {
+            // Cek duplikasi berdasarkan ID
+            const existingIds = videosData.map(v => v.id);
+            const newVideos = videoTambahan.filter(video => 
+                !existingIds.includes(video.id)
+            );
+            
+            if (newVideos.length > 0) {
+                videosData.push(...newVideos);
+                currentVideos = [...videosData];
+                if (typeof renderVideos === 'function') {
+                    renderVideos(currentVideos);
+                }
+                console.log(\`Added \${newVideos.length} new videos\`);
+            }
+        }
+    }, 100);
+});`;
+
+            return jsCode;
+        }
+
+        // Update code preview
+        function updateCodePreview() {
+            document.getElementById('generatedCode').textContent = generateJS();
+        }
+
+        // Toggle preview
+        function togglePreview() {
+            const preview = document.getElementById('codePreview');
+            preview.style.display = preview.style.display === 'none' ? 'block' : 'none';
+        }
+
+        // Copy code to clipboard
+        function copyCode() {
+            const code = generateJS();
+            if (code === 'No videos added yet. Start by adding a video URL above...') {
+                alert('No videos to copy. Please add some videos first.');
+                return;
+            }
+
+            navigator.clipboard.writeText(code).then(() => {
+                alert('Code copied to clipboard!');
+            }).catch(() => {
+                // Fallback for older browsers
+                const textArea = document.createElement('textarea');
+                textArea.value = code;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                alert('Code copied to clipboard!');
+            });
+        }
+
+        // Download JavaScript file
+        function downloadJS() {
+            const code = generateJS();
+            if (code === 'No videos added yet. Start by adding a video URL above...') {
+                alert('No videos to download. Please add some videos first.');
+                return;
+            }
+
+            const blob = new Blob([code], { type: 'application/javascript' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'embedtambahan.js';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        // Initialize display
+        updateDisplay();
+
+        // Allow Enter key to add video
+        document.getElementById('videoUrl').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                addVideo();
+            }
+        });
+    </script>
+</body>
+</html>

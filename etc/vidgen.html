@@ -1,0 +1,1088 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VidTapz - Video Generator</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #3b82f6;
+            --secondary: #1e40af;
+            --success: #10b981;
+            --error: #ef4444;
+            --warning: #f59e0b;
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8fafc;
+            --bg-tertiary: #f1f5f9;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --text-muted: #94a3b8;
+            --border-color: #e2e8f0;
+            --shadow: rgba(0, 0, 0, 0.1);
+            --shadow-lg: rgba(0, 0, 0, 0.15);
+        }
+
+        [data-theme="dark"] {
+            --bg-primary: #1e1e1e;
+            --bg-secondary: #2d2d2d;
+            --bg-tertiary: #3d3d3d;
+            --text-primary: #ffffff;
+            --text-secondary: #b3b3b3;
+            --text-muted: #888888;
+            --border-color: #404040;
+            --shadow: rgba(0, 0, 0, 0.3);
+            --shadow-lg: rgba(0, 0, 0, 0.5);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            transition: all 0.3s ease;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 2rem 0;
+            margin-bottom: 2rem;
+            border-radius: 20px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+            opacity: 0.3;
+        }
+
+        .header-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .theme-toggle {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            padding: 0.75rem;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+        }
+
+        .theme-toggle:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.1);
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+
+        .form-section, .list-section {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 4px 20px var(--shadow);
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-primary);
+        }
+
+        .section-title i {
+            color: var(--primary);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        textarea.form-control {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .btn {
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+            justify-content: center;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-warning {
+            background: var(--warning);
+            color: white;
+        }
+
+        .btn-danger {
+            background: var(--error);
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .video-list {
+            max-height: 600px;
+            overflow-y: auto;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            background: var(--bg-primary);
+        }
+
+        .video-item {
+            display: flex;
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+        }
+
+        .video-item:last-child {
+            border-bottom: none;
+        }
+
+        .video-item:hover {
+            background: var(--bg-tertiary);
+        }
+
+        .video-thumbnail {
+            width: 120px;
+            height: 68px;
+            border-radius: 8px;
+            object-fit: cover;
+            flex-shrink: 0;
+            margin-right: 1rem;
+        }
+
+        .video-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .video-title {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.25rem;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .video-meta {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+        }
+
+        .video-actions {
+            display: flex;
+            gap: 0.5rem;
+            flex-shrink: 0;
+            align-items: center;
+        }
+
+        .btn-sm {
+            padding: 0.5rem 1rem;
+            font-size: 0.85rem;
+        }
+
+        .platform-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .platform-youtube {
+            background: #ff0000;
+            color: white;
+        }
+
+        .platform-dailymotion {
+            background: #0066cc;
+            color: white;
+        }
+
+        .stats-bar {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            text-align: center;
+        }
+
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .stat-number {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .loading-indicator {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-secondary);
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid var(--border-color);
+            border-top: 4px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .success-message {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--success);
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            z-index: 9999;
+            animation: slideInRight 0.3s ease;
+            box-shadow: 0 4px 20px rgba(16, 185, 129, 0.3);
+        }
+
+        @keyframes slideInRight {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: var(--text-secondary);
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: var(--primary);
+            opacity: 0.5;
+        }
+
+        .code-preview {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1rem;
+            margin-top: 1rem;
+            font-family: 'Monaco', 'Consolas', monospace;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        @media (max-width: 768px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats-bar {
+                grid-template-columns: 1fr;
+            }
+            
+            .btn-group {
+                flex-direction: column;
+            }
+            
+            .video-item {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .video-thumbnail {
+                width: 100%;
+                height: 150px;
+                margin-right: 0;
+            }
+            
+            .video-actions {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <button class="theme-toggle" id="themeToggle">
+                <i class="fas fa-moon"></i>
+            </button>
+            <div class="header-content">
+                <h1>
+                    <i class="fas fa-video"></i>
+                    VidTapz Generator
+                </h1>
+                <p>Generate and manage your video collection with auto-fetch metadata</p>
+            </div>
+        </div>
+
+        <!-- Main Grid -->
+        <div class="main-grid">
+            <!-- Form Section -->
+            <div class="form-section">
+                <h2 class="section-title">
+                    <i class="fas fa-plus-circle"></i>
+                    Add Video
+                </h2>
+
+                <form id="videoForm">
+                    <div class="form-group">
+                        <label for="videoUrl">Video URL *</label>
+                        <input type="url" id="videoUrl" class="form-control" 
+                               placeholder="Paste YouTube or Dailymotion URL..." required>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="videoCategory">Category</label>
+                            <select id="videoCategory" class="form-control">
+                                <option value="entertainment">Entertainment</option>
+                                <option value="music">Music</option>
+                                <option value="gaming">Gaming</option>
+                                <option value="education">Education</option>
+                                <option value="technology">Technology</option>
+                                <option value="sports">Sports</option>
+                                <option value="news">News</option>
+                                <option value="comedy">Comedy</option>
+                                <option value="lifestyle">Lifestyle</option>
+                                <option value="tutorial">Tutorial</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="videoDuration">Duration (optional)</label>
+                            <input type="text" id="videoDuration" class="form-control" 
+                                   placeholder="e.g. 15:30">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="videoViews">Views (optional)</label>
+                            <input type="text" id="videoViews" class="form-control" 
+                                   placeholder="e.g. 1.2M">
+                        </div>
+
+                        <div class="form-group">
+                            <label>&nbsp;</label>
+                            <button type="submit" class="btn btn-primary form-control">
+                                <i class="fas fa-magic"></i>
+                                Auto Fetch & Add
+                            </button>
+                        </div>
+                    </div>
+                </form>
+
+                <div id="loadingIndicator" class="loading-indicator" style="display: none;">
+                    <div class="spinner"></div>
+                    <p>Fetching video data...</p>
+                </div>
+
+                <!-- Manual Entry Toggle -->
+                <div style="margin-top: 1rem; text-align: center;">
+                    <button type="button" id="toggleManualEntry" class="btn btn-warning">
+                        <i class="fas fa-edit"></i>
+                        Manual Entry Mode
+                    </button>
+                </div>
+
+                <!-- Manual Form (Hidden by default) -->
+                <div id="manualForm" style="display: none; margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid var(--border-color);">
+                    <h3 style="margin-bottom: 1rem; color: var(--text-primary);">
+                        <i class="fas fa-keyboard"></i> Manual Entry
+                    </h3>
+                    
+                    <div class="form-group">
+                        <label for="manualTitle">Title *</label>
+                        <input type="text" id="manualTitle" class="form-control" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="manualDescription">Description</label>
+                        <textarea id="manualDescription" class="form-control"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="manualThumbnail">Thumbnail URL</label>
+                        <input type="url" id="manualThumbnail" class="form-control">
+                    </div>
+
+                    <button type="button" id="addManualVideo" class="btn btn-success">
+                        <i class="fas fa-plus"></i>
+                        Add Manual Video
+                    </button>
+                </div>
+            </div>
+
+            <!-- List Section -->
+            <div class="list-section">
+                <h2 class="section-title">
+                    <i class="fas fa-list"></i>
+                    Video Collection
+                </h2>
+
+                <!-- Stats -->
+                <div class="stats-bar">
+                    <div class="stat-item">
+                        <span class="stat-number" id="totalCount">0</span>
+                        <span class="stat-label">Total Videos</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number" id="youtubeCount">0</span>
+                        <span class="stat-label">YouTube</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number" id="dailymotionCount">0</span>
+                        <span class="stat-label">Dailymotion</span>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="btn-group" style="margin-bottom: 1.5rem;">
+                    <button id="clearAllBtn" class="btn btn-danger btn-sm">
+                        <i class="fas fa-trash"></i>
+                        Clear All
+                    </button>
+                    <button id="previewCodeBtn" class="btn btn-warning btn-sm">
+                        <i class="fas fa-eye"></i>
+                        Preview Code
+                    </button>
+                    <button id="downloadJsBtn" class="btn btn-success btn-sm">
+                        <i class="fas fa-download"></i>
+                        Download JS
+                    </button>
+                    <button id="copyCodeBtn" class="btn btn-primary btn-sm">
+                        <i class="fas fa-copy"></i>
+                        Copy Code
+                    </button>
+                </div>
+
+                <!-- Video List -->
+                <div class="video-list" id="videoList">
+                    <div class="empty-state">
+                        <i class="fas fa-video-slash"></i>
+                        <h3>No videos added yet</h3>
+                        <p>Start by adding a video URL above</p>
+                    </div>
+                </div>
+
+                <!-- Code Preview -->
+                <div id="codePreview" class="code-preview" style="display: none;"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let videoCollection = [];
+        let nextId = 1;
+        let isManualMode = false;
+
+        // DOM elements
+        const videoForm = document.getElementById('videoForm');
+        const videoUrl = document.getElementById('videoUrl');
+        const videoCategory = document.getElementById('videoCategory');
+        const videoDuration = document.getElementById('videoDuration');
+        const videoViews = document.getElementById('videoViews');
+        const loadingIndicator = document.getElementById('loadingIndicator');
+        const videoList = document.getElementById('videoList');
+        const totalCount = document.getElementById('totalCount');
+        const youtubeCount = document.getElementById('youtubeCount');
+        const dailymotionCount = document.getElementById('dailymotionCount');
+        const themeToggle = document.getElementById('themeToggle');
+        const toggleManualEntry = document.getElementById('toggleManualEntry');
+        const manualForm = document.getElementById('manualForm');
+        const addManualVideo = document.getElementById('addManualVideo');
+        const clearAllBtn = document.getElementById('clearAllBtn');
+        const previewCodeBtn = document.getElementById('previewCodeBtn');
+        const downloadJsBtn = document.getElementById('downloadJsBtn');
+        const copyCodeBtn = document.getElementById('copyCodeBtn');
+        const codePreview = document.getElementById('codePreview');
+
+        // Manual form elements
+        const manualTitle = document.getElementById('manualTitle');
+        const manualDescription = document.getElementById('manualDescription');
+        const manualThumbnail = document.getElementById('manualThumbnail');
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeTheme();
+            initializeEventListeners();
+            updateStats();
+        });
+
+        // Event listeners
+        function initializeEventListeners() {
+            videoForm.addEventListener('submit', handleFormSubmit);
+            themeToggle.addEventListener('click', toggleTheme);
+            toggleManualEntry.addEventListener('click', toggleManualEntryMode);
+            addManualVideo.addEventListener('click', handleManualAdd);
+            clearAllBtn.addEventListener('click', clearAllVideos);
+            previewCodeBtn.addEventListener('click', previewCode);
+            downloadJsBtn.addEventListener('click', downloadJavaScript);
+            copyCodeBtn.addEventListener('click', copyToClipboard);
+        }
+
+        // Theme management
+        function initializeTheme() {
+            const savedTheme = localStorage.getItem('generator_theme') || 'light';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            updateThemeIcon(savedTheme);
+        }
+
+        function toggleTheme() {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('generator_theme', newTheme);
+            updateThemeIcon(newTheme);
+        }
+
+        function updateThemeIcon(theme) {
+            const icon = themeToggle.querySelector('i');
+            icon.className = theme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+        }
+
+        // Toggle manual entry mode
+        function toggleManualEntryMode() {
+            isManualMode = !isManualMode;
+            manualForm.style.display = isManualMode ? 'block' : 'none';
+            toggleManualEntry.innerHTML = isManualMode 
+                ? '<i class="fas fa-magic"></i> Auto Fetch Mode'
+                : '<i class="fas fa-edit"></i> Manual Entry Mode';
+            toggleManualEntry.className = isManualMode ? 'btn btn-primary' : 'btn btn-warning';
+        }
+
+        // Handle form submit
+        async function handleFormSubmit(e) {
+            e.preventDefault();
+            
+            const url = videoUrl.value.trim();
+            if (!url) return;
+
+            // Show loading
+            loadingIndicator.style.display = 'block';
+
+            try {
+                const videoData = await fetchVideoData(url);
+                
+                // Create video object
+                const video = {
+                    id: nextId++,
+                    title: videoData.title,
+                    description: videoData.description,
+                    category: videoCategory.value,
+                    platform: videoData.platform,
+                    videoId: videoData.videoId,
+                    duration: videoDuration.value || "0:00",
+                    views: videoViews.value || "0",
+                    thumbnail: videoData.thumbnail,
+                    embedHtml: generateEmbedCode(videoData.videoId, videoData.platform)
+                };
+
+                // Add to collection
+                videoCollection.push(video);
+                
+                // Update UI
+                renderVideoList();
+                updateStats();
+                videoForm.reset();
+                
+                showSuccessMessage('Video added successfully!');
+                
+            } catch (error) {
+                alert(`Error: ${error.message}`);
+            } finally {
+                loadingIndicator.style.display = 'none';
+            }
+        }
+
+        // Handle manual add
+        function handleManualAdd() {
+            const title = manualTitle.value.trim();
+            const url = videoUrl.value.trim();
+            
+            if (!title || !url) {
+                alert('Title and URL are required');
+                return;
+            }
+
+            const platform = detectPlatform(url);
+            if (!platform) {
+                alert('Invalid URL. Use YouTube or Dailymotion URL.');
+                return;
+            }
+
+            const videoId = extractVideoId(url, platform);
+            if (!videoId) {
+                alert('Could not extract video ID from URL');
+                return;
+            }
+
+            const video = {
+                id: nextId++,
+                title: title,
+                description: manualDescription.value || `Video from ${platform}`,
+                category: videoCategory.value,
+                platform: platform,
+                videoId: videoId,
+                duration: videoDuration.value || "0:00",
+                views: videoViews.value || "0",
+                thumbnail: manualThumbnail.value || generateThumbnailUrl(videoId, platform),
+                embedHtml: generateEmbedCode(videoId, platform)
+            };
+
+            videoCollection.push(video);
+            renderVideoList();
+            updateStats();
+            
+            // Reset forms
+            videoForm.reset();
+            manualTitle.value = '';
+            manualDescription.value = '';
+            manualThumbnail.value = '';
+            
+            showSuccessMessage('Manual video added successfully!');
+        }
+
+        // Detect platform from URL
+        function detectPlatform(url) {
+            if (url.includes('youtube.com') || url.includes('youtu.be')) {
+                return 'youtube';
+            } else if (url.includes('dailymotion.com') || url.includes('dai.ly')) {
+                return 'dailymotion';
+            }
+            return null;
+        }
+
+        // Extract video ID
+        function extractVideoId(url, platform) {
+            if (platform === 'youtube') {
+                const patterns = [
+                    /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/,
+                    /youtube\.com\/v\/([^&\n?#]+)/
+                ];
+                
+                for (let pattern of patterns) {
+                    const match = url.match(pattern);
+                    if (match) return match[1];
+                }
+            } else if (platform === 'dailymotion') {
+                const patterns = [
+                    /dailymotion\.com\/video\/([^_?]+)/,
+                    /dai\.ly\/([^_?]+)/
+                ];
+                
+                for (let pattern of patterns) {
+                    const match = url.match(pattern);
+                    if (match) return match[1];
+                }
+            }
+            return null;
+        }
+
+        // Fetch video data from oembed
+        async function fetchVideoData(url) {
+            const platform = detectPlatform(url);
+            
+            if (!platform) {
+                throw new Error('Platform not supported. Use YouTube or Dailymotion.');
+            }
+            
+            try {
+                let oembedUrl;
+                let response;
+                let data;
+                
+                if (platform === 'youtube') {
+                    oembedUrl = `https://www.youtube.com/oembed?url=${encodeURIComponent(url)}&format=json`;
+                    response = await fetch(oembedUrl);
+                    
+                    if (!response.ok) {
+                        throw new Error('Video not found or not accessible');
+                    }
+                    
+                    data = await response.json();
+                    const videoId = extractVideoId(url, 'youtube');
+                    
+                    return {
+                        platform: 'youtube',
+                        videoId: videoId,
+                        title: data.title,
+                        description: `Video by ${data.author_name}. ${data.title}`,
+                        thumbnail: data.thumbnail_url,
+                        author: data.author_name
+                    };
+                    
+                } else if (platform === 'dailymotion') {
+                    oembedUrl = `https://www.dailymotion.com/services/oembed?url=${encodeURIComponent(url)}&format=json`;
+                    const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(oembedUrl)}`;
+                    response = await fetch(proxyUrl);
+                    
+                    if (!response.ok) {
+                        throw new Error('Video not found or not accessible');
+                    }
+                    
+                    data = await response.json();
+                    const videoId = extractVideoId(url, 'dailymotion');
+                    
+                    return {
+                        platform: 'dailymotion',
+                        videoId: videoId,
+                        title: data.title,
+                        description: `Video by ${data.author_name}. ${data.title}`,
+                        thumbnail: data.thumbnail_url,
+                        author: data.author_name
+                    };
+                }
+                
+            } catch (error) {
+                throw error;
+            }
+        }
+
+        // Generate thumbnail URL
+        function generateThumbnailUrl(videoId, platform) {
+            if (platform === 'youtube') {
+                return `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
+            } else if (platform === 'dailymotion') {
+                return `https://s1.dmcdn.net/v/${videoId}/x240`;
+            }
+            return '';
+        }
+
+        // Generate embed code
+        function generateEmbedCode(videoId, platform) {
+            if (platform === 'youtube') {
+                return `<iframe width="100%" height="500" src="https://www.youtube.com/embed/${videoId}?autoplay=1" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>`;
+            } else if (platform === 'dailymotion') {
+                return `<iframe width="100%" height="500" src="https://www.dailymotion.com/embed/video/${videoId}?autoplay=1" frameborder="0" allow="autoplay; web-share" allowfullscreen></iframe>`;
+            }
+            return '';
+        }
+
+        // Render video list
+        function renderVideoList() {
+            if (videoCollection.length === 0) {
+                videoList.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-video-slash"></i>
+                        <h3>No videos added yet</h3>
+                        <p>Start by adding a video URL above</p>
+                    </div>
+                `;
+                return;
+            }
+
+            videoList.innerHTML = videoCollection.map(video => `
+                <div class="video-item">
+                    <img src="${video.thumbnail}" alt="Thumbnail" class="video-thumbnail">
+                    <div class="video-info">
+                        <div class="video-title">${video.title}</div>
+                        <div class="video-meta">
+                            <span class="platform-badge platform-${video.platform}">
+                                <i class="fab fa-${video.platform}"></i>
+                                ${video.platform}
+                            </span>
+                            ${video.category} • ${video.duration} • ${video.views} views
+                        </div>
+                    </div>
+                    <div class="video-actions">
+                        <button class="btn btn-danger btn-sm" onclick="removeVideo(${video.id})">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Remove video
+        function removeVideo(id) {
+            if (confirm('Remove this video?')) {
+                videoCollection = videoCollection.filter(video => video.id !== id);
+                renderVideoList();
+                updateStats();
+                showSuccessMessage('Video removed successfully!');
+            }
+        }
+
+        // Update stats
+        function updateStats() {
+            totalCount.textContent = videoCollection.length;
+            youtubeCount.textContent = videoCollection.filter(v => v.platform === 'youtube').length;
+            dailymotionCount.textContent = videoCollection.filter(v => v.platform === 'dailymotion').length;
+        }
+
+        // Clear all videos
+        function clearAllVideos() {
+            if (confirm('Clear all videos? This cannot be undone.')) {
+                videoCollection = [];
+                nextId = 1;
+                renderVideoList();
+                updateStats();
+                codePreview.style.display = 'none';
+                showSuccessMessage('All videos cleared!');
+            }
+        }
+
+        // Preview code
+        function previewCode() {
+            if (videoCollection.length === 0) {
+                alert('No videos to preview');
+                return;
+            }
+
+            const jsCode = generateJavaScriptCode();
+            codePreview.innerHTML = `<pre>${escapeHtml(jsCode)}</pre>`;
+            codePreview.style.display = 'block';
+        }
+
+        // Generate JavaScript code
+        function generateJavaScriptCode() {
+            const timestamp = new Date().toISOString();
+            const jsCode = `// VidTapz Video Collection
+// Generated on: ${timestamp}
+// Total videos: ${videoCollection.length}
+
+const videosData = ${JSON.stringify(videoCollection, null, 4)};
+
+// Export for use in main application
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = videosData;
+} else if (typeof window !== 'undefined') {
+    window.videosData = videosData;
+}`;
+
+            return jsCode;
+        }
+
+        // Download JavaScript file
+        function downloadJavaScript() {
+            if (videoCollection.length === 0) {
+                alert('No videos to download');
+                return;
+            }
+
+            const jsCode = generateJavaScriptCode();
+            const blob = new Blob([jsCode], { type: 'application/javascript' });
+            const url = URL.createObjectURL(blob);
+            
+            const timestamp = new Date().toISOString().split('T')[0];
+            const filename = `vidtapz-videos-${timestamp}.js`;
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            showSuccessMessage(`JavaScript file downloaded: ${filename}`);
+        }
+
+        // Copy to clipboard
+        async function copyToClipboard() {
+            if (videoCollection.length === 0) {
+                alert('No videos to copy');
+                return;
+            }
+
+            const jsCode = generateJavaScriptCode();
+            
+            try {
+                await navigator.clipboard.writeText(jsCode);
+                showSuccessMessage('Code copied to clipboard!');
+            } catch (err) {
+                // Fallback for older browsers
+                const textArea = document.createElement('textarea');
+                textArea.value = jsCode;
+                document.body.appendChild(textArea);
+                textArea.select();
+                try {
+                    document.execCommand('copy');
+                    showSuccessMessage('Code copied to clipboard!');
+                } catch (fallbackErr) {
+                    alert('Could not copy to clipboard');
+                }
+                document.body.removeChild(textArea);
+            }
+        }
+
+        // Utility functions
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function showSuccessMessage(message) {
+            const successDiv = document.createElement('div');
+            successDiv.className = 'success-message';
+            successDiv.innerHTML = `
+                <i class="fas fa-check-circle"></i>
+                <span>${message}</span>
+            `;
+            
+            document.body.appendChild(successDiv);
+            
+            setTimeout(() => {
+                successDiv.remove();
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
