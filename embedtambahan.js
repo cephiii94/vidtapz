@@ -3,7 +3,7 @@
 // Video tambahan baru
 const videoTambahan = [
     {
-        id: 11,
+        "id": 11,
         title: "Video Baru 1",
         description: "Deskripsi video baru",
         category: "education",
@@ -25,6 +25,18 @@ const videoTambahan = [
         views: "500K",
         thumbnail: "https://s1.dmcdn.net/v/Teken1XJKDzcGrjmT/x1080",
         embedHtml: '<iframe width="100%" height="500" src="https://www.dailymotion.com/embed/video/x7u8vh2?autoplay=1" frameborder="0" allow="autoplay; web-share" allowfullscreen></iframe>'
+    },
+        {
+        "id": 13,
+        "title": "Amazing Video Content",
+        "description": "Learn something new with this tutorial",
+        "category": "gaming",
+        "platform": "youtube",
+        "videoId": "0uTTWDQrLdI",
+        "duration": "N/A",
+        "views": "N/A",
+        "thumbnail": "https://img.youtube.com/vi/0uTTWDQrLdI/hqdefault.jpg",
+        "embedHtml": "<iframe width=\"100%\" height=\"500\" src=\"https://www.youtube.com/embed/0uTTWDQrLdI?autoplay=1\" frameborder=\"0\" allow=\"autoplay; encrypted-media\" allowfullscreen></iframe>"
     }
 ];
 
