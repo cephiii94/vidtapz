@@ -1,0 +1,1353 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video oEmbed Generator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #1565c0;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(21, 101, 192, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 300;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            padding: 30px;
+        }
+
+        .mode-switcher {
+            display: flex;
+            background: #f5f5f5;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            overflow: hidden;
+        }
+
+        .mode-btn {
+            flex: 1;
+            padding: 15px 20px;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            color: #666;
+        }
+
+        .mode-btn.active {
+            background: #2196f3;
+            color: white;
+            box-shadow: 0 2px 10px rgba(33, 150, 243, 0.3);
+        }
+
+        .input-section {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            border: 2px solid #e3f2fd;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #1565c0;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e1f5fe;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #2196f3;
+            box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.1);
+        }
+
+        .bulk-input {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(33, 150, 243, 0.3);
+        }
+
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #90caf9 0%, #64b5f6 100%);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #4caf50 0%, #388e3c 100%);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #f44336 0%, #d32f2f 100%);
+        }
+
+        .video-list {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .video-item {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 15px;
+            border: 2px solid #e3f2fd;
+            transition: all 0.3s ease;
+        }
+
+        .video-item:hover {
+            border-color: #2196f3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(33, 150, 243, 0.1);
+        }
+
+        .video-title {
+            font-weight: bold;
+            color: #1565c0;
+            margin-bottom: 5px;
+        }
+
+        .video-meta {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        .video-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .video-actions .btn {
+            padding: 8px 15px;
+            font-size: 0.9rem;
+        }
+
+        .preview-section {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+
+        .preview-content {
+            background: #263238;
+            color: #a5d6a7;
+            padding: 20px;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            max-height: 400px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+        }
+
+        .actions-bar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            padding: 20px;
+            background: #f5f5f5;
+            border-radius: 15px;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+            color: #2196f3;
+        }
+
+        .spinner {
+            border: 3px solid #e3f2fd;
+            border-top: 3px solid #2196f3;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error-message {
+            background: #ffebee;
+            color: #c62828;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 10px 0;
+            border-left: 4px solid #f44336;
+        }
+
+        .success-message {
+            background: #e8f5e8;
+            color: #2e7d32;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 10px 0;
+            border-left: 4px solid #4caf50;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: #e3f2fd;
+            border-radius: 3px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .fetch-status {
+            font-size: 0.9rem;
+            color: #666;
+            margin: 5px 0;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+                border-radius: 15px;
+            }
+
+            .header {
+                padding: 20px;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .main-content {
+                padding: 20px;
+            }
+
+            .mode-switcher {
+                flex-direction: column;
+            }
+
+            .actions-bar {
+                flex-direction: column;
+            }
+
+            .video-actions {
+                flex-direction: column;
+            }
+        }
+
+        .edit-form {
+            margin-top: 15px;
+            padding: 15px;
+            background: #f0f8ff;
+            border-radius: 8px;
+            border: 1px solid #2196f3;
+        }
+
+        .edit-form input,
+        .edit-form textarea,
+        .edit-form select {
+            margin-bottom: 10px;
+        }
+
+        .api-info {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border-left: 4px solid #2196f3;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎥 Video oEmbed Generator</h1>
+            <p>Generate oEmbed data untuk YouTube & Dailymotion dengan otomatis fetch title & description</p>
+        </div>
+
+        <div class="main-content">
+            <!-- API Info -->
+            <div class="api-info">
+                <strong>🔄 Auto Fetch:</strong> Generator ini akan otomatis mengambil judul dan deskripsi asli dari video menggunakan multiple API sources untuk hasil terbaik.
+            </div>
+
+            <!-- Mode Switcher -->
+            <div class="mode-switcher">
+                <button class="mode-btn active" onclick="switchMode('auto')">
+                    🤖 Auto Fetch
+                </button>
+                <button class="mode-btn" onclick="switchMode('manual')">
+                    ✏️ Manual Input
+                </button>
+            </div>
+
+            <!-- Auto Fetch Mode -->
+            <div id="auto-mode" class="input-section">
+                <div class="form-group">
+                    <label>🔗 Masukkan URL Video (satu per baris untuk bulk):</label>
+                    <textarea id="video-urls" class="bulk-input" 
+                              placeholder="https://www.youtube.com/watch?v=dQw4w9WgXcQ&#10;https://www.dailymotion.com/video/x7tgad0&#10;...atau masukkan satu URL saja"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>📂 Kategori Default:</label>
+                    <select id="default-category">
+                        <option value="entertainment">Entertainment</option>
+                        <option value="education">Education</option>
+                        <option value="music">Music</option>
+                        <option value="gaming">Gaming</option>
+                        <option value="news">News</option>
+                        <option value="sports">Sports</option>
+                        <option value="technology">Technology</option>
+                        <option value="lifestyle">Lifestyle</option>
+                    </select>
+                </div>
+                <button class="btn" id="fetch-btn" onclick="fetchVideos()">🚀 Fetch Videos</button>
+            </div>
+
+            <!-- Manual Input Mode -->
+            <div id="manual-mode" class="input-section" style="display: none;">
+                <div class="form-group">
+                    <label>🏷️ Judul Video:</label>
+                    <input type="text" id="manual-title" placeholder="Masukkan judul video">
+                </div>
+                <div class="form-group">
+                    <label>📝 Deskripsi:</label>
+                    <textarea id="manual-description" placeholder="Masukkan deskripsi video"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>🔗 URL Video:</label>
+                    <input type="url" id="manual-url" placeholder="https://www.youtube.com/watch?v=...">
+                </div>
+                <div class="form-group">
+                    <label>🖼️ URL Thumbnail:</label>
+                    <input type="url" id="manual-thumbnail" placeholder="https://img.youtube.com/vi/.../maxresdefault.jpg">
+                </div>
+                <div class="form-group">
+                    <label>📂 Kategori:</label>
+                    <select id="manual-category">
+                        <option value="entertainment">Entertainment</option>
+                        <option value="education">Education</option>
+                        <option value="music">Music</option>
+                        <option value="gaming">Gaming</option>
+                        <option value="news">News</option>
+                        <option value="sports">Sports</option>
+                        <option value="technology">Technology</option>
+                        <option value="lifestyle">Lifestyle</option>
+                    </select>
+                </div>
+                <button class="btn" onclick="addManualVideo()">➕ Tambah Video</button>
+            </div>
+
+            <!-- Loading -->
+            <div id="loading" class="loading">
+                <div class="spinner"></div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progress-fill"></div>
+                </div>
+                <p id="loading-text">Sedang mengambil data video...</p>
+                <div class="fetch-status" id="fetch-status"></div>
+            </div>
+
+            <!-- Video List -->
+            <div class="video-list">
+                <h3>📋 Daftar Video yang Sudah Dibuat</h3>
+                <div id="video-items">
+                    <p style="text-align: center; color: #666; padding: 20px;">
+                        Belum ada video. Silakan tambahkan video terlebih dahulu.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Preview -->
+            <div class="preview-section">
+                <h3>👀 Preview Output</h3>
+                <div class="preview-content" id="preview-content">
+                    // Preview akan muncul di sini setelah Anda menambahkan video
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="actions-bar">
+                <button class="btn btn-success" onclick="copyToClipboard()">
+                    📋 Salin ke Clipboard
+                </button>
+                <button class="btn btn-secondary" onclick="downloadJSON()">
+                    💾 Download JSON
+                </button>
+                <button class="btn btn-secondary" onclick="downloadJS()">
+                    💾 Download JS
+                </button>
+                <button class="btn btn-danger" onclick="clearAll()">
+                    🗑️ Hapus Semua
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let videos = [];
+        let currentMode = 'auto';
+
+        // Switch between auto and manual mode
+        function switchMode(mode) {
+            currentMode = mode;
+            
+            // Update buttons
+            document.querySelectorAll('.mode-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            // Show/hide sections
+            if (mode === 'auto') {
+                document.getElementById('auto-mode').style.display = 'block';
+                document.getElementById('manual-mode').style.display = 'none';
+            } else {
+                document.getElementById('auto-mode').style.display = 'none';
+                document.getElementById('manual-mode').style.display = 'block';
+            }
+        }
+
+        // Extract video ID from URL
+        function extractVideoId(url, platform) {
+            if (platform === 'youtube') {
+                const regex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/;
+                const match = url.match(regex);
+                return match ? match[1] : null;
+            } else if (platform === 'dailymotion') {
+                const regex = /(?:dailymotion\.com\/(?:video|hub)\/([^_]+))|(?:dai\.ly\/([^_]+))/;
+                const match = url.match(regex);
+                return match ? (match[1] || match[2]) : null;
+            }
+            return null;
+        }
+
+        // Detect platform from URL
+        function detectPlatform(url) {
+            if (url.includes('youtube.com') || url.includes('youtu.be')) {
+                return 'youtube';
+            } else if (url.includes('dailymotion.com') || url.includes('dai.ly')) {
+                return 'dailymotion';
+            }
+            return null;
+        }
+
+        // Generate random ID
+        function generateId(platform) {
+            const prefix = platform === 'youtube' ? 'yt' : 'dm';
+            const randomNum = Math.floor(Math.random() * 10000);
+            return `${prefix}_${randomNum}`;
+        }
+
+        // Get oEmbed data with multiple fallback methods
+        async function getVideoMetadata(url, platform, videoId) {
+            const methods = [
+                () => getOEmbedData(url, platform),
+                () => getVideoMetadataFromProxy(url, platform, videoId),
+                () => getVideoMetadataFromAPI(videoId, platform),
+                () => getVideoMetadataFromScraper(url)
+            ];
+
+            for (const method of methods) {
+                try {
+                    const result = await method();
+                    if (result && result.title) {
+                        return result;
+                    }
+                } catch (error) {
+                    console.log('Method failed, trying next...', error);
+                    continue;
+                }
+            }
+
+            // Fallback to basic data
+            return {
+                title: `Video ${platform.toUpperCase()} - ${videoId}`,
+                description: `Video dari platform ${platform} dengan ID ${videoId}. Konten menarik yang layak untuk ditonton.`,
+                author_name: `Channel ${platform}`,
+                thumbnail_url: getThumbnailUrl(videoId, platform)
+            };
+        }
+
+        // Method 1: Direct oEmbed (might be blocked by CORS)
+        async function getOEmbedData(url, platform) {
+            let oembedUrl;
+            if (platform === 'youtube') {
+                oembedUrl = `https://www.youtube.com/oembed?url=${encodeURIComponent(url)}&format=json`;
+            } else if (platform === 'dailymotion') {
+                oembedUrl = `https://www.dailymotion.com/services/oembed?url=${encodeURIComponent(url)}&format=json`;
+            }
+
+            const response = await fetch(oembedUrl);
+            if (!response.ok) throw new Error('oEmbed failed');
+            return await response.json();
+        }
+
+        // Method 2: Using CORS proxy
+        async function getVideoMetadataFromProxy(url, platform, videoId) {
+            const proxyUrls = [
+                'https://api.allorigins.win/get?url=',
+                'https://corsproxy.io/?',
+                'https://cors-anywhere.herokuapp.com/'
+            ];
+
+            let oembedUrl;
+            if (platform === 'youtube') {
+                oembedUrl = `https://www.youtube.com/oembed?url=${encodeURIComponent(url)}&format=json`;
+            } else if (platform === 'dailymotion') {
+                oembedUrl = `https://www.dailymotion.com/services/oembed?url=${encodeURIComponent(url)}&format=json`;
+            }
+
+            for (const proxy of proxyUrls) {
+                try {
+                    const response = await fetch(proxy + encodeURIComponent(oembedUrl));
+                    if (!response.ok) continue;
+                    
+                    const data = await response.json();
+                    if (proxy.includes('allorigins')) {
+                        return JSON.parse(data.contents);
+                    }
+                    return data;
+                } catch (error) {
+                    continue;
+                }
+            }
+            throw new Error('All proxies failed');
+        }
+
+        // Method 3: Alternative API sources
+        async function getVideoMetadataFromAPI(videoId, platform) {
+            if (platform === 'youtube') {
+                // Using YouTube API alternatives
+                const alternatives = [
+                    `https://noembed.com/embed?url=https://www.youtube.com/watch?v=${videoId}`,
+                    `https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${videoId}&format=json`
+                ];
+
+                for (const apiUrl of alternatives) {
+                    try {
+                        const response = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(apiUrl)}`);
+                        if (response.ok) {
+                            const data = await response.json();
+                            const videoData = JSON.parse(data.contents);
+                            if (videoData.title) return videoData;
+                        }
+                    } catch (error) {
+                        continue;
+                    }
+                }
+            }
+            throw new Error('API methods failed');
+        }
+
+        // Method 4: Web scraping approach
+        async function getVideoMetadataFromScraper(url) {
+            try {
+                const response = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(url)}`);
+                if (!response.ok) throw new Error('Scraper failed');
+                
+                const data = await response.json();
+                const html = data.contents;
+                
+                // Extract title from various meta tags
+                const titleRegex = /<title[^>]*>([^<]+)<\/title>|<meta[^>]*property=["\']og:title["\'][^>]*content=["\']([^"\']+)["\']|<meta[^>]*name=["\']title["\'][^>]*content=["\']([^"\']+)["\']/gi;
+                const descRegex = /<meta[^>]*property=["\']og:description["\'][^>]*content=["\']([^"\']+)["\']|<meta[^>]*name=["\']description["\'][^>]*content=["\']([^"\']+)["\']/gi;
+                
+                let title = '';
+                let description = '';
+                
+                let titleMatch = titleRegex.exec(html);
+                if (titleMatch) {
+                    title = titleMatch[1] || titleMatch[2] || titleMatch[3] || '';
+                    title = title.replace(/\s*-\s*YouTube\s*$/, '').trim();
+                }
+                
+                let descMatch = descRegex.exec(html);
+                if (descMatch) {
+                    description = descMatch[1] || descMatch[2] || '';
+                }
+                
+                if (title) {
+                    return {
+                        title: title,
+                        description: description || `Deskripsi untuk video: ${title}`,
+                        author_name: 'Video Channel'
+                    };
+                }
+            } catch (error) {
+                console.log('Scraper method failed:', error);
+            }
+            throw new Error('Scraper failed');
+        }
+
+        // Get thumbnail URL
+        function getThumbnailUrl(videoId, platform) {
+            if (platform === 'youtube') {
+                return `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
+            } else if (platform === 'dailymotion') {
+                return `https://www.dailymotion.com/thumbnail/video/${videoId}`;
+            }
+            return '';
+        }
+
+        // Get embed URL
+        function getEmbedUrl(videoId, platform) {
+            if (platform === 'youtube') {
+                return `https://www.youtube.com/embed/${videoId}`;
+            } else if (platform === 'dailymotion') {
+                return `https://www.dailymotion.com/embed/video/${videoId}`;
+            }
+            return '';
+        }
+
+        // Update progress bar
+        function updateProgress(current, total) {
+            const percentage = (current / total) * 100;
+            document.getElementById('progress-fill').style.width = percentage + '%';
+            document.getElementById('fetch-status').innerHTML = `Progress: ${current}/${total} videos`;
+        }
+
+        // Fetch videos from URLs
+        async function fetchVideos() {
+            const urls = document.getElementById('video-urls').value.trim().split('\n').filter(url => url.trim());
+            const defaultCategory = document.getElementById('default-category').value;
+
+            if (urls.length === 0) {
+                showMessage('Silakan masukkan minimal satu URL video.', 'error');
+                return;
+            }
+
+            const fetchBtn = document.getElementById('fetch-btn');
+            fetchBtn.disabled = true;
+            fetchBtn.textContent = '⏳ Sedang Fetch...';
+            
+            showLoading(true);
+            document.getElementById('loading-text').textContent = 'Mengambil metadata video dari sumber asli...';
+
+            let successCount = 0;
+            let failCount = 0;
+
+            for (let i = 0; i < urls.length; i++) {
+                const url = urls[i].trim();
+                if (!url) continue;
+
+                updateProgress(i + 1, urls.length);
+                document.getElementById('fetch-status').innerHTML += `<br>📥 Memproses: ${url.substring(0, 50)}...`;
+
+                const platform = detectPlatform(url);
+                if (!platform) {
+                    document.getElementById('fetch-status').innerHTML += `<br>❌ Platform tidak didukung: ${url}`;
+                    failCount++;
+                    continue;
+                }
+
+                const videoId = extractVideoId(url, platform);
+                if (!videoId) {
+                    document.getElementById('fetch-status').innerHTML += `<br>❌ Video ID tidak ditemukan: ${url}`;
+                    failCount++;
+                    continue;
+                }
+
+                try {
+                    // Get real metadata
+                    document.getElementById('fetch-status').innerHTML += `<br>🔄 Mengambil metadata untuk ${videoId}...`;
+                    const metadata = await getVideoMetadata(url, platform, videoId);
+
+                    const videoData = {
+                        id: generateId(platform),
+                        title: metadata.title || `Video ${platform.toUpperCase()} - ${videoId}`,
+                        description: metadata.description || `Video menarik dari ${platform} dengan judul "${metadata.title}". Konten berkualitas yang layak untuk ditonton dan dibagikan.`,
+                        thumbnail: metadata.thumbnail_url || getThumbnailUrl(videoId, platform),
+                        platform: platform,
+                        videoId: videoId,
+                        category: defaultCategory,
+                        embedUrl: getEmbedUrl(videoId, platform),
+                        author: metadata.author_name || 'Unknown Channel'
+                    };
+
+                    videos.push(videoData);
+                    document.getElementById('fetch-status').innerHTML += `<br>✅ Berhasil: ${metadata.title}`;
+                    successCount++;
+
+                    // Small delay to prevent rate limiting
+                    await new Promise(resolve => setTimeout(resolve, 500));
+
+                } catch (error) {
+                    document.getElementById('fetch-status').innerHTML += `<br>⚠️ Gagal fetch, menggunakan data default untuk ${videoId}`;
+                    
+                    // Fallback with basic data
+                    const videoData = {
+                        id: generateId(platform),
+                        title: `Video ${platform.toUpperCase()} - ${videoId}`,
+                        description: `Video dari platform ${platform} dengan ID ${videoId}. Silakan edit manual untuk menambahkan judul dan deskripsi yang sesuai.`,
+                        thumbnail: getThumbnailUrl(videoId, platform),
+                        platform: platform,
+                        videoId: videoId,
+                        category: defaultCategory,
+                        embedUrl: getEmbedUrl(videoId, platform),
+                        author: `Channel ${platform}`
+                    };
+
+                    videos.push(videoData);
+                    failCount++;
+                }
+            }
+
+            showLoading(false);
+            updateVideoList();
+            updatePreview();
+            
+            fetchBtn.disabled = false;
+            fetchBtn.textContent = '🚀 Fetch Videos';
+
+            showMessage(`Selesai! Berhasil: ${successCount}, Gagal: ${failCount} video. ${failCount > 0 ? 'Video yang gagal menggunakan data default dan bisa diedit manual.' : ''}`, successCount > 0 ? 'success' : 'error');
+        }
+
+        // Add manual video
+        function addManualVideo() {
+            const title = document.getElementById('manual-title').value.trim();
+            const description = document.getElementById('manual-description').value.trim();
+            const url = document.getElementById('manual-url').value.trim();
+            const thumbnail = document.getElementById('manual-thumbnail').value.trim();
+            const category = document.getElementById('manual-category').value;
+
+            if (!title || !description || !url) {
+                showMessage('Harap isi semua field yang wajib (Judul, Deskripsi, URL).', 'error');
+                return;
+            }
+
+            const platform = detectPlatform(url);
+            if (!platform) {
+                showMessage('URL video tidak didukung.', 'error');
+                return;
+            }
+
+            const videoId = extractVideoId(url, platform);
+            if (!videoId) {
+                showMessage('Tidak dapat mengekstrak video ID dari URL.', 'error');
+                return;
+            }
+
+            const videoData = {
+                id: generateId(platform),
+                title: title,
+                description: description,
+                thumbnail: thumbnail || getThumbnailUrl(videoId, platform),
+                platform: platform,
+                videoId: videoId,
+                category: category,
+                embedUrl: getEmbedUrl(videoId, platform),
+                author: 'Manual Input'
+            };
+
+            videos.push(videoData);
+
+            // Clear form
+            document.getElementById('manual-title').value = '';
+            document.getElementById('manual-description').value = '';
+            document.getElementById('manual-url').value = '';
+            document.getElementById('manual-thumbnail').value = '';
+
+            updateVideoList();
+            updatePreview();
+            showMessage('Video berhasil ditambahkan!', 'success');
+        }
+
+        // Update video list display
+        function updateVideoList() {
+            const container = document.getElementById('video-items');
+            
+            if (videos.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: #666; padding: 20px;">Belum ada video. Silakan tambahkan video terlebih dahulu.</p>';
+                return;
+            }
+
+            container.innerHTML = videos.map((video, index) => `
+                <div class="video-item" id="video-${index}">
+                    <div class="video-title">${video.title}</div>
+                    <div class="video-meta">
+                        Platform: ${video.platform} | ID: ${video.videoId} | Kategori: ${video.category} | Author: ${video.author || 'Unknown'}
+                    </div>
+                    <div class="video-meta">
+                        ${video.description.substring(0, 150)}${video.description.length > 150 ? '...' : ''}
+                    </div>
+                    <div class="video-actions">
+                        <button class="btn btn-secondary" onclick="editVideo(${index})">✏️ Edit</button>
+                        <button class="btn btn-danger" onclick="deleteVideo(${index})">🗑️ Hapus</button>
+                    </div>
+                    <div id="edit-form-${index}" style="display: none;" class="edit-form">
+                        <input type="text" id="edit-title-${index}" value="${video.title.replace(/"/g, '&quot;')}" placeholder="Judul">
+                        <textarea id="edit-description-${index}" placeholder="Deskripsi">${video.description}</textarea>
+                        <input type="url" id="edit-thumbnail-${index}" value="${video.thumbnail}" placeholder="URL Thumbnail">
+                        <select id="edit-category-${index}">
+                            <option value="entertainment" ${video.category === 'entertainment' ? 'selected' : ''}>Entertainment</option>
+                            <option value="education" ${video.category === 'education' ? 'selected' : ''}>Education</option>
+                            <option value="music" ${video.category === 'music' ? 'selected' : ''}>Music</option>
+                            <option value="gaming" ${video.category === 'gaming' ? 'selected' : ''}>Gaming</option>
+                            <option value="news" ${video.category === 'news' ? 'selected' : ''}>News</option>
+                            <option value="sports" ${video.category === 'sports' ? 'selected' : ''}>Sports</option>
+                            <option value="technology" ${video.category === 'technology' ? 'selected' : ''}>Technology</option>
+                            <option value="lifestyle" ${video.category === 'lifestyle' ? 'selected' : ''}>Lifestyle</option>
+                        </select>
+                        <div style="margin-top: 10px;">
+                            <button class="btn btn-success" onclick="saveEdit(${index})">💾 Simpan</button>
+                            <button class="btn btn-secondary" onclick="cancelEdit(${index})">❌ Batal</button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Edit video
+        function editVideo(index) {
+            document.getElementById(`edit-form-${index}`).style.display = 'block';
+        }
+
+        // Save edit
+        function saveEdit(index) {
+            videos[index].title = document.getElementById(`edit-title-${index}`).value;
+            videos[index].description = document.getElementById(`edit-description-${index}`).value;
+            videos[index].thumbnail = document.getElementById(`edit-thumbnail-${index}`).value;
+            videos[index].category = document.getElementById(`edit-category-${index}`).value;
+
+            updateVideoList();
+            updatePreview();
+            showMessage('Video berhasil diupdate!', 'success');
+        }
+
+        // Cancel edit
+        function cancelEdit(index) {
+            document.getElementById(`edit-form-${index}`).style.display = 'none';
+        }
+
+        // Delete video
+        function deleteVideo(index) {
+            if (confirm('Apakah Anda yakin ingin menghapus video ini?')) {
+                videos.splice(index, 1);
+                updateVideoList();
+                updatePreview();
+                showMessage('Video berhasil dihapus!', 'success');
+            }
+        }
+
+        // Update preview
+        function updatePreview() {
+            const preview = document.getElementById('preview-content');
+            
+            if (videos.length === 0) {
+                preview.textContent = '// Preview akan muncul di sini setelah Anda menambahkan video';
+                return;
+            }
+
+            const jsonOutput = {
+                videos: videos
+            };
+
+            preview.textContent = JSON.stringify(jsonOutput, null, 2);
+        }
+
+        // Show loading
+        function showLoading(show) {
+            document.getElementById('loading').style.display = show ? 'block' : 'none';
+            if (!show) {
+                document.getElementById('progress-fill').style.width = '0%';
+                document.getElementById('fetch-status').innerHTML = '';
+            }
+        }
+
+        // Show message
+        function showMessage(message, type) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = type === 'error' ? 'error-message' : 'success-message';
+            messageDiv.innerHTML = message;
+            
+            const mainContent = document.querySelector('.main-content');
+            mainContent.insertBefore(messageDiv, mainContent.firstChild);
+            
+            setTimeout(() => {
+                messageDiv.remove();
+            }, 8000);
+        }
+
+        // Copy to clipboard
+        async function copyToClipboard() {
+            if (videos.length === 0) {
+                showMessage('Tidak ada data untuk disalin.', 'error');
+                return;
+            }
+
+            try {
+                await navigator.clipboard.writeText(document.getElementById('preview-content').textContent);
+                showMessage('Data berhasil disalin ke clipboard!', 'success');
+            } catch (err) {
+                showMessage('Gagal menyalin ke clipboard.', 'error');
+            }
+        }
+
+        // Download JSON
+        function downloadJSON() {
+            if (videos.length === 0) {
+                showMessage('Tidak ada data untuk didownload.', 'error');
+                return;
+            }
+
+            const jsonOutput = {
+                videos: videos
+            };
+
+            const blob = new Blob([JSON.stringify(jsonOutput, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'videos.json';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+
+            showMessage('File JSON berhasil didownload!', 'success');
+        }
+
+        // Download JS
+        function downloadJS() {
+            if (videos.length === 0) {
+                showMessage('Tidak ada data untuk didownload.', 'error');
+                return;
+            }
+
+            const jsOutput = `// videos.js - External video data
+window.VIDTAPZ_VIDEOS = ${JSON.stringify(videos, null, 4)};
+
+// Debug: Console log untuk memastikan videos.js ter-load
+console.log('videos.js loaded successfully!');
+console.log('Total videos in VIDTAPZ_VIDEOS:', window.VIDTAPZ_VIDEOS.length);`;
+
+            const blob = new Blob([jsOutput], { type: 'application/javascript' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'videos.js';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+
+            showMessage('File JS berhasil didownload!', 'success');
+        }
+
+        // Clear all
+        function clearAll() {
+            if (confirm('Apakah Anda yakin ingin menghapus semua video?')) {
+                videos = [];
+                updateVideoList();
+                updatePreview();
+                document.getElementById('video-urls').value = '';
+                showMessage('Semua video berhasil dihapus!', 'success');
+            }
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            updateVideoList();
+            updatePreview();
+        });
+
+        // Helper function to clean and format text
+        function cleanText(text) {
+            if (!text) return '';
+            return text
+                .replace(/&quot;/g, '"')
+                .replace(/&amp;/g, '&')
+                .replace(/&lt;/g, '<')
+                .replace(/&gt;/g, '>')
+                .replace(/&#39;/g, "'")
+                .replace(/\s+/g, ' ')
+                .trim();
+        }
+
+        // Enhanced error handling for network requests
+        async function fetchWithTimeout(url, options = {}, timeout = 10000) {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), timeout);
+            
+            try {
+                const response = await fetch(url, {
+                    ...options,
+                    signal: controller.signal
+                });
+                clearTimeout(timeoutId);
+                return response;
+            } catch (error) {
+                clearTimeout(timeoutId);
+                throw error;
+            }
+        }
+
+        // Improved YouTube metadata extraction
+        async function getYouTubeMetadata(videoId) {
+            const methods = [
+                // Method 1: YouTube oEmbed
+                async () => {
+                    const url = `https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${videoId}&format=json`;
+                    const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
+                    const response = await fetchWithTimeout(proxyUrl);
+                    const data = await response.json();
+                    return JSON.parse(data.contents);
+                },
+                
+                // Method 2: NoEmbed service
+                async () => {
+                    const url = `https://noembed.com/embed?url=https://www.youtube.com/watch?v=${videoId}`;
+                    const response = await fetchWithTimeout(url);
+                    return await response.json();
+                },
+                
+                // Method 3: Direct page scraping
+                async () => {
+                    const pageUrl = `https://www.youtube.com/watch?v=${videoId}`;
+                    const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(pageUrl)}`;
+                    const response = await fetchWithTimeout(proxyUrl);
+                    const data = await response.json();
+                    const html = data.contents;
+                    
+                    // Extract data from YouTube page
+                    const titleMatch = html.match(/<title[^>]*>([^<]+)<\/title>/i);
+                    const descMatch = html.match(/<meta[^>]*name="description"[^>]*content="([^"]*)"[^>]*>/i) ||
+                                    html.match(/<meta[^>]*property="og:description"[^>]*content="([^"]*)"[^>]*>/i);
+                    
+                    let title = titleMatch ? titleMatch[1] : '';
+                    title = title.replace(/\s*-\s*YouTube\s*$/, '').trim();
+                    
+                    const description = descMatch ? descMatch[1] : '';
+                    
+                    return {
+                        title: cleanText(title),
+                        description: cleanText(description) || `Video YouTube dengan judul "${title}". Konten menarik yang layak untuk ditonton.`,
+                        author_name: 'YouTube Channel',
+                        thumbnail_url: `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`
+                    };
+                }
+            ];
+
+            for (const method of methods) {
+                try {
+                    const result = await method();
+                    if (result && result.title && result.title.trim()) {
+                        return {
+                            title: cleanText(result.title),
+                            description: cleanText(result.description) || `Video YouTube: ${result.title}. Konten menarik dari platform YouTube.`,
+                            author_name: result.author_name || 'YouTube Channel',
+                            thumbnail_url: result.thumbnail_url || `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`
+                        };
+                    }
+                } catch (error) {
+                    console.log('YouTube method failed:', error);
+                    continue;
+                }
+            }
+            
+            throw new Error('All YouTube methods failed');
+        }
+
+        // Improved Dailymotion metadata extraction
+        async function getDailymotionMetadata(videoId) {
+            const methods = [
+                // Method 1: Dailymotion oEmbed
+                async () => {
+                    const url = `https://www.dailymotion.com/services/oembed?url=https://www.dailymotion.com/video/${videoId}&format=json`;
+                    const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
+                    const response = await fetchWithTimeout(proxyUrl);
+                    const data = await response.json();
+                    return JSON.parse(data.contents);
+                },
+                
+                // Method 2: Direct page scraping
+                async () => {
+                    const pageUrl = `https://www.dailymotion.com/video/${videoId}`;
+                    const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(pageUrl)}`;
+                    const response = await fetchWithTimeout(proxyUrl);
+                    const data = await response.json();
+                    const html = data.contents;
+                    
+                    // Extract data from Dailymotion page
+                    const titleMatch = html.match(/<title[^>]*>([^<]+)<\/title>/i);
+                    const descMatch = html.match(/<meta[^>]*name="description"[^>]*content="([^"]*)"[^>]*>/i) ||
+                                    html.match(/<meta[^>]*property="og:description"[^>]*content="([^"]*)"[^>]*>/i);
+                    
+                    let title = titleMatch ? titleMatch[1] : '';
+                    title = title.replace(/\s*-\s*Dailymotion\s*$/, '').trim();
+                    
+                    const description = descMatch ? descMatch[1] : '';
+                    
+                    return {
+                        title: cleanText(title),
+                        description: cleanText(description) || `Video Dailymotion dengan judul "${title}". Konten menarik dari platform Dailymotion.`,
+                        author_name: 'Dailymotion Channel',
+                        thumbnail_url: `https://www.dailymotion.com/thumbnail/video/${videoId}`
+                    };
+                }
+            ];
+
+            for (const method of methods) {
+                try {
+                    const result = await method();
+                    if (result && result.title && result.title.trim()) {
+                        return {
+                            title: cleanText(result.title),
+                            description: cleanText(result.description) || `Video Dailymotion: ${result.title}. Konten menarik dari platform Dailymotion.`,
+                            author_name: result.author_name || 'Dailymotion Channel',
+                            thumbnail_url: result.thumbnail_url || `https://www.dailymotion.com/thumbnail/video/${videoId}`
+                        };
+                    }
+                } catch (error) {
+                    console.log('Dailymotion method failed:', error);
+                    continue;
+                }
+            }
+            
+            throw new Error('All Dailymotion methods failed');
+        }
+
+        // Updated getVideoMetadata function with improved platform-specific handling
+        async function getVideoMetadata(url, platform, videoId) {
+            try {
+                let metadata;
+                
+                if (platform === 'youtube') {
+                    metadata = await getYouTubeMetadata(videoId);
+                } else if (platform === 'dailymotion') {
+                    metadata = await getDailymotionMetadata(videoId);
+                }
+                
+                return metadata;
+            } catch (error) {
+                console.log('All metadata extraction methods failed:', error);
+                
+                // Ultimate fallback with more descriptive content
+                return {
+                    title: `${platform === 'youtube' ? 'YouTube' : 'Dailymotion'} Video - ${videoId}`,
+                    description: `Video menarik dari platform ${platform} dengan ID ${videoId}. Silakan edit manual untuk menambahkan judul dan deskripsi yang lebih spesifik sesuai dengan konten video.`,
+                    author_name: `${platform === 'youtube' ? 'YouTube' : 'Dailymotion'} Channel`,
+                    thumbnail_url: getThumbnailUrl(videoId, platform)
+                };
+            }
+        }
+
+        // Add some sample URLs for testing
+        function addSampleUrls() {
+            const sampleUrls = [
+                'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+                'https://www.youtube.com/watch?v=9bZkp7q19f0',
+                'https://youtu.be/fJ9rUzIMcZQ'
+            ];
+            
+            document.getElementById('video-urls').value = sampleUrls.join('\n');
+            showMessage('Sample URLs ditambahkan! Klik "Fetch Videos" untuk mencoba.', 'success');
+        }
+
+        // Add keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            // Ctrl+Enter to fetch videos
+            if (e.ctrlKey && e.key === 'Enter') {
+                if (currentMode === 'auto') {
+                    fetchVideos();
+                } else {
+                    addManualVideo();
+                }
+            }
+            
+            // Ctrl+S to download JSON
+            if (e.ctrlKey && e.key === 's') {
+                e.preventDefault();
+                downloadJSON();
+            }
+            
+            // Ctrl+Shift+S to download JS
+            if (e.ctrlKey && e.shiftKey && e.key === 'S') {
+                e.preventDefault();
+                downloadJS();
+            }
+        });
+
+        // Enhanced URL validation
+        function isValidVideoUrl(url) {
+            const youtubeRegex = /^(https?:\/\/)?(www\.)?(youtube\.com\/(watch\?v=|embed\/)|youtu\.be\/)[\w-]+/;
+            const dailymotionRegex = /^(https?:\/\/)?(www\.)?dailymotion\.com\/video\/[\w-]+/;
+            
+            return youtubeRegex.test(url) || dailymotionRegex.test(url);
+        }
+
+        // Add real-time URL validation
+        document.getElementById('video-urls').addEventListener('input', function() {
+            const urls = this.value.split('\n').filter(url => url.trim());
+            const invalidUrls = urls.filter(url => url.trim() && !isValidVideoUrl(url.trim()));
+            
+            if (invalidUrls.length > 0) {
+                this.style.borderColor = '#f44336';
+                showMessage(`URL tidak valid ditemukan: ${invalidUrls.length} dari ${urls.length} URLs`, 'error');
+            } else {
+                this.style.borderColor = '#e1f5fe';
+            }
+        });
+
+        // Auto-save to localStorage
+        function saveToLocalStorage() {
+            try {
+                localStorage.setItem('videoGenerator_videos', JSON.stringify(videos));
+                localStorage.setItem('videoGenerator_lastSave', new Date().toISOString());
+            } catch (error) {
+                console.log('Failed to save to localStorage:', error);
+            }
+        }
+
+        // Load from localStorage
+        function loadFromLocalStorage() {
+            try {
+                const savedVideos = localStorage.getItem('videoGenerator_videos');
+                const lastSave = localStorage.getItem('videoGenerator_lastSave');
+                
+                if (savedVideos && lastSave) {
+                    const parsedVideos = JSON.parse(savedVideos);
+                    const saveDate = new Date(lastSave);
+                    const now = new Date();
+                    const hoursDiff = (now - saveDate) / (1000 * 60 * 60);
+                    
+                    // Auto-load if saved within last 24 hours
+                    if (hoursDiff < 24 && parsedVideos.length > 0) {
+                        if (confirm(`Ditemukan ${parsedVideos.length} video yang tersimpan dari ${saveDate.toLocaleString()}. Muat data tersebut?`)) {
+                            videos = parsedVideos;
+                            updateVideoList();
+                            updatePreview();
+                            showMessage(`${videos.length} video dimuat dari penyimpanan lokal.`, 'success');
+                        }
+                    }
+                }
+            } catch (error) {
+                console.log('Failed to load from localStorage:', error);
+            }
+        }
+
+        // Auto-save when videos change
+        const originalUpdateVideoList = updateVideoList;
+        updateVideoList = function() {
+            originalUpdateVideoList();
+            saveToLocalStorage();
+        };
+
+        // Initialize with localStorage check
+        document.addEventListener('DOMContentLoaded', function() {
+            updateVideoList();
+            updatePreview();
+            loadFromLocalStorage();
+            
+            // Add keyboard shortcut hints
+            const shortcutHints = document.createElement('div');
+            shortcutHints.innerHTML = `
+                <div style="position: fixed; bottom: 10px; right: 10px; background: rgba(33, 150, 243, 0.9); color: white; padding: 10px; border-radius: 5px; font-size: 0.8rem; max-width: 200px;">
+                    <strong>⌨️ Shortcuts:</strong><br>
+                    Ctrl+Enter: Fetch/Add<br>
+                    Ctrl+S: Download JSON<br>
+                    Ctrl+Shift+S: Download JS
+                </div>
+            `;
+            document.body.appendChild(shortcutHints);
+            
+            // Hide shortcuts after 5 seconds
+            setTimeout(() => {
+                shortcutHints.style.opacity = '0';
+                shortcutHints.style.transition = 'opacity 0.5s';
+                setTimeout(() => shortcutHints.remove(), 500);
+            }, 5000);
+        });
+    </script>
+</body>
+</html>

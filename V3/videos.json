@@ -1,0 +1,64 @@
+{
+  "videos": [
+    {
+      "id": "yt_1",
+      "title": "Amazing Nature Documentary - Wildlife Adventure",
+      "description": "Explore the incredible world of wildlife in this stunning nature documentary featuring amazing animals from around the globe.",
+      "thumbnail": "https://img.youtube.com/vi/dQw4w9WgXcQ/maxresdefault.jpg",
+      "platform": "youtube",
+      "videoId": "dQw4w9WgXcQ",
+      "category": "education",
+      "embedUrl": "https://www.youtube.com/embed/dQw4w9WgXcQ"
+    },
+    {
+      "id": "yt_2",
+      "title": "Epic Gaming Montage - Best Moments",
+      "description": "The most epic gaming moments compiled into one amazing montage. Featuring incredible plays and highlights.",
+      "thumbnail": "https://img.youtube.com/vi/jNQXAC9IVRw/maxresdefault.jpg",
+      "platform": "youtube",
+      "videoId": "jNQXAC9IVRw",
+      "category": "gaming",
+      "embedUrl": "https://www.youtube.com/embed/jNQXAC9IVRw"
+    },
+    {
+      "id": "dm_1",
+      "title": "Music Festival Live Performance",
+      "description": "Experience the energy of live music with this incredible festival performance featuring top artists.",
+      "thumbnail": "https://www.dailymotion.com/thumbnail/video/x7tgad0",
+      "platform": "dailymotion",
+      "videoId": "x7tgad0",
+      "category": "music",
+      "embedUrl": "https://www.dailymotion.com/embed/video/x7tgad0"
+    },
+    {
+      "id": "yt_3",
+      "title": "Cooking Masterclass - Italian Cuisine",
+      "description": "Learn to cook authentic Italian dishes with this comprehensive cooking masterclass from professional chefs.",
+      "thumbnail": "https://img.youtube.com/vi/BxV14h0kFs0/maxresdefault.jpg",
+      "platform": "youtube",
+      "videoId": "BxV14h0kFs0",
+      "category": "education",
+      "embedUrl": "https://www.youtube.com/embed/BxV14h0kFs0"
+    },
+    {
+      "id": "dm_2",
+      "title": "Sports Highlights - Championship Finals",
+      "description": "Relive the most exciting moments from the championship finals with these incredible sports highlights.",
+      "thumbnail": "https://www.dailymotion.com/thumbnail/video/x7u8mn2",
+      "platform": "dailymotion",
+      "videoId": "x7u8mn2",
+      "category": "sports",
+      "embedUrl": "https://www.dailymotion.com/embed/video/x7u8mn2"
+    },
+    {
+      "id": "yt_4sad",
+      "title": "Comedy Special - Stand Up Performance",
+      "description": "Laugh out loud with this hilarious stand-up comedy special featuring the best comedians.",
+      "thumbnail": "https://img.youtube.com/vi/oHg5SJYRHA0/maxresdefault.jpg",
+      "platform": "youtube",
+      "videoId": "oHg5SJYRHA0",
+      "category": "entertainment",
+      "embedUrl": "https://www.youtube.com/embed/oHg5SJYRHA0"
+    }
+  ]
+}
