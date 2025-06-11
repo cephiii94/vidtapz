@@ -314,3 +314,21 @@
     font-size: 0.7rem;
     font-weight: 600;
 }
+
+/* Tambahkan di vidmuz.css */
+.retry-btn {
+    margin-top: 1rem;
+    padding: 0.75rem 1.5rem;
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+}
+
+.retry-btn:hover {
+    background-color: var(--secondary-color);
+    transform: translateY(-2px);
+}
