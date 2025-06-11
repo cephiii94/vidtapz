@@ -59,6 +59,27 @@ window.VIDTAPZ_VIDEOS = [
         videoId: 'QtXby3twMmI',
         category: 'news',
         embedUrl: 'https://www.youtube.com/embed/QtXby3twMmI'
+    },
+        {
+      "id": "yt_8292",
+      "title": "Eclipse - Sudden Shower (Lovely Runner OST Part 1) | Lirik Terjemahan",
+      "description": "Video YouTube: Eclipse - Sudden Shower (Lovely Runner OST Part 1) | Lirik Terjemahan. Konten menarik dari platform YouTube.",
+      "thumbnail": "https://i.ytimg.com/vi/YjFBYJN4rrY/hqdefault.jpg",
+      "platform": "youtube",
+      "videoId": "YjFBYJN4rrY",
+      "category": "music",
+      "embedUrl": "https://www.youtube.com/embed/YjFBYJN4rrY",
+
+    },
+        {      "id": "yt_6485",
+      "title": "Timun Jelita - Kena Lagi di Hati (Video Lirik)",
+      "description": "Video YouTube: Timun Jelita - Kena Lagi di Hati (Video Lirik). Konten menarik dari platform YouTube.",
+      "thumbnail": "https://i.ytimg.com/vi/yz5LSofl1qA/hqdefault.jpg",
+      "platform": "youtube",
+      "videoId": "yz5LSofl1qA",
+      "category": "music",
+      "embedUrl": "https://www.youtube.com/embed/yz5LSofl1qA",
+      "author": "Raditya Dika"
     }
 ];
 

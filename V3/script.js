@@ -367,3 +367,57 @@ function closeModal() {
 
 // Initialize app
 const app = new VidtapzApp();
+
+
+// Tambahkan di akhir script.js
+
+// Mobile menu functionality
+function toggleMobileMenu() {
+    const mobileMenu = document.getElementById('mobileMenu');
+    const isActive = mobileMenu.classList.contains('active');
+    
+    if (isActive) {
+        mobileMenu.classList.remove('active');
+        mobileMenu.style.display = 'none';
+    } else {
+        mobileMenu.classList.add('active');
+        mobileMenu.style.display = 'block';
+    }
+}
+
+// Close mobile menu when clicking outside
+document.addEventListener('click', (e) => {
+    const mobileMenu = document.getElementById('mobileMenu');
+    const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
+    
+    if (!mobileMenu.contains(e.target) && !mobileMenuBtn.contains(e.target)) {
+        mobileMenu.classList.remove('active');
+        mobileMenu.style.display = 'none';
+    }
+});
+
+// Update theme toggle for mobile
+function toggleTheme() {
+    app.theme = app.theme === 'light' ? 'dark' : 'light';
+    localStorage.setItem('theme', app.theme);
+    app.applyTheme();
+    
+    // Update both theme icons
+    const themeIcon = document.getElementById('themeIcon');
+    const themeIconMobile = document.getElementById('themeIconMobile');
+    const iconClass = app.theme === 'light' ? 'fas fa-moon' : 'fas fa-sun';
+    
+    if (themeIcon) themeIcon.className = iconClass;
+    if (themeIconMobile) themeIconMobile.className = iconClass;
+}
+
+// Update the applyTheme method in VidtapzApp class
+VidtapzApp.prototype.applyTheme = function() {
+    document.documentElement.setAttribute('data-theme', this.theme);
+    const themeIcon = document.getElementById('themeIcon');
+    const themeIconMobile = document.getElementById('themeIconMobile');
+    const iconClass = this.theme === 'light' ? 'fas fa-moon' : 'fas fa-sun';
+    
+    if (themeIcon) themeIcon.className = iconClass;
+    if (themeIconMobile) themeIconMobile.className = iconClass;
+};

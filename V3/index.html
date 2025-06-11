@@ -12,9 +12,12 @@
     <nav class="navbar">
         <div class="nav-container">
             <div class="nav-left">
+                <button class="mobile-menu-btn" onclick="toggleMobileMenu()">
+                    <i class="fas fa-bars"></i>
+                </button>
                 <h1 class="logo">
                     <i class="fas fa-play-circle"></i>
-                    Vidtapz
+                    <span class="logo-text">Vidtapz</span>
                 </h1>
             </div>
             
@@ -28,11 +31,66 @@
             </div>
             
             <div class="nav-right">
+                <div class="nav-links desktop-only">
+                    <a href="index.html" class="nav-link active">
+                        <i class="fas fa-play"></i>
+                        <span>Vidtapz</span>
+                    </a>
+                    <a href="vidshortz.html" class="nav-link">
+                        <i class="fas fa-mobile-alt"></i>
+                        <span>Shortz</span>
+                    </a>
+                    <a href="vidmuz.html" class="nav-link">
+                        <i class="fas fa-music"></i>
+                        <span>Muz</span>
+                    </a>
+                </div>
                 <button class="theme-toggle" onclick="toggleTheme()">
                     <i class="fas fa-moon" id="themeIcon"></i>
                 </button>
             </div>
         </div>
+
+        <!-- Mobile Menu -->
+        <div class="mobile-menu" id="mobileMenu">
+            <div class="mobile-menu-content">
+                <a href="index.html" class="mobile-nav-link active">
+                    <i class="fas fa-play"></i>
+                    <span>Vidtapz</span>
+                    <p>Regular Videos</p>
+                </a>
+                <a href="vidshortz.html" class="mobile-nav-link">
+                    <i class="fas fa-mobile-alt"></i>
+                    <span>VidShortz</span>
+                    <p>Short Videos</p>
+                </a>
+                <a href="vidmuz.html" class="mobile-nav-link">
+                    <i class="fas fa-music"></i>
+                    <span>VidMuz</span>
+                    <p>Music Player</p>
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Bottom Navigation (Mobile Only) -->
+    <nav class="bottom-nav mobile-only">
+        <a href="index.html" class="bottom-nav-item active">
+            <i class="fas fa-play"></i>
+            <span>Videos</span>
+        </a>
+        <a href="vidshortz.html" class="bottom-nav-item">
+            <i class="fas fa-mobile-alt"></i>
+            <span>Shorts</span>
+        </a>
+        <a href="vidmuz.html" class="bottom-nav-item">
+            <i class="fas fa-music"></i>
+            <span>Music</span>
+        </a>
+        <button class="bottom-nav-item theme-toggle-mobile" onclick="toggleTheme()">
+            <i class="fas fa-moon" id="themeIconMobile"></i>
+            <span>Theme</span>
+        </button>
     </nav>
 
     <!-- Main Content -->
@@ -94,7 +152,7 @@
         <p>&copy; 2024 Vidtapz. All rights reserved.</p>
     </footer>
 
-    <!-- PENTING: Load videos.js SEBELUM script.js -->
+    <!-- External scripts -->
     <script src="videos.js"></script>
     <script src="script.js"></script>
 </body>
