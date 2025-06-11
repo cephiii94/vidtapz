@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vidtapz - Video Sharing Platform</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-left">
+                <button class="mobile-menu-btn" onclick="toggleMobileMenu()">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <h1 class="logo">
+                    <i class="fas fa-play-circle"></i>
+                    <span class="logo-text">Vidtapz</span>
+                </h1>
+            </div>
+            
+            <div class="nav-center">
+                <div class="search-container">
+                    <input type="text" id="searchInput" placeholder="Search videos..." class="search-input">
+                    <button class="search-btn" onclick="searchVideos()">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="nav-right">
+                <div class="nav-links desktop-only">
+                    <a href="index.html" class="nav-link active">
+                        <i class="fas fa-play"></i>
+                        <span>Vidtapz</span>
+                    </a>
+                    <a href="vidshortz.html" class="nav-link">
+                        <i class="fas fa-mobile-alt"></i>
+                        <span>Shortz</span>
+                    </a>
+                    <a href="vidmuz.html" class="nav-link">
+                        <i class="fas fa-music"></i>
+                        <span>Muz</span>
+                    </a>
+                </div>
+                <button class="theme-toggle" onclick="toggleTheme()">
+                    <i class="fas fa-moon" id="themeIcon"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Mobile Menu -->
+        <div class="mobile-menu" id="mobileMenu">
+            <div class="mobile-menu-content">
+                <a href="index.html" class="mobile-nav-link active">
+                    <i class="fas fa-play"></i>
+                    <span>Vidtapz</span>
+                    <p>Regular Videos</p>
+                </a>
+                <a href="vidshortz.html" class="mobile-nav-link">
+                    <i class="fas fa-mobile-alt"></i>
+                    <span>VidShortz</span>
+                    <p>Short Videos</p>
+                </a>
+                <a href="vidmuz.html" class="mobile-nav-link">
+                    <i class="fas fa-music"></i>
+                    <span>VidMuz</span>
+                    <p>Music Player</p>
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Bottom Navigation (Mobile Only) -->
+    <nav class="bottom-nav mobile-only">
+        <a href="index.html" class="bottom-nav-item active">
+            <i class="fas fa-play"></i>
+            <span>Videos</span>
+        </a>
+        <a href="vidshortz.html" class="bottom-nav-item">
+            <i class="fas fa-mobile-alt"></i>
+            <span>Shorts</span>
+        </a>
+        <a href="vidmuz.html" class="bottom-nav-item">
+            <i class="fas fa-music"></i>
+            <span>Music</span>
+        </a>
+        <button class="bottom-nav-item theme-toggle-mobile" onclick="toggleTheme()">
+            <i class="fas fa-moon" id="themeIconMobile"></i>
+            <span>Theme</span>
+        </button>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Filter Categories -->
+        <div class="filter-container">
+            <div class="category-filters">
+                <button class="filter-btn active" data-category="all" onclick="filterVideos('all')">All</button>
+                <button class="filter-btn" data-category="music" onclick="filterVideos('music')">Music</button>
+                <button class="filter-btn" data-category="gaming" onclick="filterVideos('gaming')">Gaming</button>
+                <button class="filter-btn" data-category="education" onclick="filterVideos('education')">Education</button>
+                <button class="filter-btn" data-category="entertainment" onclick="filterVideos('entertainment')">Entertainment</button>
+                <button class="filter-btn" data-category="sports" onclick="filterVideos('sports')">Sports</button>
+                <button class="filter-btn" data-category="news" onclick="filterVideos('news')">News</button>
+            </div>
+        </div>
+
+        <!-- Video Grid -->
+        <div class="video-grid" id="videoGrid">
+            <!-- Videos will be loaded here -->
+        </div>
+
+        <!-- Loading Indicator -->
+        <div class="loading" id="loading" style="display: none;">
+            <i class="fas fa-spinner fa-spin"></i>
+            <p>Loading videos...</p>
+        </div>
+
+        <!-- No Results -->
+        <div class="no-results" id="noResults" style="display: none;">
+            <i class="fas fa-search"></i>
+            <p>No videos found</p>
+        </div>
+    </main>
+
+    <!-- Video Modal -->
+    <div class="modal" id="videoModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle">Video Title</h3>
+                <button class="close-btn" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="video-player" id="videoPlayer">
+                    <!-- Video will be embedded here -->
+                </div>
+                <div class="video-info">
+                    <div class="video-badges">
+                        <span class="platform-badge" id="platformBadge">YouTube</span>
+                    </div>
+                    <p class="video-description" id="videoDescription"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>&copy; 2024 Vidtapz. All rights reserved.</p>
+    </footer>
+
+    <!-- External scripts -->
+    <script src="videos.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
