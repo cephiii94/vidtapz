@@ -1,0 +1,44 @@
+{
+  "sources": [
+    {
+      "name": "Spotify Playlist",
+      "url": "https://open.spotify.com/playlist/37i9dQZF1DX0XUsuxWHRQd",
+      "provider": "spotify",
+      "type": "playlist"
+    },
+    {
+      "name": "SoundCloud Track",
+      "url": "https://soundcloud.com/example-artist/example-track",
+      "provider": "soundcloud",
+      "type": "track"
+    },
+    {
+      "name": "Bandcamp Album",
+      "url": "https://example.bandcamp.com/album/example-album",
+      "provider": "bandcamp",
+      "type": "album"
+    }
+  ],
+  "tracks": [
+    {
+      "id": "external_spotify_1",
+      "title": "Chill Indie Mix",
+      "description": "Perfect indie songs for relaxation",
+      "url": "https://open.spotify.com/playlist/37i9dQZF1DX2UgsUIg75Vj",
+      "provider": "spotify",
+      "category": "music",
+      "artist": "Various Artists",
+      "duration": "2:15:30"
+    },
+    {
+      "id": "external_soundcloud_1",
+      "title": "Electronic Vibes",
+      "description": "Latest electronic music",
+      "url": "https://soundcloud.com/example/electronic-mix",
+      "provider": "soundcloud",
+      "category": "music",
+      "artist": "DJ Example",
+      "duration": "45:20"
+    }
+  ]
+}
