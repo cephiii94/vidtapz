@@ -114,6 +114,11 @@
                     </button>
                     <button onclick="nextTrack()"><i class="fas fa-step-forward"></i></button>
                 </div>
+                <div class="volume-container">
+                    <i class="fas fa-volume-down"></i>
+                    <input type="range" id="volumeSlider" min="0" max="100" value="80" onchange="setVolume(this.value)">
+                    <i class="fas fa-volume-up"></i>
+                </div>
                 <div class="progress-container">
                     <span id="currentTime">0:00</span>
                     <div class="progress-bar" onclick="seekTo(event)">
@@ -133,7 +138,12 @@
         </div>
     </main>
 
-    <script src="videos.js"></script>
+    <div id="ytPlayerContainer" style="width:0;height:0;overflow:hidden;position:absolute;left:-9999px;">
+        <div id="ytPlayer"></div>
+    </div>
+
+    <script src="/videos.js"></script>
+    <script src="https://www.youtube.com/iframe_api"></script>
     <script src="vidmuz.js"></script>
 </body>
 </html>

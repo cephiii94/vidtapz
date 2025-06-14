@@ -8,6 +8,7 @@ class VidMuzApp {
         this.currentTime = 0;
         this.duration = 0;
         this.theme = localStorage.getItem('theme') || 'light';
+        this.progressInterval = null;
         
         this.init();
     }
@@ -357,7 +358,74 @@ class VidMuzApp {
         this.renderTracks();
     }
 
-    // ... sisa kode sama seperti sebelumnya ...
+    embedPlayer() {
+        if (!ytPlayerReady || !this.currentTrack) return;
+        ytPlayer.loadVideoById(this.currentTrack.videoId);
+        ytPlayer.playVideo();
+
+        // Mulai interval update progress bar
+        if (this.progressInterval) clearInterval(this.progressInterval);
+        this.progressInterval = setInterval(() => {
+            if (ytPlayer && ytPlayer.getCurrentTime && ytPlayer.getDuration) {
+                this.currentTime = Math.floor(ytPlayer.getCurrentTime());
+                this.duration = Math.floor(ytPlayer.getDuration());
+                this.updateProgress();
+            }
+        }, 500);
+    }
+
+    togglePlayPause() {
+        if (!this.currentTrack) {
+            if (this.tracks.length > 0) {
+                this.playTrack(0);
+            }
+            return;
+        }
+
+        this.isPlaying = !this.isPlaying;
+        this.updatePlayButtons();
+
+        if (ytPlayerReady && ytPlayer) {
+            if (this.isPlaying) {
+                ytPlayer.playVideo();
+            } else {
+                ytPlayer.pauseVideo();
+            }
+        }
+
+        console.log(this.isPlaying ? '▶️ Playing' : '⏸️ Paused');
+    }
+
+    stopPlayback() {
+        this.isPlaying = false;
+        this.currentTrack = null;
+        this.currentIndex = -1;
+
+        if (this.playbackInterval) {
+            clearInterval(this.playbackInterval);
+        }
+        if (this.progressInterval) {
+            clearInterval(this.progressInterval);
+        }
+
+        // Stop YouTube player
+        if (ytPlayerReady && ytPlayer) {
+            ytPlayer.stopVideo();
+        }
+
+        // Reset UI
+        this.updatePlayButtons();
+        this.renderTracks();
+
+        // Reset now playing
+        const playerTitle = document.getElementById('playerTitle');
+        const playerArtist = document.getElementById('playerArtist');
+        const playerArt = document.getElementById('playerArt');
+
+        if (playerTitle) playerTitle.textContent = 'Select a song';
+        if (playerArtist) playerArtist.textContent = 'No song playing';
+        if (playerArt) playerArt.src = '';
+    }
 
     getVideoSource(videoId) {
         if (videoId.startsWith('js_')) return 'JS';
@@ -396,13 +464,6 @@ class VidMuzApp {
         }
     }
 
-    // ... sisa fungsi sama seperti sebelumnya ...
-    // ... sisa kode tetap sama ...
-
-
-// Global functions tetap sama...
-
-
     playTrack(index) {
         if (index < 0 || index >= this.tracks.length) return;
         
@@ -421,24 +482,6 @@ class VidMuzApp {
         
         // Embed video player (audio only would be better for music)
         this.embedPlayer();
-    }
-
-    embedPlayer() {
-        // In a real implementation, you might want to use audio-only APIs
-        // For now, we'll embed the video but hide it for music-only experience
-        const playerContainer = document.querySelector('.player-art');
-        
-        // Create or update hidden iframe for audio
-        let iframe = document.getElementById('hiddenMusicPlayer');
-        if (!iframe) {
-            iframe = document.createElement('iframe');
-            iframe.id = 'hiddenMusicPlayer';
-            iframe.style.display = 'none';
-            iframe.allow = 'autoplay';
-            document.body.appendChild(iframe);
-        }
-        
-        iframe.src = this.currentTrack.embedUrl;
     }
 
     updateNowPlaying() {
@@ -461,8 +504,8 @@ class VidMuzApp {
             playerArtist.textContent = this.currentTrack.artist || 'Unknown Artist';
         }
         
-        // Simulate playback for demo
-        this.simulatePlayback();
+        // Jangan panggil simulatePlayback di sini!
+        // this.simulatePlayback();
     }
 
     simulatePlayback() {
@@ -533,22 +576,18 @@ class VidMuzApp {
             }
             return;
         }
-        
+
         this.isPlaying = !this.isPlaying;
         this.updatePlayButtons();
-        
-        // Control the hidden iframe
-        const iframe = document.getElementById('hiddenMusicPlayer');
-        if (iframe) {
-            // Note: Due to browser restrictions, we can't directly control iframe playback
-            // In a real app, you'd use proper audio APIs or YouTube/music APIs
-            if (!this.isPlaying) {
-                iframe.src = 'about:blank'; // Stop playback
+
+        if (ytPlayerReady && ytPlayer) {
+            if (this.isPlaying) {
+                ytPlayer.playVideo();
             } else {
-                iframe.src = this.currentTrack.embedUrl; // Resume playback
+                ytPlayer.pauseVideo();
             }
         }
-        
+
         console.log(this.isPlaying ? '▶️ Playing' : '⏸️ Paused');
     }
 
@@ -593,26 +632,28 @@ class VidMuzApp {
         this.isPlaying = false;
         this.currentTrack = null;
         this.currentIndex = -1;
-        
+
         if (this.playbackInterval) {
             clearInterval(this.playbackInterval);
         }
-        
-        // Clear hidden player
-        const iframe = document.getElementById('hiddenMusicPlayer');
-        if (iframe) {
-            iframe.src = 'about:blank';
+        if (this.progressInterval) {
+            clearInterval(this.progressInterval);
         }
-        
+
+        // Stop YouTube player
+        if (ytPlayerReady && ytPlayer) {
+            ytPlayer.stopVideo();
+        }
+
         // Reset UI
         this.updatePlayButtons();
         this.renderTracks();
-        
+
         // Reset now playing
         const playerTitle = document.getElementById('playerTitle');
         const playerArtist = document.getElementById('playerArtist');
         const playerArt = document.getElementById('playerArt');
-        
+
         if (playerTitle) playerTitle.textContent = 'Select a song';
         if (playerArtist) playerArtist.textContent = 'No song playing';
         if (playerArt) playerArt.src = '';
@@ -644,6 +685,34 @@ class VidMuzApp {
         if (themeIconMobile) themeIconMobile.className = iconClass;
     }
 }
+
+// --- Tambahkan di luar class, sebelum const app = new VidMuzApp(); ---
+let ytPlayer;
+let ytPlayerReady = false;
+
+window.onYouTubeIframeAPIReady = function() {
+    ytPlayer = new YT.Player('ytPlayer', {
+        height: '0',
+        width: '0',
+        videoId: '',
+        events: {
+            'onReady': function() {
+                ytPlayerReady = true;
+                ytPlayer.setVolume(80); // Volume awal 80%
+            },
+            'onStateChange': function(event) {
+                if (event.data === YT.PlayerState.ENDED) {
+                    app.nextTrack();
+                }
+            }
+        },
+        playerVars: {
+            'autoplay': 0,
+            'controls': 0
+        }
+    });
+};
+// --- Akhir bagian global ---
 
 // Global functions
 function toggleMobileMenu() {
@@ -684,6 +753,12 @@ function seekTo(event) {
 function searchMusic() {
     const query = document.getElementById('searchInput').value;
     app.searchMusic(query);
+}
+
+function setVolume(val) {
+    if (ytPlayer && ytPlayerReady) {
+        ytPlayer.setVolume(Number(val));
+    }
 }
 
 // Initialize app
