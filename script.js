@@ -365,6 +365,30 @@ function closeModal() {
     app.closeModal();
 }
 
+function minimizeModal() {
+    // Hide modal
+    document.getElementById('videoModal').style.display = 'none';
+    // Show mini player
+    document.getElementById('miniPlayer').style.display = 'block';
+    // Copy video iframe and title
+    document.getElementById('miniPlayerVideo').innerHTML = document.getElementById('videoPlayer').innerHTML;
+    document.getElementById('miniPlayerTitle').textContent = document.getElementById('modalTitle').textContent;
+}
+
+function restoreModal() {
+    // Hide mini player
+    document.getElementById('miniPlayer').style.display = 'none';
+    // Show modal
+    document.getElementById('videoModal').style.display = 'block';
+    // Restore video iframe
+    document.getElementById('videoPlayer').innerHTML = document.getElementById('miniPlayerVideo').innerHTML;
+}
+
+function closeMiniPlayer() {
+    document.getElementById('miniPlayer').style.display = 'none';
+    // Optionally, stop video playback here
+}
+
 // Initialize app
 const app = new VidtapzApp();
 

@@ -59,6 +59,17 @@
       "videoId": "oHg5SJYRHA0",
       "category": "entertainment",
       "embedUrl": "https://www.youtube.com/embed/oHg5SJYRHA0"
+    },
+        {
+      "id": "yt_5555",
+      "title": "Sal Priadi - Kita Usahakan Rumah Itu (Official Short Movie)",
+      "description": "Video YouTube: Sal Priadi - Kita Usahakan Rumah Itu (Official Short Movie). Konten menarik dari platform YouTube.",
+      "thumbnail": "https://i.ytimg.com/vi/WPul2u-pIog/hqdefault.jpg",
+      "platform": "youtube",
+      "videoId": "WPul2u-pIog",
+      "category": "music",
+      "embedUrl": "https://www.youtube.com/embed/WPul2u-pIog",
+      "author": "Sal Priadi"
     }
   ]
 }

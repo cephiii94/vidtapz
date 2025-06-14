@@ -129,9 +129,15 @@
     <!-- Video Modal -->
     <div class="modal" id="videoModal">
         <div class="modal-content">
+            <!-- Modal Header -->
             <div class="modal-header">
                 <h3 id="modalTitle">Video Title</h3>
-                <button class="close-btn" onclick="closeModal()">&times;</button>
+                <button class="modal-btn minimize-btn" onclick="minimizeModal()" title="Minimize">
+                    <i class="fas fa-window-minimize"></i>
+                </button>
+                <button class="modal-btn close-btn" onclick="closeModal()" title="Close">
+                    <i class="fas fa-times"></i>
+                </button>
             </div>
             <div class="modal-body">
                 <div class="video-player" id="videoPlayer">
@@ -143,6 +149,25 @@
                     </div>
                     <p class="video-description" id="videoDescription"></p>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mini Player -->
+    <div class="mini-player" id="miniPlayer" style="display: none;">
+        <div class="mini-player-content">
+            <!-- Mini Player Controls -->
+            <div class="mini-player-controls">
+                <button class="modal-btn restore-btn" onclick="restoreModal()" title="Restore">
+                    <i class="fas fa-window-restore"></i>
+                </button>
+                <button class="modal-btn close-btn" onclick="closeMiniPlayer()" title="Close">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div id="miniPlayerVideo"></div>
+            <div class="mini-player-info">
+                <span id="miniPlayerTitle"></span>
             </div>
         </div>
     </div>
