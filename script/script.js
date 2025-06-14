@@ -5,7 +5,8 @@ class VidtapzApp {
         this.currentFilter = 'all';
         this.currentModal = null;
         this.theme = localStorage.getItem('theme') || 'light';
-        
+        this.debouncedSearch = this.debounce((value) => this.searchVideos(value), 300);
+
         this.init();
     }
 
@@ -19,13 +20,15 @@ class VidtapzApp {
     setupEventListeners() {
         // Search functionality
         const searchInput = document.getElementById('searchInput');
-        searchInput.addEventListener('input', (e) => {
-            this.debounce(() => this.searchVideos(e.target.value), 300)();
-        });
+        if (searchInput) {
+            searchInput.addEventListener('input', (e) => {
+                this.debouncedSearch(e.target.value);
+            });
+        }
 
         // Keyboard navigation
         document.addEventListener('keydown', (e) => this.handleKeyboardNavigation(e));
-        
+
         // Modal close on escape
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape' && this.currentModal) {
@@ -34,11 +37,14 @@ class VidtapzApp {
         });
 
         // Close modal when clicking outside
-        document.getElementById('videoModal').addEventListener('click', (e) => {
-            if (e.target === e.currentTarget) {
-                this.closeModal();
-            }
-        });
+        const videoModal = document.getElementById('videoModal');
+        if (videoModal) {
+            videoModal.addEventListener('click', (e) => {
+                if (e.target === e.currentTarget) {
+                    this.closeModal();
+                }
+            });
+        }
     }
 
     async loadVideos() {
@@ -287,6 +293,33 @@ class VidtapzApp {
             const closeBtn = modal.querySelector('.close-btn');
             closeBtn.focus();
         }, 100);
+
+        // YouTube player API
+        if (typeof YT !== 'undefined' && YT.Player) {
+            this.onYouTubeIframeAPIReady(videoId);
+        }
+
+        // Misal dapatkan data video dari array
+        lastVideoTitle = video.title;
+        lastVideoThumb = video.thumbnail;
+        lastVideoSrc = video.embedUrl;
+        lastVideoType = video.platform; // 'youtube' atau 'dailymotion'
+    }
+
+    onYouTubeIframeAPIReady(videoId) {
+        // Inisialisasi player YouTube
+        const video = this.videos.find(v => v.id === videoId);
+        if (!video) return;
+
+        // Misal id iframe: 'ytplayer'
+        ytPlayer = new YT.Player('ytplayer', {
+            events: {
+                'onReady': function(event) {
+                    if (lastTime > 0) event.target.seekTo(lastTime);
+                    event.target.playVideo();
+                }
+            }
+        });
     }
 
     closeModal() {
@@ -296,6 +329,12 @@ class VidtapzApp {
         modal.style.display = 'none';
         videoPlayer.innerHTML = '';
         this.currentModal = null;
+
+        // Hentikan dan hancurkan player YouTube jika ada
+        if (ytPlayer) {
+            ytPlayer.destroy();
+            ytPlayer = null;
+        }
     }
 
     toggleTheme() {
@@ -307,7 +346,11 @@ class VidtapzApp {
     applyTheme() {
         document.documentElement.setAttribute('data-theme', this.theme);
         const themeIcon = document.getElementById('themeIcon');
-        themeIcon.className = this.theme === 'light' ? 'fas fa-moon' : 'fas fa-sun';
+        const themeIconMobile = document.getElementById('themeIconMobile');
+        const iconClass = this.theme === 'light' ? 'fas fa-moon' : 'fas fa-sun';
+
+        if (themeIcon) themeIcon.className = iconClass;
+        if (themeIconMobile) themeIconMobile.className = iconClass;
     }
 
     handleKeyboardNavigation(e) {
@@ -365,41 +408,44 @@ function closeModal() {
     app.closeModal();
 }
 
+let lastTime = 0;
+let lastVideoTitle = '';
+let lastVideoThumb = '';
+let lastVideoSrc = '';
+let lastVideoType = '';
+
 function minimizeModal() {
-    // Hide modal
+    document.getElementById('videoPlayer').innerHTML = '';
     document.getElementById('videoModal').style.display = 'none';
-    // Show mini player
     document.getElementById('miniPlayer').style.display = 'block';
-    // Copy video iframe and title
-    document.getElementById('miniPlayerVideo').innerHTML = document.getElementById('videoPlayer').innerHTML;
-    document.getElementById('miniPlayerTitle').textContent = document.getElementById('modalTitle').textContent;
+    // Jika thumbnail tidak ada, fallback ke gambar default
+    const thumb = lastVideoThumb || 'https://via.placeholder.com/320x180?text=No+Thumbnail';
+    document.getElementById('miniPlayerVideo').innerHTML = `<img src="${thumb}" alt="Thumbnail" style="width:100%;height:auto;border-radius:8px;">`;
+    document.getElementById('miniPlayerTitle').textContent = lastVideoTitle;
 }
 
 function restoreModal() {
-    // Hide mini player
     document.getElementById('miniPlayer').style.display = 'none';
-    // Show modal
     document.getElementById('videoModal').style.display = 'block';
-    // Restore video iframe
-    document.getElementById('videoPlayer').innerHTML = document.getElementById('miniPlayerVideo').innerHTML;
-}
-
-function closeMiniPlayer() {
-    document.getElementById('miniPlayer').style.display = 'none';
-    // Optionally, stop video playback here
+    // Render ulang video di modal
+    if (lastVideoType === 'youtube') {
+        // Render iframe YouTube
+        document.getElementById('videoPlayer').innerHTML = `<iframe src="${lastVideoSrc}" frameborder="0" allowfullscreen></iframe>`;
+    } else if (lastVideoType === 'html5') {
+        // Render video HTML5
+        document.getElementById('videoPlayer').innerHTML = `<video src="${lastVideoSrc}" controls autoplay></video>`;
+    }
 }
 
 // Initialize app
 const app = new VidtapzApp();
 
-
-// Tambahkan di akhir script.js
-
 // Mobile menu functionality
 function toggleMobileMenu() {
     const mobileMenu = document.getElementById('mobileMenu');
+    if (!mobileMenu) return;
     const isActive = mobileMenu.classList.contains('active');
-    
+
     if (isActive) {
         mobileMenu.classList.remove('active');
         mobileMenu.style.display = 'none';
@@ -413,35 +459,14 @@ function toggleMobileMenu() {
 document.addEventListener('click', (e) => {
     const mobileMenu = document.getElementById('mobileMenu');
     const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
-    
+    if (!mobileMenu || !mobileMenuBtn) return;
     if (!mobileMenu.contains(e.target) && !mobileMenuBtn.contains(e.target)) {
         mobileMenu.classList.remove('active');
         mobileMenu.style.display = 'none';
     }
 });
 
-// Update theme toggle for mobile
-function toggleTheme() {
-    app.theme = app.theme === 'light' ? 'dark' : 'light';
-    localStorage.setItem('theme', app.theme);
-    app.applyTheme();
-    
-    // Update both theme icons
-    const themeIcon = document.getElementById('themeIcon');
-    const themeIconMobile = document.getElementById('themeIconMobile');
-    const iconClass = app.theme === 'light' ? 'fas fa-moon' : 'fas fa-sun';
-    
-    if (themeIcon) themeIcon.className = iconClass;
-    if (themeIconMobile) themeIconMobile.className = iconClass;
+function getYouTubeThumbnail(url) {
+    const id = getYouTubeId(url);
+    return `https://img.youtube.com/vi/${id}/hqdefault.jpg`;
 }
-
-// Update the applyTheme method in VidtapzApp class
-VidtapzApp.prototype.applyTheme = function() {
-    document.documentElement.setAttribute('data-theme', this.theme);
-    const themeIcon = document.getElementById('themeIcon');
-    const themeIconMobile = document.getElementById('themeIconMobile');
-    const iconClass = this.theme === 'light' ? 'fas fa-moon' : 'fas fa-sun';
-    
-    if (themeIcon) themeIcon.className = iconClass;
-    if (themeIconMobile) themeIconMobile.className = iconClass;
-};

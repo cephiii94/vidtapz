@@ -44,6 +44,29 @@ class VidShortzApp {
                 }, 100);
             }
         });
+
+        // Touch swipe for mobile
+        let touchStartY = 0;
+        let touchEndY = 0;
+        const feed = document.getElementById('shortsFeed');
+        feed.addEventListener('touchstart', (e) => {
+            touchStartY = e.changedTouches[0].screenY;
+        });
+        feed.addEventListener('touchend', (e) => {
+            touchEndY = e.changedTouches[0].screenY;
+            this.handleSwipe();
+        });
+    }
+
+    handleSwipe() {
+        const deltaY = this.touchStartY - this.touchEndY;
+        if (Math.abs(deltaY) > 50) { // threshold
+            if (deltaY > 0) {
+                this.nextShort();
+            } else {
+                this.previousShort();
+            }
+        }
     }
 
     async loadShorts() {
@@ -94,7 +117,6 @@ class VidShortzApp {
 
     renderShorts() {
         const shortsFeed = document.getElementById('shortsFeed');
-        
         if (this.shorts.length === 0) {
             shortsFeed.innerHTML = `
                 <div class="shorts-loading">
@@ -105,39 +127,45 @@ class VidShortzApp {
             return;
         }
 
-        shortsFeed.innerHTML = this.shorts.map((short, index) => `
-            <div class="short-video" data-index="${index}">
-                <iframe 
-                    src="${short.embedUrl}" 
-                    allowfullscreen 
-                    allow="autoplay; encrypted-media"
-                    title="${short.title}">
-                </iframe>
-                
-                <div class="short-overlay">
-                    <div class="short-info">
-                        <div class="short-badges">
-                            <span class="short-badge">${short.platform.toUpperCase()}</span>
-                            <span class="short-badge">#${short.category}</span>
+        shortsFeed.innerHTML = this.shorts.map((short, index) => {
+            // Only autoplay current video
+            const embedUrl = index === this.currentIndex
+                ? short.embedUrl
+                : short.embedUrl.replace('autoplay=1', 'autoplay=0');
+            return `
+                <div class="short-video" data-index="${index}">
+                    <iframe 
+                        src="${embedUrl}" 
+                        allowfullscreen 
+                        allow="autoplay; encrypted-media"
+                        title="${short.title}">
+                    </iframe>
+                    
+                    <div class="short-overlay">
+                        <div class="short-info">
+                            <div class="short-badges">
+                                <span class="short-badge">${short.platform.toUpperCase()}</span>
+                                <span class="short-badge">#${short.category}</span>
+                            </div>
+                            <h3>${short.title}</h3>
+                            <p>${short.description}</p>
                         </div>
-                        <h3>${short.title}</h3>
-                        <p>${short.description}</p>
+                    </div>
+                    
+                    <div class="short-actions">
+                        <button class="short-action-btn" onclick="likeShort('${short.id}')">
+                            <i class="fas fa-heart"></i>
+                        </button>
+                        <button class="short-action-btn" onclick="shareShort('${short.id}')">
+                            <i class="fas fa-share"></i>
+                        </button>
+                        <button class="short-action-btn" onclick="saveShort('${short.id}')">
+                            <i class="fas fa-bookmark"></i>
+                        </button>
                     </div>
                 </div>
-                
-                <div class="short-actions">
-                    <button class="short-action-btn" onclick="likeShort('${short.id}')">
-                        <i class="fas fa-heart"></i>
-                    </button>
-                    <button class="short-action-btn" onclick="shareShort('${short.id}')">
-                        <i class="fas fa-share"></i>
-                    </button>
-                    <button class="short-action-btn" onclick="saveShort('${short.id}')">
-                        <i class="fas fa-bookmark"></i>
-                    </button>
-                </div>
-            </div>
-        `).join('');
+            `;
+        }).join('');
     }
 
     nextShort() {
@@ -155,9 +183,13 @@ class VidShortzApp {
     }
 
     scrollToShort(index) {
+        const feed = document.getElementById('shortsFeed');
         const shortElement = document.querySelector(`[data-index="${index}"]`);
         if (shortElement) {
-            shortElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            feed.scrollTo({
+                top: shortElement.offsetTop,
+                behavior: 'smooth'
+            });
         }
     }
 

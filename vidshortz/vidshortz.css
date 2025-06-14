@@ -12,24 +12,28 @@
     display: flex;
     flex-direction: column;
     gap: 0;
+    scroll-snap-type: y mandatory;
+    overflow-y: auto;
+    height: 100vh;
 }
 
 .short-video {
     width: 100%;
-    height: calc(100vh - var(--navbar-height) - var(--bottom-nav-height));
+    height: 100vh;
+    min-height: 100vh;
     position: relative;
     background-color: #000;
     display: flex;
     align-items: center;
     justify-content: center;
     overflow: hidden;
-    snap-align: start;
+    scroll-snap-align: start;
+    /* Remove margin/padding if any */
 }
 
-.short-video iframe {
-    width: 100%;
-    height: 100%;
-    border: none;
+/* Hide scroll bar for cleaner look */
+.shorts-feed::-webkit-scrollbar {
+    display: none;
 }
 
 .short-overlay {
@@ -100,13 +104,6 @@
     font-weight: 500;
     background-color: rgba(255, 255, 255, 0.2);
     backdrop-filter: blur(10px);
-}
-
-/* Scroll snapping for shorts */
-.shorts-feed {
-    scroll-snap-type: y mandatory;
-    overflow-y: auto;
-    height: 100vh;
 }
 
 /* Loading for shorts */
