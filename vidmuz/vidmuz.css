@@ -17,6 +17,56 @@
     align-items: center;
 }
 
+@media (max-width: 768px) {
+    .now-playing {
+        flex-direction: column;
+        padding: 1rem;
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+
+    .player-art {
+        width: 150px;
+        height: 150px;
+    }
+
+    .player-info h2 {
+        font-size: 1.4rem;
+    }
+
+    .player-info p {
+        font-size: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .player-controls {
+        margin-bottom: 1rem;
+    }
+
+    .progress-container {
+        flex-wrap: nowrap;
+        gap: 0.5rem;
+    }
+
+    .progress-container span {
+        font-size: 0.8rem;
+        min-width: 35px;
+    }
+
+    .music-container {
+        padding: 1rem 0.5rem;
+    }
+
+    .music-grid {
+        gap: 1rem;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    }
+
+    .music-card {
+        padding: 1rem;
+    }
+}
+
 .player-art {
     position: relative;
     width: 200px;

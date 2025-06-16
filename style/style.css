@@ -571,9 +571,9 @@ body {
 
 /* Mini Player Styles */
 .mini-player {
-    position: fixed;
-    bottom: 16px;
-    left: 16px;
+    position: fixed !important;
+    bottom: 16px !important;
+    left: 16px !important;
     width: 320px;
     background: var(--surface-color);
     border-radius: 12px;
@@ -603,23 +603,30 @@ body {
     gap: 8px;
     z-index: 10;
     background: rgba(0, 0, 0, 0.5);
-    padding: 4px;
-    border-radius: 8px;
+    padding: 6px;
+    border-radius: 20px;
 }
 
 .mini-player .modal-btn {
     background: transparent;
     border: none;
     color: white;
-    padding: 4px 8px;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
     cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     font-size: 1rem;
     opacity: 0.8;
-    transition: opacity 0.3s ease;
+    transition: all 0.3s ease;
+    padding: 0;
 }
 
 .mini-player .modal-btn:hover {
     opacity: 1;
+    background: rgba(255, 255, 255, 0.1);
 }
 
 #miniPlayerVideo {

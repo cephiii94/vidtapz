@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>VidMuz - Music Player</title>
-    <link rel="stylesheet" href="/style/style.css">
-    <link rel="stylesheet" href="vidmuz.css">
+    <link rel="stylesheet" href="../style/style.css">
+    <link rel="stylesheet" href="./vidmuz.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
 <body>
@@ -13,40 +13,40 @@
     <nav class="navbar">
         <div class="nav-container">
             <div class="nav-left">
-                <button class="mobile-menu-btn" onclick="toggleMobileMenu()">
+                <button class="mobile-menu-btn" onclick="toggleMobileMenu()" aria-label="Buka Menu Mobile">
                     <i class="fas fa-bars"></i>
                 </button>
                 <h1 class="logo">
-                    <i class="fas fa-music"></i>
+                    <i class="fas fa-music" aria-hidden="true"></i>
                     <span class="logo-text">VidMuz</span>
                 </h1>
             </div>
             
             <div class="nav-center">
                 <div class="search-container">
-                    <input type="text" id="searchInput" placeholder="Search music..." class="search-input">
-                    <button class="search-btn" onclick="searchMusic()">
-                        <i class="fas fa-search"></i>
+                    <input type="text" id="searchInput" placeholder="Cari musik..." class="search-input" aria-label="Cari musik">
+                    <button class="search-btn" onclick="searchMusic()" aria-label="Mulai Pencarian">
+                        <i class="fas fa-search" aria-hidden="true"></i>
                     </button>
                 </div>
             </div>
             
             <div class="nav-right">
                 <div class="nav-links desktop-only">
-                    <a href="/index.html" class="nav-link">
+                    <a href="../index.html" class="nav-link" aria-label="Kembali ke Vidtapz">
                         <i class="fas fa-play"></i>
                         <span>Vidtapz</span>
                     </a>
-                    <a href="/vidshortz/vidshortz.html" class="nav-link">
+                    <a href="../vidshortz/vidshortz.html" class="nav-link" aria-label="Buka VidShortz">
                         <i class="fas fa-mobile-alt"></i>
-                        <span>Shortz</span>
+                        <span>VidShortz</span>
                     </a>
-                    <a href="#" class="nav-link active">
+                    <a href="#" class="nav-link active" aria-label="VidMuz Music Player">
                         <i class="fas fa-music"></i>
-                        <span>Muz</span>
+                        <span>VidMuz</span>
                     </a>
                 </div>
-                <button class="theme-toggle" onclick="toggleTheme()">
+                <button class="theme-toggle" onclick="toggleTheme()" aria-label="Ubah Tema">
                     <i class="fas fa-moon" id="themeIcon"></i>
                 </button>
             </div>
@@ -55,17 +55,17 @@
         <!-- Mobile Menu -->
         <div class="mobile-menu" id="mobileMenu">
             <div class="mobile-menu-content">
-                <a href="index.html" class="mobile-nav-link">
+                <a href="../index.html" class="mobile-nav-link" aria-label="Kembali ke Vidtapz">
                     <i class="fas fa-play"></i>
                     <span>Vidtapz</span>
                     <p>Regular Videos</p>
                 </a>
-                <a href="vidshortz.html" class="mobile-nav-link">
+                <a href="../vidshortz/vidshortz.html" class="mobile-nav-link" aria-label="Buka VidShortz">
                     <i class="fas fa-mobile-alt"></i>
                     <span>VidShortz</span>
                     <p>Short Videos</p>
                 </a>
-                <a href="vidmuz.html" class="mobile-nav-link active">
+                <a href="#" class="mobile-nav-link active" aria-label="VidMuz Music Player">
                     <i class="fas fa-music"></i>
                     <span>VidMuz</span>
                     <p>Music Player</p>
@@ -76,21 +76,21 @@
 
     <!-- Bottom Navigation (Mobile Only) -->
     <nav class="bottom-nav mobile-only">
-        <a href="index.html" class="bottom-nav-item">
+        <a href="../index.html" class="bottom-nav-item" aria-label="Kembali ke Vidtapz">
             <i class="fas fa-play"></i>
-            <span>Videos</span>
+            <span>Vidtapz</span>
         </a>
-        <a href="vidshortz.html" class="bottom-nav-item">
+        <a href="../vidshortz/vidshortz.html" class="bottom-nav-item" aria-label="Buka VidShortz">
             <i class="fas fa-mobile-alt"></i>
-            <span>Shorts</span>
+            <span>VidShortz</span>
         </a>
-        <a href="vidmuz.html" class="bottom-nav-item active">
+        <a href="#" class="bottom-nav-item active" aria-label="VidMuz Music Player">
             <i class="fas fa-music"></i>
-            <span>Music</span>
+            <span>VidMuz</span>
         </a>
-        <button class="bottom-nav-item theme-toggle-mobile" onclick="toggleTheme()">
+        <button class="bottom-nav-item theme-toggle-mobile" onclick="toggleTheme()" aria-label="Ubah Tema">
             <i class="fas fa-moon" id="themeIconMobile"></i>
-            <span>Theme</span>
+            <span>Tema</span>
         </button>
     </nav>
 
@@ -99,32 +99,32 @@
         <!-- Now Playing Section -->
         <div class="now-playing" id="nowPlaying">
             <div class="player-art">
-                <img src="" alt="Album Art" id="playerArt">
-                <div class="play-pause-overlay" onclick="togglePlayPause()">
-                    <i class="fas fa-play" id="playPauseIcon"></i>
+                <img src="" alt="Album Art" id="playerArt" aria-label="Sampul Album">
+                <div class="play-pause-overlay" onclick="togglePlayPause()" aria-label="Putar/Jeda Lagu">
+                    <i class="fas fa-play" id="playPauseIcon" aria-hidden="true"></i>
                 </div>
             </div>
             <div class="player-info">
                 <h2 id="playerTitle">Select a song</h2>
                 <p id="playerArtist">No song playing</p>
                 <div class="player-controls">
-                    <button onclick="previousTrack()"><i class="fas fa-step-backward"></i></button>
-                    <button onclick="togglePlayPause()" class="play-btn">
+                    <button onclick="previousTrack()" aria-label="Lagu Sebelumnya"><i class="fas fa-step-backward"></i></button>
+                    <button onclick="togglePlayPause()" class="play-btn" aria-label="Putar/Jeda">
                         <i class="fas fa-play" id="mainPlayIcon"></i>
                     </button>
-                    <button onclick="nextTrack()"><i class="fas fa-step-forward"></i></button>
+                    <button onclick="nextTrack()" aria-label="Lagu Berikutnya"><i class="fas fa-step-forward"></i></button>
                 </div>
                 <div class="volume-container">
                     <i class="fas fa-volume-down"></i>
-                    <input type="range" id="volumeSlider" min="0" max="100" value="80" onchange="setVolume(this.value)">
+                    <input type="range" id="volumeSlider" min="0" max="100" value="80" onchange="setVolume(this.value)" aria-label="Atur Volume">
                     <i class="fas fa-volume-up"></i>
                 </div>
                 <div class="progress-container">
-                    <span id="currentTime">0:00</span>
-                    <div class="progress-bar" onclick="seekTo(event)">
+                    <span id="currentTime" aria-label="Waktu Saat Ini">0:00</span>
+                    <div class="progress-bar" onclick="seekTo(event)" aria-label="Progress Bar Lagu">
                         <div class="progress" id="progress"></div>
                     </div>
-                    <span id="totalTime">0:00</span>
+                    <span id="totalTime" aria-label="Total Durasi">0:00</span>
                 </div>
             </div>
         </div>
@@ -144,6 +144,7 @@
 
     <script src="/script/videos.js"></script>
     <script src="https://www.youtube.com/iframe_api"></script>
-    <script src="vidmuz.js"></script>
+    <script src="../script/videos.js"></script>
+    <script src="./vidmuz.js"></script>
 </body>
 </html>

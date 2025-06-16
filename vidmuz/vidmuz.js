@@ -546,27 +546,41 @@ class VidMuzApp {
         return 180; // Default fallback
     }
 
-    formatTime(seconds) {
-        const hours = Math.floor(seconds / 3600);
-        const mins = Math.floor((seconds % 3600) / 60);
-        const secs = seconds % 60;
+    updateProgress() {
+        if (!this.player) return;
         
-        if (hours > 0) {
-            return `${hours}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-        } else {
-            return `${mins}:${secs.toString().padStart(2, '0')}`;
+        try {
+            const currentTime = this.player.getCurrentTime() || 0;
+            const duration = this.player.getDuration() || 0;
+            const progress = duration > 0 ? (currentTime / duration) * 100 : 0;
+            
+            // Update progress bar
+            const progressBar = document.querySelector('.progress');
+            if (progressBar) {
+                progressBar.style.width = `${progress}%`;
+            }
+            
+            // Update time display
+            const currentTimeEl = document.getElementById('currentTime');
+            const totalTimeEl = document.getElementById('totalTime');
+            
+            if (currentTimeEl) {
+                currentTimeEl.textContent = this.formatTime(currentTime);
+            }
+            if (totalTimeEl && duration > 0) {
+                totalTimeEl.textContent = this.formatTime(duration);
+            }
+        } catch (error) {
+            console.error('Error updating progress:', error);
         }
     }
 
-    updateProgress() {
-        const progress = this.duration > 0 ? (this.currentTime / this.duration) * 100 : 0;
-        const progressBar = document.getElementById('progress');
-        const currentTimeEl = document.getElementById('currentTime');
-        const totalTimeEl = document.getElementById('totalTime');
+    formatTime(seconds) {
+        if (!seconds || isNaN(seconds)) return '0:00';
         
-        if (progressBar) progressBar.style.width = progress + '%';
-        if (currentTimeEl) currentTimeEl.textContent = this.formatTime(this.currentTime);
-        if (totalTimeEl) totalTimeEl.textContent = this.formatTime(this.duration);
+        const minutes = Math.floor(seconds / 60);
+        const remainingSeconds = Math.floor(seconds % 60);
+        return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
     }
 
     togglePlayPause() {

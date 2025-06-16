@@ -89,13 +89,41 @@ class VidtapzApp {
     async loadVideosFromJS() {
         return new Promise((resolve) => {
             try {
+                let allVideos = [];
+                
+                // Load main videos if available
                 if (window.VIDTAPZ_VIDEOS && Array.isArray(window.VIDTAPZ_VIDEOS)) {
-                    resolve(window.VIDTAPZ_VIDEOS);
-                } else {
-                    resolve([]);
+                    allVideos = [...allVideos, ...window.VIDTAPZ_VIDEOS];
+                    console.log('✅ Loaded videos from VIDTAPZ_VIDEOS');
                 }
+                
+                // Load dakwah videos if available
+                if (window.VIDTAPZ_VIDEOS_DAKWAH && Array.isArray(window.VIDTAPZ_VIDEOS_DAKWAH)) {
+                    allVideos = [...allVideos, ...window.VIDTAPZ_VIDEOS_DAKWAH];
+                    console.log('✅ Loaded videos from VIDTAPZ_VIDEOS_DAKWAH');
+                }
+
+                // Load music videos if available
+                if (window.VIDTAPZ_VIDEOS_MUSIC && Array.isArray(window.VIDTAPZ_VIDEOS_MUSIC)) {
+                    allVideos = [...allVideos, ...window.VIDTAPZ_VIDEOS_MUSIC];
+                    console.log('✅ Loaded videos from VIDTAPZ_VIDEOS_MUSIC');
+                }
+
+                // Load gaming videos if available
+                if (window.VIDTAPZ_VIDEOS_GAMING && Array.isArray(window.VIDTAPZ_VIDEOS_GAMING)) {
+                    allVideos = [...allVideos, ...window.VIDTAPZ_VIDEOS_GAMING];
+                    console.log('✅ Loaded videos from VIDTAPZ_VIDEOS_GAMING');
+                }
+
+                // Load education videos if available
+                if (window.VIDTAPZ_VIDEOS_EDUCATION && Array.isArray(window.VIDTAPZ_VIDEOS_EDUCATION)) {
+                    allVideos = [...allVideos, ...window.VIDTAPZ_VIDEOS_EDUCATION];
+                    console.log('✅ Loaded videos from VIDTAPZ_VIDEOS_EDUCATION');
+                }
+                
+                resolve(allVideos);
             } catch (error) {
-                console.warn('Error loading from videos.js:', error);
+                console.warn('Error loading from JS files:', error);
                 resolve([]);
             }
         });
@@ -103,7 +131,7 @@ class VidtapzApp {
 
     async loadVideosFromJSON() {
         try {
-            const response = await fetch('./videos.json');
+            const response = await fetch('/script/videos.json');
             if (response.ok) {
                 const data = await response.json();
                 return data.videos || [];
@@ -420,12 +448,19 @@ function minimizeModal() {
     const videoModal = document.getElementById('videoModal');
     const miniPlayer = document.getElementById('miniPlayer');
 
-    // Simpan konten video sebelum dipindahkan
-    const videoContent = videoPlayer.innerHTML;
-    
-    // Pindahkan video ke mini player
-    miniPlayerVideo.innerHTML = videoContent;
-    videoPlayer.innerHTML = '';
+    // Simpan elemen video yang ada
+    const videoElement = videoPlayer.firstElementChild;
+    if (videoElement) {
+        // Pindahkan video ke mini player
+        miniPlayerVideo.appendChild(videoElement);
+
+        // Pastikan video tetap berjalan dengan menyimpan status pemutaran
+        if (videoElement.tagName === 'IFRAME') {
+            // Untuk video YouTube/Dailymotion, biarkan iframe berjalan
+            videoElement.style.width = '100%';
+            videoElement.style.height = '100%';
+        }
+    }
     
     // Sembunyikan modal dan tampilkan mini player
     videoModal.style.display = 'none';
@@ -441,12 +476,18 @@ function restoreModal() {
     const videoModal = document.getElementById('videoModal');
     const miniPlayer = document.getElementById('miniPlayer');
 
-    // Simpan konten video sebelum dipindahkan
-    const videoContent = miniPlayerVideo.innerHTML;
-    
     // Pindahkan video kembali ke modal
-    videoPlayer.innerHTML = videoContent;
-    miniPlayerVideo.innerHTML = '';
+    const videoElement = miniPlayerVideo.firstElementChild;
+    if (videoElement) {
+        // Pindahkan video ke modal tanpa me-reset pemutaran
+        videoPlayer.appendChild(videoElement);
+
+        // Sesuaikan ukuran video untuk modal
+        if (videoElement.tagName === 'IFRAME') {
+            videoElement.style.width = '100%';
+            videoElement.style.height = '100%';
+        }
+    }
     
     // Tampilkan modal dan sembunyikan mini player
     miniPlayer.style.display = 'none';
