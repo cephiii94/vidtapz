@@ -44,13 +44,19 @@
     }
 
     .progress-container {
-        flex-wrap: nowrap;
         gap: 0.5rem;
+        padding: 0 0.5rem;
+        width: 100%;
+    }
+
+    .progress-bar {
+        min-width: 150px;
     }
 
     .progress-container span {
         font-size: 0.8rem;
-        min-width: 35px;
+        min-width: 40px;
+        text-align: center;
     }
 
     .music-container {
@@ -400,4 +406,29 @@
 .retry-btn:hover {
     background-color: var(--secondary-color);
     transform: translateY(-2px);
+}
+
+#ytPlayerContainer {
+    position: fixed;
+    bottom: 0;
+    right: 0;
+    width: 300px;
+    height: 169px; /* 16:9 aspect ratio */
+    z-index: 1000;
+    background: var(--surface-color);
+    border-top-left-radius: 10px;
+    overflow: hidden;
+    box-shadow: var(--shadow);
+}
+
+#ytPlayer {
+    width: 100%;
+    height: 100%;
+}
+
+@media (max-width: 768px) {
+    #ytPlayerContainer {
+        width: 200px;
+        height: 113px;
+    }
 }

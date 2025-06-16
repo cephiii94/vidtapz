@@ -360,18 +360,14 @@ class VidMuzApp {
 
     embedPlayer() {
         if (!ytPlayerReady || !this.currentTrack) return;
+        
+        console.log('Loading video:', this.currentTrack.videoId);
         ytPlayer.loadVideoById(this.currentTrack.videoId);
         ytPlayer.playVideo();
 
-        // Mulai interval update progress bar
+        // Start progress update interval
         if (this.progressInterval) clearInterval(this.progressInterval);
-        this.progressInterval = setInterval(() => {
-            if (ytPlayer && ytPlayer.getCurrentTime && ytPlayer.getDuration) {
-                this.currentTime = Math.floor(ytPlayer.getCurrentTime());
-                this.duration = Math.floor(ytPlayer.getDuration());
-                this.updateProgress();
-            }
-        }, 500);
+        this.progressInterval = setInterval(() => this.updateProgress(), 500);
     }
 
     togglePlayPause() {
@@ -547,11 +543,11 @@ class VidMuzApp {
     }
 
     updateProgress() {
-        if (!this.player) return;
+        if (!ytPlayer || !ytPlayerReady) return;
         
         try {
-            const currentTime = this.player.getCurrentTime() || 0;
-            const duration = this.player.getDuration() || 0;
+            const currentTime = ytPlayer.getCurrentTime() || 0;
+            const duration = ytPlayer.getDuration() || 0;
             const progress = duration > 0 ? (currentTime / duration) * 100 : 0;
             
             // Update progress bar
