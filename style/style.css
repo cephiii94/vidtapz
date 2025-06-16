@@ -573,86 +573,332 @@ body {
 .mini-player {
     position: fixed;
     bottom: 16px;
-    right: 16px;
+    left: 16px;
     width: 320px;
-    background: #222;
-    border-radius: 8px;
-    box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+    background: var(--surface-color);
+    border-radius: 12px;
+    box-shadow: var(--hover-shadow);
     z-index: 9999;
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    border: 1px solid var(--border-color);
+    transition: all 0.3s ease;
 }
+
+.mini-player:hover {
+    transform: scale(1.02);
+    box-shadow: var(--shadow);
+}
+
+.mini-player-content {
+    position: relative;
+}
+
+.mini-player-controls {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    display: flex;
+    gap: 8px;
+    z-index: 10;
+    background: rgba(0, 0, 0, 0.5);
+    padding: 4px;
+    border-radius: 8px;
+}
+
+.mini-player .modal-btn {
+    background: transparent;
+    border: none;
+    color: white;
+    padding: 4px 8px;
+    cursor: pointer;
+    font-size: 1rem;
+    opacity: 0.8;
+    transition: opacity 0.3s ease;
+}
+
+.mini-player .modal-btn:hover {
+    opacity: 1;
+}
+
+#miniPlayerVideo {
+    width: 100%;
+    aspect-ratio: 16/9;
+    background: #000;
+}
+
+#miniPlayerVideo iframe,
+#miniPlayerVideo video {
+    width: 100%;
+    height: 100%;
+    border: none;
+}
+
+.mini-player-info {
+    padding: 8px 12px;
+    background: var(--surface-color);
+}
+
+#miniPlayerTitle {
+    font-size: 0.9rem;
+    color: var(--text-color);
+    display: block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Modal Controls */
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.modal-header h3 {
+    flex: 1;
+    margin-right: 1rem;
+}
+
+.modal-header .modal-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    padding: 0.5rem;
+    cursor: pointer;
+    font-size: 1.2rem;
+    margin-left: 0.5rem;
+    transition: color 0.3s ease;
+}
+
+.modal-header .modal-btn:hover {
+    color: var(--text-color);
+}
+
+.mini-player-controls {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    display: flex;
+    gap: 8px;
+    z-index: 10;
+}
+
+.mini-player-controls button,
+.minimize-btn {
+    background: rgba(0, 0, 0, 0.6);
+    border: none;
+    color: white;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.mini-player-controls button:hover,
+.minimize-btn:hover {
+    background: rgba(0, 0, 0, 0.8);
+    transform: scale(1.1);
+}
+
+.mini-player-controls .restore-btn i,
+.mini-player-controls .close-btn i,
+.minimize-btn i {
+    font-size: 0.9rem;
+}
+
+/* Mini Player Styles */
+.mini-player {
+    position: fixed;
+    bottom: 16px;
+    left: 16px;
+    width: 320px;
+    background: var(--surface-color);
+    border-radius: 12px;
+    box-shadow: var(--hover-shadow);
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    border: 1px solid var(--border-color);
+    transition: all 0.3s ease;
+}
+
+.mini-player:hover {
+    transform: scale(1.02);
+    box-shadow: var(--shadow);
+}
+
 .mini-player-content {
     position: relative;
     display: flex;
     flex-direction: column;
 }
+
 #miniPlayerVideo {
     width: 100%;
     height: 180px;
-    background: #000;
+    background: var(--background-color);
+    overflow: hidden;
 }
+
+#miniPlayerVideo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
 .mini-player-info {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 8px;
-    color: #fff;
+    padding: 12px;
+    background: var(--surface-color);
+    border-top: 1px solid var(--border-color);
 }
-.restore-btn, .close-btn {
-    background: none;
-    border: none;
-    color: #fff;
-    font-size: 18px;
-    cursor: pointer;
+
+#miniPlayerTitle {
+    font-size: 0.9rem;
+    color: var(--text-color);
+    margin-right: 8px;
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
+
 .mini-player-controls {
     position: absolute;
     top: 8px;
     right: 8px;
-    z-index: 2;
     display: flex;
-    gap: 4px;
-}
-.mini-player .restore-btn,
-.mini-player .close-btn {
-    background: rgba(34,34,34,0.8);
-    border: none;
-    color: #fff;
-    font-size: 18px;
-    cursor: pointer;
-    border-radius: 4px;
-    padding: 2px 6px;
-    transition: background 0.2s;
+    gap: 8px;
+    z-index: 10;
 }
 
-.mini-player .restore-btn:hover,
-.mini-player .close-btn:hover {
-    background: #ff5252;
-}
-
-.minimize-btn {
-    background: linear-gradient(90deg, #4e54c8 0%, #8f94fb 100%);
+.mini-player-controls button {
+    background: rgba(0, 0, 0, 0.6);
     border: none;
-    color: #fff;
-    border-radius: 50%;
+    color: white;
     width: 32px;
     height: 32px;
-    font-size: 16px;
+    border-radius: 50%;
+    cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-right: 8px;
-    box-shadow: 0 2px 8px rgba(78,84,200,0.15);
-    cursor: pointer;
-    transition: background 0.2s, transform 0.2s;
+    transition: all 0.2s ease;
 }
 
-.minimize-btn:hover {
-    background: linear-gradient(90deg, #8f94fb 0%, #4e54c8 100%);
-    transform: scale(1.1) rotate(-10deg);
-    color: #ffe082;
+.mini-player-controls button:hover {
+    background: rgba(0, 0, 0, 0.8);
+    transform: scale(1.1);
+}
+
+.mini-player-controls .restore-btn i,
+.mini-player-controls .close-btn i,
+.minimize-btn i {
+    font-size: 0.9rem;
+}
+
+/* Mini Player Styles */
+.mini-player {
+    position: fixed;
+    bottom: 16px;
+    left: 16px;
+    width: 320px;
+    background: var(--surface-color);
+    border-radius: 12px;
+    box-shadow: var(--hover-shadow);
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    border: 1px solid var(--border-color);
+    transition: all 0.3s ease;
+}
+
+.mini-player:hover {
+    transform: scale(1.02);
+    box-shadow: var(--shadow);
+}
+
+.mini-player-content {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+
+#miniPlayerVideo {
+    width: 100%;
+    height: 180px;
+    background: var(--background-color);
+    overflow: hidden;
+}
+
+#miniPlayerVideo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.mini-player-info {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px;
+    background: var(--surface-color);
+    border-top: 1px solid var(--border-color);
+}
+
+#miniPlayerTitle {
+    font-size: 0.9rem;
+    color: var(--text-color);
+    margin-right: 8px;
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.mini-player-controls {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    display: flex;
+    gap: 8px;
+    z-index: 10;
+}
+
+.mini-player-controls button {
+    background: rgba(0, 0, 0, 0.6);
+    border: none;
+    color: white;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.mini-player-controls button:hover {
+    background: rgba(0, 0, 0, 0.8);
+    transform: scale(1.1);
+}
+
+.mini-player-controls .restore-btn i,
+.mini-player-controls .close-btn i {
+    font-size: 0.9rem;
 }
 
 /* Responsive Design */
@@ -847,7 +1093,7 @@ body {
     margin-left: 8px;
     box-shadow: 0 2px 8px rgba(78,84,200,0.15);
     cursor: pointer;
-    transition: background 0.2s, transform 0.2s, color 0.2s;
+    transition: background 0.2s, transform 0.2s;
 }
 
 .modal-btn:hover {

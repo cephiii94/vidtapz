@@ -264,6 +264,12 @@ class VidtapzApp {
         const video = this.videos.find(v => v.id === videoId);
         if (!video) return;
         
+        // Set global variables for mini player
+        lastVideoTitle = video.title;
+        lastVideoThumb = video.thumbnail;
+        lastVideoSrc = video.embedUrl;
+        lastVideoType = video.platform;
+        
         const modal = document.getElementById('videoModal');
         const modalTitle = document.getElementById('modalTitle');
         const videoPlayer = document.getElementById('videoPlayer');
@@ -298,12 +304,6 @@ class VidtapzApp {
         if (typeof YT !== 'undefined' && YT.Player) {
             this.onYouTubeIframeAPIReady(videoId);
         }
-
-        // Misal dapatkan data video dari array
-        lastVideoTitle = video.title;
-        lastVideoThumb = video.thumbnail;
-        lastVideoSrc = video.embedUrl;
-        lastVideoType = video.platform; // 'youtube' atau 'dailymotion'
     }
 
     onYouTubeIframeAPIReady(videoId) {
@@ -415,26 +415,51 @@ let lastVideoSrc = '';
 let lastVideoType = '';
 
 function minimizeModal() {
-    document.getElementById('videoPlayer').innerHTML = '';
-    document.getElementById('videoModal').style.display = 'none';
-    document.getElementById('miniPlayer').style.display = 'block';
-    // Jika thumbnail tidak ada, fallback ke gambar default
-    const thumb = lastVideoThumb || 'https://via.placeholder.com/320x180?text=No+Thumbnail';
-    document.getElementById('miniPlayerVideo').innerHTML = `<img src="${thumb}" alt="Thumbnail" style="width:100%;height:auto;border-radius:8px;">`;
+    const videoPlayer = document.getElementById('videoPlayer');
+    const miniPlayerVideo = document.getElementById('miniPlayerVideo');
+    const videoModal = document.getElementById('videoModal');
+    const miniPlayer = document.getElementById('miniPlayer');
+
+    // Simpan konten video sebelum dipindahkan
+    const videoContent = videoPlayer.innerHTML;
+    
+    // Pindahkan video ke mini player
+    miniPlayerVideo.innerHTML = videoContent;
+    videoPlayer.innerHTML = '';
+    
+    // Sembunyikan modal dan tampilkan mini player
+    videoModal.style.display = 'none';
+    miniPlayer.style.display = 'block';
+    
+    // Update judul di mini player
     document.getElementById('miniPlayerTitle').textContent = lastVideoTitle;
 }
 
 function restoreModal() {
-    document.getElementById('miniPlayer').style.display = 'none';
-    document.getElementById('videoModal').style.display = 'block';
-    // Render ulang video di modal
-    if (lastVideoType === 'youtube') {
-        // Render iframe YouTube
-        document.getElementById('videoPlayer').innerHTML = `<iframe src="${lastVideoSrc}" frameborder="0" allowfullscreen></iframe>`;
-    } else if (lastVideoType === 'html5') {
-        // Render video HTML5
-        document.getElementById('videoPlayer').innerHTML = `<video src="${lastVideoSrc}" controls autoplay></video>`;
-    }
+    const videoPlayer = document.getElementById('videoPlayer');
+    const miniPlayerVideo = document.getElementById('miniPlayerVideo');
+    const videoModal = document.getElementById('videoModal');
+    const miniPlayer = document.getElementById('miniPlayer');
+
+    // Simpan konten video sebelum dipindahkan
+    const videoContent = miniPlayerVideo.innerHTML;
+    
+    // Pindahkan video kembali ke modal
+    videoPlayer.innerHTML = videoContent;
+    miniPlayerVideo.innerHTML = '';
+    
+    // Tampilkan modal dan sembunyikan mini player
+    miniPlayer.style.display = 'none';
+    videoModal.style.display = 'block';
+}
+
+function closeMiniPlayer() {
+    const miniPlayer = document.getElementById('miniPlayer');
+    const miniPlayerVideo = document.getElementById('miniPlayerVideo');
+    
+    // Bersihkan video dan sembunyikan mini player
+    miniPlayerVideo.innerHTML = '';
+    miniPlayer.style.display = 'none';
 }
 
 // Initialize app
@@ -465,6 +490,17 @@ document.addEventListener('click', (e) => {
         mobileMenu.style.display = 'none';
     }
 });
+
+function getYouTubeId(url) {
+    // Handle embed URL format
+    if (url.includes('/embed/')) {
+        return url.split('/embed/')[1].split('?')[0];
+    }
+    
+    // Handle watch URL format
+    const urlParams = new URL(url).searchParams;
+    return urlParams.get('v') || '';
+}
 
 function getYouTubeThumbnail(url) {
     const id = getYouTubeId(url);
