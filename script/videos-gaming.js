@@ -1,26 +1,15 @@
 // videos-gaming.js - Gaming video collection
 window.VIDTAPZ_VIDEOS_GAMING = [
-    {
-        "id": "yt_gaming_1",
-        "title": "Professional Gaming Tournament Highlights 2024",
-        "description": "Best moments from professional gaming tournaments featuring top players and amazing strategies.",
-        "thumbnail": "https://img.youtube.com/vi/bO8HaELusLk/maxresdefault.jpg",
+     {
+        "id": "yt_6944",
+        "title": "TALON vs TEAM NEMESIS - GRAND FINAL !! TI14 The International 2025 Southeast Asia Closed Qualifier",
+        "description": "Video YouTube: TALON vs TEAM NEMESIS - GRAND FINAL !! TI14 The International 2025 Southeast Asia Closed Qualifier. Konten menarik dari platform YouTube.",
+        "thumbnail": "https://i.ytimg.com/vi/Hz8dRnYTGTU/hqdefault.jpg",
         "platform": "youtube",
-        "videoId": "bO8HaELusLk",
+        "videoId": "Hz8dRnYTGTU",
         "category": "gaming",
-        "embedUrl": "https://www.youtube.com/embed/bO8HaELusLk",
-        "author": "ESL Gaming"
-    },
-    {
-        "id": "yt_gaming_2",
-        "title": "Top 10 Gaming Moments of the Week",
-        "description": "The most incredible gaming plays and highlights from this week's streams and tournaments.",
-        "thumbnail": "https://img.youtube.com/vi/W6NZfCO5SIk/maxresdefault.jpg",
-        "platform": "youtube",
-        "videoId": "W6NZfCO5SIk",
-        "category": "gaming",
-        "embedUrl": "https://www.youtube.com/embed/W6NZfCO5SIk",
-        "author": "Gaming Highlights"
+        "embedUrl": "https://www.youtube.com/embed/Hz8dRnYTGTU",
+        "author": "hOlyhexOr"
     }
 ];
 

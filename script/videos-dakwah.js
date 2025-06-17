@@ -7,7 +7,7 @@ window.VIDTAPZ_VIDEOS_DAKWAH = [
         "thumbnail": "https://i.ytimg.com/vi/fjOutL1USW0/hqdefault.jpg",
         "platform": "youtube",
         "videoId": "fjOutL1USW0",
-        "category": "entertainment",
+        "category": "dakwah",
         "embedUrl": "https://www.youtube.com/embed/fjOutL1USW0",
         "author": "Jackguardo J"
     },
@@ -18,7 +18,7 @@ window.VIDTAPZ_VIDEOS_DAKWAH = [
         "thumbnail": "https://i.ytimg.com/vi/mpClafUuMS4/hqdefault.jpg",
         "platform": "youtube",
         "videoId": "mpClafUuMS4",
-        "category": "entertainment",
+        "category": "dakwah,musik",
         "embedUrl": "https://www.youtube.com/embed/mpClafUuMS4",
         "author": "Kajian Sunnah"
     }

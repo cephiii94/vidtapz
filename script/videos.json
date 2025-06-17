@@ -1,75 +1,37 @@
 {
   "videos": [
     {
-      "id": "yt_1",
-      "title": "Amazing Nature Documentary - Wildlife Adventure",
-      "description": "Explore the incredible world of wildlife in this stunning nature documentary featuring amazing animals from around the globe.",
-      "thumbnail": "https://img.youtube.com/vi/dQw4w9WgXcQ/maxresdefault.jpg",
+      "id": "yt_2433",
+      "title": "Marvel Television's Ironheart | Official Trailer 2 | Disney+",
+      "description": "Video YouTube: Marvel Television's Ironheart | Official Trailer 2 | Disney+. Konten menarik dari platform YouTube.",
+      "thumbnail": "https://i.ytimg.com/vi/r6j-wSIqJJ0/hqdefault.jpg",
       "platform": "youtube",
-      "videoId": "dQw4w9WgXcQ",
-      "category": "education",
-      "embedUrl": "https://www.youtube.com/embed/dQw4w9WgXcQ"
-    },
-    {
-      "id": "yt_2",
-      "title": "Epic Gaming Montage - Best Moments",
-      "description": "The most epic gaming moments compiled into one amazing montage. Featuring incredible plays and highlights.",
-      "thumbnail": "https://img.youtube.com/vi/jNQXAC9IVRw/maxresdefault.jpg",
-      "platform": "youtube",
-      "videoId": "jNQXAC9IVRw",
-      "category": "gaming",
-      "embedUrl": "https://www.youtube.com/embed/jNQXAC9IVRw"
-    },
-    {
-      "id": "dm_1",
-      "title": "Music Festival Live Performance",
-      "description": "Experience the energy of live music with this incredible festival performance featuring top artists.",
-      "thumbnail": "https://www.dailymotion.com/thumbnail/video/x7tgad0",
-      "platform": "dailymotion",
-      "videoId": "x7tgad0",
-      "category": "music",
-      "embedUrl": "https://www.dailymotion.com/embed/video/x7tgad0"
-    },
-    {
-      "id": "yt_3",
-      "title": "Cooking Masterclass - Italian Cuisine",
-      "description": "Learn to cook authentic Italian dishes with this comprehensive cooking masterclass from professional chefs.",
-      "thumbnail": "https://img.youtube.com/vi/BxV14h0kFs0/maxresdefault.jpg",
-      "platform": "youtube",
-      "videoId": "BxV14h0kFs0",
-      "category": "education",
-      "embedUrl": "https://www.youtube.com/embed/BxV14h0kFs0"
-    },
-    {
-      "id": "dm_2",
-      "title": "Sports Highlights - Championship Finals",
-      "description": "Relive the most exciting moments from the championship finals with these incredible sports highlights.",
-      "thumbnail": "https://www.dailymotion.com/thumbnail/video/x7u8mn2",
-      "platform": "dailymotion",
-      "videoId": "x7u8mn2",
-      "category": "sports",
-      "embedUrl": "https://www.dailymotion.com/embed/video/x7u8mn2"
-    },
-    {
-      "id": "yt_4sad",
-      "title": "Comedy Special - Stand Up Performance",
-      "description": "Laugh out loud with this hilarious stand-up comedy special featuring the best comedians.",
-      "thumbnail": "https://img.youtube.com/vi/oHg5SJYRHA0/maxresdefault.jpg",
-      "platform": "youtube",
-      "videoId": "oHg5SJYRHA0",
+      "videoId": "r6j-wSIqJJ0",
       "category": "entertainment",
-      "embedUrl": "https://www.youtube.com/embed/oHg5SJYRHA0"
+      "embedUrl": "https://www.youtube.com/embed/r6j-wSIqJJ0",
+      "author": "Marvel Entertainment"
     },
-        {
-      "id": "yt_5555",
-      "title": "Sal Priadi - Kita Usahakan Rumah Itu (Official Short Movie)",
-      "description": "Video YouTube: Sal Priadi - Kita Usahakan Rumah Itu (Official Short Movie). Konten menarik dari platform YouTube.",
-      "thumbnail": "https://i.ytimg.com/vi/WPul2u-pIog/hqdefault.jpg",
+    {
+      "id": "yt_1613",
+      "title": "Superman | New Trailer",
+      "description": "Video YouTube: Superman | New Trailer. Konten menarik dari platform YouTube.",
+      "thumbnail": "https://i.ytimg.com/vi/brI3gt9girI/hqdefault.jpg",
       "platform": "youtube",
-      "videoId": "WPul2u-pIog",
-      "category": "music",
-      "embedUrl": "https://www.youtube.com/embed/WPul2u-pIog",
-      "author": "Sal Priadi"
+      "videoId": "brI3gt9girI",
+      "category": "entertainment",
+      "embedUrl": "https://www.youtube.com/embed/brI3gt9girI",
+      "author": "Warner Bros. India"
+    },
+    {
+      "id": "yt_5679",
+      "title": "From the World of John Wick: Ballerina (2025) Final Trailer – Ana de Armas, Keanu Reeves",
+      "description": "Video YouTube: From the World of John Wick: Ballerina (2025) Final Trailer – Ana de Armas, Keanu Reeves. Konten menarik dari platform YouTube.",
+      "thumbnail": "https://i.ytimg.com/vi/b9Rr9ygb-ac/hqdefault.jpg",
+      "platform": "youtube",
+      "videoId": "b9Rr9ygb-ac",
+      "category": "entertainment",
+      "embedUrl": "https://www.youtube.com/embed/b9Rr9ygb-ac",
+      "author": "Lionsgate Movies"
     }
   ]
 }

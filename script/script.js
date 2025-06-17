@@ -164,14 +164,15 @@ class VidtapzApp {
     getDefaultVideos() {
         return [
             {
-                id: 'default_yt_1',
-                title: 'Amazing Nature Documentary - Wildlife Adventure',
-                description: 'Explore the incredible world of wildlife in this stunning nature documentary featuring amazing animals from around the globe.',
-                thumbnail: 'https://img.youtube.com/vi/dQw4w9WgXcQ/maxresdefault.jpg',
-                platform: 'youtube',
-                videoId: 'dQw4w9WgXcQ',
-                category: 'education',
-                embedUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ'
+        "id": "yt_5458",
+        "title": "2025 USSSA Showdown | Baseball Bat Bros",
+        "description": "Video YouTube: 2025 USSSA Showdown | Baseball Bat Bros. Konten menarik dari platform YouTube.",
+        "thumbnail": "https://i.ytimg.com/vi/ePzNmSLI18c/hqdefault.jpg",
+        "platform": "youtube",
+        "videoId": "ePzNmSLI18c",
+        "category": "sports",
+        "embedUrl": "https://www.youtube.com/embed/ePzNmSLI18c",
+        "author": "The Baseball Bat Bros"
             },
             {
                 id: 'default_yt_2',
