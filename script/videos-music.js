@@ -88,7 +88,8 @@ window.VIDTAPZ_VIDEOS_MUSIC = [
         "embedUrl": "https://www.youtube.com/embed/52nfjRzIaj8",
         "author": "LadyGagaVEVO"
     },
-    {      "id": "yt_6485",
+    {
+        "id": "yt_6485",
         "title": "Timun Jelita - Kena Lagi di Hati (Video Lirik)",
         "description": "Video YouTube: Timun Jelita - Kena Lagi di Hati (Video Lirik). Konten menarik dari platform YouTube.",
         "thumbnail": "https://i.ytimg.com/vi/yz5LSofl1qA/hqdefault.jpg",

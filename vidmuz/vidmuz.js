@@ -823,6 +823,7 @@ function searchMusic() {
 function setVolume(val) {
     if (ytPlayer && ytPlayerReady) {
         ytPlayer.setVolume(Number(val));
+        console.log('Set volume to', val);
     }
 }
 
