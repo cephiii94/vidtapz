@@ -390,7 +390,41 @@
     font-weight: 600;
 }
 
-/* Tambahkan di vidmuz.css */
+/* Music Loading State */
+.music-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 2rem;
+    text-align: center;
+    background-color: var(--surface-color);
+    border-radius: 15px;
+    box-shadow: var(--shadow);
+    margin: 2rem 0;
+}
+
+.music-loading i {
+    font-size: 3rem;
+    color: var(--primary-color);
+    margin-bottom: 1rem;
+    animation: pulse 2s infinite;
+}
+
+.music-loading p {
+    color: var(--text-secondary);
+    margin-bottom: 0.5rem;
+    font-size: 1rem;
+}
+
+.music-loading p:first-of-type {
+    color: var(--text-color);
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+
+/* Retry Button */
 .retry-btn {
     margin-top: 1rem;
     padding: 0.75rem 1.5rem;

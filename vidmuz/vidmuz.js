@@ -140,13 +140,25 @@ class VidMuzApp {
     async loadVideosFromJS() {
         return new Promise((resolve) => {
             try {
+                let allVideos = [];
+                
+                // Load from VIDTAPZ_VIDEOS
                 if (window.VIDTAPZ_VIDEOS && Array.isArray(window.VIDTAPZ_VIDEOS)) {
                     console.log('✅ VidMuz: window.VIDTAPZ_VIDEOS found with', window.VIDTAPZ_VIDEOS.length, 'videos');
-                    resolve([...window.VIDTAPZ_VIDEOS]); // Create a copy
+                    allVideos = [...allVideos, ...window.VIDTAPZ_VIDEOS];
                 } else {
                     console.log('❌ VidMuz: window.VIDTAPZ_VIDEOS not found or not an array');
-                    resolve([]);
                 }
+                
+                // Load from VIDTAPZ_VIDEOS_MUSIC
+                if (window.VIDTAPZ_VIDEOS_MUSIC && Array.isArray(window.VIDTAPZ_VIDEOS_MUSIC)) {
+                    console.log('✅ VidMuz: window.VIDTAPZ_VIDEOS_MUSIC found with', window.VIDTAPZ_VIDEOS_MUSIC.length, 'music videos');
+                    allVideos = [...allVideos, ...window.VIDTAPZ_VIDEOS_MUSIC];
+                } else {
+                    console.log('❌ VidMuz: window.VIDTAPZ_VIDEOS_MUSIC not found or not an array');
+                }
+                
+                resolve(allVideos);
             } catch (error) {
                 console.warn('❌ VidMuz: Error loading from videos.js:', error);
                 resolve([]);
@@ -359,15 +371,34 @@ class VidMuzApp {
     }
 
     embedPlayer() {
-        if (!ytPlayerReady || !this.currentTrack) return;
+        if (!ytPlayerReady || !this.currentTrack) {
+            console.log('❌ VidMuz: YouTube player not ready or no current track');
+            console.log('ytPlayerReady:', ytPlayerReady, 'currentTrack:', this.currentTrack);
+            return;
+        }
         
-        console.log('Loading video:', this.currentTrack.videoId);
-        ytPlayer.loadVideoById(this.currentTrack.videoId);
-        ytPlayer.playVideo();
+        console.log('🎵 VidMuz: Loading video:', this.currentTrack.videoId);
+        
+        try {
+            ytPlayer.loadVideoById({
+                videoId: this.currentTrack.videoId,
+                startSeconds: 0
+            });
+            
+            // Wait a bit before playing to ensure video is loaded
+            setTimeout(() => {
+                if (ytPlayer && ytPlayerReady) {
+                    ytPlayer.playVideo();
+                    console.log('▶️ VidMuz: Video playback started');
+                }
+            }, 1000);
 
-        // Start progress update interval
-        if (this.progressInterval) clearInterval(this.progressInterval);
-        this.progressInterval = setInterval(() => this.updateProgress(), 500);
+            // Start progress update interval
+            if (this.progressInterval) clearInterval(this.progressInterval);
+            this.progressInterval = setInterval(() => this.updateProgress(), 500);
+        } catch (error) {
+            console.error('❌ VidMuz: Error loading video:', error);
+        }
     }
 
     togglePlayPause() {
@@ -701,24 +732,48 @@ let ytPlayer;
 let ytPlayerReady = false;
 
 window.onYouTubeIframeAPIReady = function() {
+    console.log('🎬 VidMuz: YouTube API Ready, initializing player...');
+    
     ytPlayer = new YT.Player('ytPlayer', {
-        height: '0',
-        width: '0',
+        height: '169',
+        width: '300',
         videoId: '',
         events: {
-            'onReady': function() {
+            'onReady': function(event) {
+                console.log('✅ VidMuz: YouTube Player Ready');
                 ytPlayerReady = true;
                 ytPlayer.setVolume(80); // Volume awal 80%
+                
+                // Hide the player container initially
+                const container = document.getElementById('ytPlayerContainer');
+                if (container) {
+                    container.style.display = 'none';
+                }
             },
             'onStateChange': function(event) {
+                console.log('🎵 VidMuz: Player state changed:', event.data);
                 if (event.data === YT.PlayerState.ENDED) {
-                    app.nextTrack();
+                    if (app && app.nextTrack) {
+                        app.nextTrack();
+                    }
+                } else if (event.data === YT.PlayerState.PLAYING) {
+                    console.log('▶️ VidMuz: Video is now playing');
+                } else if (event.data === YT.PlayerState.PAUSED) {
+                    console.log('⏸️ VidMuz: Video is paused');
                 }
+            },
+            'onError': function(event) {
+                console.error('❌ VidMuz: YouTube Player Error:', event.data);
             }
         },
         playerVars: {
             'autoplay': 0,
-            'controls': 0
+            'controls': 0,
+            'disablekb': 1,
+            'enablejsapi': 1,
+            'fs': 0,
+            'modestbranding': 1,
+            'playsinline': 1
         }
     });
 };
@@ -771,5 +826,23 @@ function setVolume(val) {
     }
 }
 
-// Initialize app
-const app = new VidMuzApp();
+// Initialize app after YouTube API is ready
+let app;
+
+// Wait for YouTube API to be ready before initializing app
+function initializeApp() {
+    if (typeof YT !== 'undefined' && YT.Player) {
+        app = new VidMuzApp();
+        console.log('✅ VidMuz: App initialized successfully');
+    } else {
+        console.log('⏳ VidMuz: Waiting for YouTube API...');
+        setTimeout(initializeApp, 100);
+    }
+}
+
+// Start initialization when DOM is ready
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeApp);
+} else {
+    initializeApp();
+}
