@@ -874,16 +874,33 @@ console.log('Total videos in VIDTAPZ_VIDEOS:', window.VIDTAPZ_VIDEOS.length);`;
 
         // Show message
         function showMessage(message, type) {
+            // Hapus notif sebelumnya jika ada
+            const oldNotif = document.getElementById('notif-toast');
+            if (oldNotif) oldNotif.remove();
+
             const messageDiv = document.createElement('div');
+            messageDiv.id = 'notif-toast';
             messageDiv.className = type === 'error' ? 'error-message' : 'success-message';
             messageDiv.innerHTML = message;
-            
-            const mainContent = document.querySelector('.main-content');
-            mainContent.insertBefore(messageDiv, mainContent.firstChild);
-            
+            messageDiv.style.position = 'fixed';
+            messageDiv.style.top = '20px';
+            messageDiv.style.right = '20px';
+            messageDiv.style.zIndex = '9999';
+            messageDiv.style.padding = '14px 24px';
+            messageDiv.style.borderRadius = '8px';
+            messageDiv.style.background = type === 'error' ? '#f44336' : '#4caf50';
+            messageDiv.style.color = 'white';
+            messageDiv.style.boxShadow = '0 4px 16px rgba(0,0,0,0.12)';
+            messageDiv.style.fontSize = '1rem';
+            messageDiv.style.opacity = '0.97';
+            messageDiv.style.transition = 'opacity 0.3s';
+
+            document.body.appendChild(messageDiv);
+
             setTimeout(() => {
-                messageDiv.remove();
-            }, 8000);
+                messageDiv.style.opacity = '0';
+                setTimeout(() => messageDiv.remove(), 300);
+            }, 2000);
         }
 
         // Copy to clipboard
@@ -893,8 +910,11 @@ console.log('Total videos in VIDTAPZ_VIDEOS:', window.VIDTAPZ_VIDEOS.length);`;
                 return;
             }
 
+            // Ambil preview yang sedang aktif (json atau js)
+            let activePreview = document.querySelector('.preview-content[style*="display: block"]');
+            if (!activePreview) activePreview = document.getElementById('json-preview');
             try {
-                await navigator.clipboard.writeText(document.getElementById('preview-content').textContent);
+                await navigator.clipboard.writeText(activePreview.textContent);
                 showMessage('Data berhasil disalin ke clipboard!', 'success');
             } catch (err) {
                 showMessage('Gagal menyalin ke clipboard.', 'error');
@@ -954,13 +974,70 @@ console.log('Total videos in VIDTAPZ_VIDEOS:', window.VIDTAPZ_VIDEOS.length);`;
 
         // Clear all
         function clearAll() {
-            if (confirm('Apakah Anda yakin ingin menghapus semua video?')) {
+            // Hapus notif konfirmasi sebelumnya jika ada
+            const oldConfirm = document.getElementById('notif-confirm');
+            if (oldConfirm) oldConfirm.remove();
+
+            const confirmDiv = document.createElement('div');
+            confirmDiv.id = 'notif-confirm';
+            confirmDiv.style.position = 'fixed';
+            confirmDiv.style.top = '50%';
+            confirmDiv.style.left = '50%';
+            confirmDiv.style.transform = 'translate(-50%, -50%)';
+            confirmDiv.style.zIndex = '10000';
+            confirmDiv.style.padding = '24px 36px';
+            confirmDiv.style.borderRadius = '10px';
+            confirmDiv.style.background = '#fffde7';
+            confirmDiv.style.color = '#333';
+            confirmDiv.style.boxShadow = '0 8px 32px rgba(0,0,0,0.18)';
+            confirmDiv.style.fontSize = '1.1rem';
+            confirmDiv.style.display = 'flex';
+            confirmDiv.style.flexDirection = 'column';
+            confirmDiv.style.alignItems = 'center';
+            confirmDiv.style.gap = '20px';
+            confirmDiv.style.minWidth = '320px';
+
+            confirmDiv.innerHTML = `
+                <span style="text-align:center;">Apakah Anda yakin ingin menghapus semua video?</span>
+                <div style="display:flex; gap:16px;">
+                    <button id="confirm-yes" style="
+                        background: #f44336;
+                        color: white;
+                        border: none;
+                        border-radius: 6px;
+                        padding: 8px 24px;
+                        cursor: pointer;
+                        font-size: 1rem;
+                    ">Ya</button>
+                    <button id="confirm-no" style="
+                        background: #bbb;
+                        color: white;
+                        border: none;
+                        border-radius: 6px;
+                        padding: 8px 24px;
+                        cursor: pointer;
+                        font-size: 1rem;
+                    ">Batal</button>
+                </div>
+            `;
+
+            document.body.appendChild(confirmDiv);
+
+            document.getElementById('confirm-yes').onclick = function() {
                 videos = [];
                 updateVideoList();
                 updatePreview();
-                document.getElementById('video-urls').value = '';
-                showMessage('Semua video berhasil dihapus!', 'success');
-            }
+                confirmDiv.remove();
+                showMessage('Semua video telah dihapus.', 'success');
+            };
+            document.getElementById('confirm-no').onclick = function() {
+                confirmDiv.remove();
+            };
+
+            // Otomatis hilang setelah 5 detik jika tidak ada aksi
+            setTimeout(() => {
+                if (document.getElementById('notif-confirm')) confirmDiv.remove();
+            }, 5000);
         }
 
         // Initialize
