@@ -120,6 +120,12 @@ class VidtapzApp {
                     allVideos = [...allVideos, ...window.VIDTAPZ_VIDEOS_EDUCATION];
                     console.log('✅ Loaded videos from VIDTAPZ_VIDEOS_EDUCATION');
                 }
+
+                // Load sports videos if available
+                if (window.VIDTAPZ_VIDEOS_SPORTS && Array.isArray(window.VIDTAPZ_VIDEOS_SPORTS)) {
+                    allVideos = [...allVideos, ...window.VIDTAPZ_VIDEOS_SPORTS];
+                    console.log('✅ Loaded videos from VIDTAPZ_VIDEOS_SPORTS');
+                }
                 
                 resolve(allVideos);
             } catch (error) {
@@ -163,17 +169,7 @@ class VidtapzApp {
 
     getDefaultVideos() {
         return [
-            {
-        "id": "yt_5458",
-        "title": "2025 USSSA Showdown | Baseball Bat Bros",
-        "description": "Video YouTube: 2025 USSSA Showdown | Baseball Bat Bros. Konten menarik dari platform YouTube.",
-        "thumbnail": "https://i.ytimg.com/vi/ePzNmSLI18c/hqdefault.jpg",
-        "platform": "youtube",
-        "videoId": "ePzNmSLI18c",
-        "category": "sports",
-        "embedUrl": "https://www.youtube.com/embed/ePzNmSLI18c",
-        "author": "The Baseball Bat Bros"
-            },
+           
             {
                 id: 'default_yt_2',
                 title: 'Epic Gaming Montage - Best Moments',
@@ -261,7 +257,10 @@ class VidtapzApp {
         if (category === 'all') {
             this.filteredVideos = [...this.videos];
         } else {
-            this.filteredVideos = this.videos.filter(video => video.category === category);
+            this.filteredVideos = this.videos.filter(video =>
+                video.category &&
+                video.category.split(',').map(c => c.trim().toLowerCase()).includes(category)
+            );
         }
         
         this.renderVideos();

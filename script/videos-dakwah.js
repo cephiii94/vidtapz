@@ -18,7 +18,7 @@ window.VIDTAPZ_VIDEOS_DAKWAH = [
         "thumbnail": "https://i.ytimg.com/vi/mpClafUuMS4/hqdefault.jpg",
         "platform": "youtube",
         "videoId": "mpClafUuMS4",
-        "category": "dakwah,musik",
+        "category": "dakwah",
         "embedUrl": "https://www.youtube.com/embed/mpClafUuMS4",
         "author": "Kajian Sunnah"
     }
