@@ -1,18 +1,17 @@
-// videos.js - External video data
-window.VIDTAPZ_VIDEOS_SPORTS = [
-    {
-        "id": "yt_5458",
-        "title": "2025 USSSA Showdown | Baseball Bat Bros",
-        "description": "Video YouTube: 2025 USSSA Showdown | Baseball Bat Bros. Konten menarik dari platform YouTube.",
-        "thumbnail": "https://i.ytimg.com/vi/ePzNmSLI18c/hqdefault.jpg",
-        "platform": "youtube",
-        "videoId": "ePzNmSLI18c",
-        "category": "sports",
-        "embedUrl": "https://www.youtube.com/embed/ePzNmSLI18c",
-        "author": "The Baseball Bat Bros"
-            }
+// videos-music.js - Cukup berisi daftar URL video YouTube
+
+window.VIDTAPZ_URLS_SPORTS = [
+  "https://www.youtube.com/watch?v=ZVcTW3COX7g&pp=ygUZYmFzZWJhbGwgaGlnaGxpZ2h0cyB2aWRlbw%3D%3D",
+  "https://www.youtube.com/watch?v=ao9Sw4Wy-Ug&pp=ygUXYmFzZWJhbGwgaG9tZSBydW4gdmlkZW8%3D"
 ];
 
-// Debug: Console log untuk memastikan videos.js ter-load
-console.log('videos.js loaded successfully!');
-console.log('Total videos in VIDTAPZ_VIDEOS:', window.VIDTAPZ_VIDEOS.length);
+// Anda bisa melakukan hal yang sama untuk file kategori lain
+// contoh untuk videos-gaming.js:
+// window.VIDTAPZ_URLS_GAMING = [
+//   "https://www.youtube.com/watch?v=Hz8dRnYTGTU"
+// ];
+
+
+
+
+

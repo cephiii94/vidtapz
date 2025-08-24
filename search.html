@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Videos - Vidtapz</title>
+    <link rel="stylesheet" href="/style/style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation Bar (Sama seperti index.html) -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-left">
+                <a href="index.html" class="logo">
+                    <i class="fas fa-play-circle"></i>
+                    <span class="logo-text">Vidtapz</span>
+                </a>
+            </div>
+            <div class="nav-right">
+                <button class="theme-toggle" id="themeToggleBtn">
+                    <i class="fas fa-moon" id="themeIcon"></i>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Search Content -->
+    <main class="main-content">
+        <div class="search-page-container">
+            <h2>Search Videos on Vidtapz & YouTube</h2>
+            <div class="search-box">
+                <input type="text" id="mainSearchInput" placeholder="Search for music, gaming, tutorials...">
+                <button id="mainSearchBtn"><i class="fas fa-search"></i></button>
+            </div>
+            
+            <!-- Search Results Area -->
+            <div class="search-results-grid" id="searchResultsGrid">
+                <!-- Hasil pencarian akan ditampilkan di sini -->
+            </div>
+
+            <!-- Loading Indicator -->
+            <div class="loading" id="loading" style="display: none;">
+                <i class="fas fa-spinner fa-spin"></i>
+                <p>Searching for videos...</p>
+            </div>
+
+            <!-- No Results -->
+            <div class="no-results" id="noResults" style="display: none;">
+                <i class="fas fa-video-slash"></i>
+                <p>No videos found. Try another keyword.</p>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>&copy; 2024 Vidtapz. All rights reserved.</p>
+    </footer>
+
+    <!-- Data Video Lokal (TAMBAHKAN BAGIAN INI) -->
+    <script src="/script/videos-dakwah.js"></script>
+    <script src="/script/videos-music.js"></script>
+    <script src="/script/videos-gaming.js"></script>
+    <script src="/script/videos-education.js"></script>
+    <script src="/script/videos-sports.js"></script>
+    
+    <script src="search.js"></script>
+</body>
+</html>

@@ -18,7 +18,6 @@ class VidtapzApp {
     }
 
     setupEventListeners() {
-        // Search functionality
         const searchInput = document.getElementById('searchInput');
         if (searchInput) {
             searchInput.addEventListener('input', (e) => {
@@ -26,17 +25,14 @@ class VidtapzApp {
             });
         }
 
-        // Keyboard navigation
         document.addEventListener('keydown', (e) => this.handleKeyboardNavigation(e));
 
-        // Modal close on escape
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape' && this.currentModal) {
                 this.closeModal();
             }
         });
 
-        // Close modal when clicking outside
         const videoModal = document.getElementById('videoModal');
         if (videoModal) {
             videoModal.addEventListener('click', (e) => {
@@ -47,110 +43,78 @@ class VidtapzApp {
         }
     }
 
+    // FUNGSI BARU: Mengambil detail video dari API oEmbed YouTube
+    async fetchVideoDetails(youtubeUrl, category) {
+        // Endpoint oEmbed dari YouTube. Tidak memerlukan API Key.
+        const oembedUrl = `https://www.youtube.com/oembed?url=${encodeURIComponent(youtubeUrl)}&format=json`;
+
+        try {
+            const response = await fetch(oembedUrl);
+            if (!response.ok) {
+                // Jika video tidak ditemukan atau privat, kembalikan null
+                console.warn(`Could not fetch details for ${youtubeUrl}: ${response.statusText}`);
+                return null;
+            }
+            const data = await response.json();
+            
+            // Ekstrak Video ID dari URL untuk membuat embed URL yang benar
+            const videoId = new URL(youtubeUrl).searchParams.get('v');
+
+            // Membuat objek video yang konsisten dengan format lama
+            return {
+                id: `yt_${videoId}`,
+                title: data.title,
+                description: `Video oleh: ${data.author_name}`, // Deskripsi bisa di-custom
+                thumbnail: data.thumbnail_url.replace('hqdefault.jpg', 'maxresdefault.jpg'), // Mengambil thumbnail kualitas tertinggi
+                platform: 'youtube',
+                videoId: videoId,
+                category: category,
+                embedUrl: `https://www.youtube.com/embed/${videoId}`,
+                author: data.author_name,
+            };
+        } catch (error) {
+            console.error(`Error fetching oEmbed data for ${youtubeUrl}:`, error);
+            return null;
+        }
+    }
+
+    // FUNGSI DIMODIFIKASI: Memuat semua video dari file kategori
     async loadVideos() {
         this.showLoading(true);
-        
-        let allVideos = [];
-        
-        try {
-            // 1. Coba load dari videos.js
-            const jsVideos = await this.loadVideosFromJS();
-            if (jsVideos.length > 0) {
-                allVideos = [...allVideos, ...jsVideos];
-                console.log(`✅ Loaded ${jsVideos.length} videos from videos.js`);
+
+        // Daftar semua kategori dan variabel globalnya
+        const categories = {
+            'dakwah': window.VIDTAPZ_URLS_DAKWAH || [],
+            'education': window.VIDTAPZ_URLS_EDUCATION || [],
+            'music': window.VIDTAPZ_URLS_MUSIC || [],
+            'gaming': window.VIDTAPZ_URLS_GAMING || [],
+            'entertainment': window.VIDTAPZ_URLS_ENTERTAINMENT || [],
+            'sports': window.VIDTAPZ_URLS_SPORTS || [],
+            'news': window.VIDTAPZ_URLS_NEWS || [],
+        };
+
+        const fetchPromises = [];
+
+        // Loop melalui setiap kategori dan URL di dalamnya
+        for (const category in categories) {
+            const urls = categories[category];
+            for (const url of urls) {
+                // Tambahkan promise untuk setiap permintaan fetch
+                fetchPromises.push(this.fetchVideoDetails(url, category));
             }
-            
-            // 2. Coba load dari videos.json
-            const jsonVideos = await this.loadVideosFromJSON();
-            if (jsonVideos.length > 0) {
-                allVideos = [...allVideos, ...jsonVideos];
-                console.log(`✅ Loaded ${jsonVideos.length} videos from videos.json`);
-            }
-            
-            // 3. Jika tidak ada yang berhasil, gunakan default
-            if (allVideos.length === 0) {
-                allVideos = this.getDefaultVideos();
-                console.log(`✅ Using ${allVideos.length} default videos`);
-            }
-            
-        } catch (error) {
-            console.warn('Error loading external videos:', error);
-            allVideos = this.getDefaultVideos();
         }
         
-        // Hapus duplikat berdasarkan ID
-        this.videos = this.removeDuplicateVideos(allVideos);
+        // Jalankan semua permintaan fetch secara paralel untuk efisiensi
+        const results = await Promise.all(fetchPromises);
+
+        // Filter hasil yang null (video error/privat) dan hapus duplikat
+        this.videos = this.removeDuplicateVideos(results.filter(video => video !== null));
         this.filteredVideos = [...this.videos];
-        
+
         this.showLoading(false);
-        console.log(`🎥 Total unique videos loaded: ${this.videos.length}`);
+        console.log(`🎥 Total unique videos loaded via oEmbed: ${this.videos.length}`);
     }
-
-    async loadVideosFromJS() {
-        return new Promise((resolve) => {
-            try {
-                let allVideos = [];
-                
-                // Load main videos if available
-                if (window.VIDTAPZ_VIDEOS && Array.isArray(window.VIDTAPZ_VIDEOS)) {
-                    allVideos = [...allVideos, ...window.VIDTAPZ_VIDEOS];
-                    console.log('✅ Loaded videos from VIDTAPZ_VIDEOS');
-                }
-                
-                // Load dakwah videos if available
-                if (window.VIDTAPZ_VIDEOS_DAKWAH && Array.isArray(window.VIDTAPZ_VIDEOS_DAKWAH)) {
-                    allVideos = [...allVideos, ...window.VIDTAPZ_VIDEOS_DAKWAH];
-                    console.log('✅ Loaded videos from VIDTAPZ_VIDEOS_DAKWAH');
-                }
-
-                // Load music videos if available
-                if (window.VIDTAPZ_VIDEOS_MUSIC && Array.isArray(window.VIDTAPZ_VIDEOS_MUSIC)) {
-                    allVideos = [...allVideos, ...window.VIDTAPZ_VIDEOS_MUSIC];
-                    console.log('✅ Loaded videos from VIDTAPZ_VIDEOS_MUSIC');
-                }
-
-                // Load gaming videos if available
-                if (window.VIDTAPZ_VIDEOS_GAMING && Array.isArray(window.VIDTAPZ_VIDEOS_GAMING)) {
-                    allVideos = [...allVideos, ...window.VIDTAPZ_VIDEOS_GAMING];
-                    console.log('✅ Loaded videos from VIDTAPZ_VIDEOS_GAMING');
-                }
-
-                // Load education videos if available
-                if (window.VIDTAPZ_VIDEOS_EDUCATION && Array.isArray(window.VIDTAPZ_VIDEOS_EDUCATION)) {
-                    allVideos = [...allVideos, ...window.VIDTAPZ_VIDEOS_EDUCATION];
-                    console.log('✅ Loaded videos from VIDTAPZ_VIDEOS_EDUCATION');
-                }
-
-                // Load sports videos if available
-                if (window.VIDTAPZ_VIDEOS_SPORTS && Array.isArray(window.VIDTAPZ_VIDEOS_SPORTS)) {
-                    allVideos = [...allVideos, ...window.VIDTAPZ_VIDEOS_SPORTS];
-                    console.log('✅ Loaded videos from VIDTAPZ_VIDEOS_SPORTS');
-                }
-                
-                resolve(allVideos);
-            } catch (error) {
-                console.warn('Error loading from JS files:', error);
-                resolve([]);
-            }
-        });
-    }
-
-    async loadVideosFromJSON() {
-        try {
-            const response = await fetch('/script/videos.json');
-            if (response.ok) {
-                const data = await response.json();
-                return data.videos || [];
-            } else {
-                console.log('videos.json not found or error loading');
-                return [];
-            }
-        } catch (error) {
-            console.log('videos.json not accessible:', error.message);
-            return [];
-        }
-    }
-
+    
     removeDuplicateVideos(videos) {
         const uniqueVideos = [];
         const seenIds = new Set();
@@ -159,48 +123,10 @@ class VidtapzApp {
             if (!seenIds.has(video.id)) {
                 seenIds.add(video.id);
                 uniqueVideos.push(video);
-            } else {
-                console.warn(`⚠️ Duplicate video ID found: ${video.id} - "${video.title}"`);
             }
         });
         
         return uniqueVideos;
-    }
-
-    getDefaultVideos() {
-        return [
-           
-            {
-                id: 'default_yt_2',
-                title: 'Epic Gaming Montage - Best Moments',
-                description: 'The most epic gaming moments compiled into one amazing montage. Featuring incredible plays and highlights.',
-                thumbnail: 'https://img.youtube.com/vi/jNQXAC9IVRw/maxresdefault.jpg',
-                platform: 'youtube',
-                videoId: 'jNQXAC9IVRw',
-                category: 'gaming',
-                embedUrl: 'https://www.youtube.com/embed/jNQXAC9IVRw'
-            },
-            {
-                id: 'default_dm_1',
-                title: 'Music Festival Live Performance',
-                description: 'Experience the energy of live music with this incredible festival performance featuring top artists.',
-                thumbnail: 'https://www.dailymotion.com/thumbnail/video/x7tgad0',
-                platform: 'dailymotion',
-                videoId: 'x7tgad0',
-                category: 'music',
-                embedUrl: 'https://www.dailymotion.com/embed/video/x7tgad0'
-            },
-            {
-                id: 'default_yt_3',
-                title: 'Cooking Masterclass - Italian Cuisine',
-                description: 'Learn to cook authentic Italian dishes with this comprehensive cooking masterclass from professional chefs.',
-                thumbnail: 'https://img.youtube.com/vi/BxV14h0kFs0/maxresdefault.jpg',
-                platform: 'youtube',
-                videoId: 'BxV14h0kFs0',
-                category: 'education',
-                embedUrl: 'https://www.youtube.com/embed/BxV14h0kFs0'
-            }
-        ];
     }
 
     renderVideos() {
@@ -209,7 +135,7 @@ class VidtapzApp {
         
         if (this.filteredVideos.length === 0) {
             videoGrid.innerHTML = '';
-            noResults.style.display = 'block';
+            noResults.style.display = 'flex';
             return;
         }
         
@@ -218,7 +144,7 @@ class VidtapzApp {
         videoGrid.innerHTML = this.filteredVideos.map(video => `
             <div class="video-card" tabindex="0" onclick="app.openModal('${video.id}')" onkeydown="app.handleCardKeydown(event, '${video.id}')">
                 <div class="video-thumbnail">
-                    <img src="${video.thumbnail}" alt="${video.title}" loading="lazy">
+                    <img src="${video.thumbnail}" alt="${video.title}" loading="lazy" onerror="this.onerror=null;this.src='https://i.ytimg.com/vi/${video.videoId}/hqdefault.jpg';">
                     <div class="play-overlay">
                         <i class="fas fa-play"></i>
                     </div>
@@ -226,7 +152,7 @@ class VidtapzApp {
                 <div class="video-info">
                     <div class="video-badges">
                         <span class="platform-badge ${video.platform}">${video.platform.toUpperCase()}</span>
-                        <span class="source-badge">${this.getVideoSource(video.id)}</span>
+                         <span class="category-badge">${video.category}</span>
                     </div>
                     <h3 class="video-title">${video.title}</h3>
                     <p class="video-description">${video.description}</p>
@@ -235,31 +161,19 @@ class VidtapzApp {
         `).join('');
     }
 
-    getVideoSource(videoId) {
-        if (videoId.startsWith('js_')) return 'JS';
-        if (videoId.startsWith('json_')) return 'JSON';
-        if (videoId.startsWith('default_')) return 'DEFAULT';
-        return 'EXTERNAL';
-    }
-
     filterVideos(category) {
         this.currentFilter = category;
         
-        // Update active filter button
         document.querySelectorAll('.filter-btn').forEach(btn => {
-            btn.classList.remove('active');
-            if (btn.dataset.category === category) {
-                btn.classList.add('active');
-            }
+            btn.classList.toggle('active', btn.dataset.category === category);
         });
         
-        // Filter videos
         if (category === 'all') {
             this.filteredVideos = [...this.videos];
         } else {
             this.filteredVideos = this.videos.filter(video =>
                 video.category &&
-                video.category.split(',').map(c => c.trim().toLowerCase()).includes(category)
+                video.category.toLowerCase() === category.toLowerCase()
             );
         }
         
@@ -270,16 +184,10 @@ class VidtapzApp {
         const searchInput = document.getElementById('searchInput');
         const searchQuery = query || searchInput.value.toLowerCase().trim();
         
-        if (searchQuery === '') {
-            this.filteredVideos = this.currentFilter === 'all' 
-                ? [...this.videos] 
-                : this.videos.filter(video => video.category === this.currentFilter);
-        } else {
-            let baseVideos = this.currentFilter === 'all' 
-                ? this.videos 
-                : this.videos.filter(video => video.category === this.currentFilter);
-                
-            this.filteredVideos = baseVideos.filter(video => 
+        this.filterVideos(this.currentFilter); // Mulai dari video yang sudah difilter
+        
+        if (searchQuery) {
+            this.filteredVideos = this.filteredVideos.filter(video => 
                 video.title.toLowerCase().includes(searchQuery) ||
                 video.description.toLowerCase().includes(searchQuery)
             );
@@ -292,11 +200,8 @@ class VidtapzApp {
         const video = this.videos.find(v => v.id === videoId);
         if (!video) return;
         
-        // Set global variables for mini player
         lastVideoTitle = video.title;
-        lastVideoThumb = video.thumbnail;
         lastVideoSrc = video.embedUrl;
-        lastVideoType = video.platform;
         
         const modal = document.getElementById('videoModal');
         const modalTitle = document.getElementById('modalTitle');
@@ -309,7 +214,6 @@ class VidtapzApp {
         platformBadge.className = `platform-badge ${video.platform}`;
         videoDescription.textContent = video.description;
         
-        // Create responsive iframe
         videoPlayer.innerHTML = `
             <iframe 
                 src="${video.embedUrl}?autoplay=1" 
@@ -322,32 +226,9 @@ class VidtapzApp {
         modal.style.display = 'block';
         this.currentModal = videoId;
         
-        // Focus management
         setTimeout(() => {
-            const closeBtn = modal.querySelector('.close-btn');
-            closeBtn.focus();
+            modal.querySelector('.close-btn').focus();
         }, 100);
-
-        // YouTube player API
-        if (typeof YT !== 'undefined' && YT.Player) {
-            this.onYouTubeIframeAPIReady(videoId);
-        }
-    }
-
-    onYouTubeIframeAPIReady(videoId) {
-        // Inisialisasi player YouTube
-        const video = this.videos.find(v => v.id === videoId);
-        if (!video) return;
-
-        // Misal id iframe: 'ytplayer'
-        ytPlayer = new YT.Player('ytplayer', {
-            events: {
-                'onReady': function(event) {
-                    if (lastTime > 0) event.target.seekTo(lastTime);
-                    event.target.playVideo();
-                }
-            }
-        });
     }
 
     closeModal() {
@@ -357,12 +238,6 @@ class VidtapzApp {
         modal.style.display = 'none';
         videoPlayer.innerHTML = '';
         this.currentModal = null;
-
-        // Hentikan dan hancurkan player YouTube jika ada
-        if (ytPlayer) {
-            ytPlayer.destroy();
-            ytPlayer = null;
-        }
     }
 
     toggleTheme() {
@@ -386,10 +261,7 @@ class VidtapzApp {
             const focused = document.activeElement;
             if (focused.classList.contains('video-card')) {
                 e.preventDefault();
-                const onclick = focused.getAttribute('onclick');
-                if (onclick) {
-                    eval(onclick);
-                }
+                focused.click();
             }
         }
     }
@@ -403,7 +275,7 @@ class VidtapzApp {
 
     showLoading(show) {
         const loading = document.getElementById('loading');
-        loading.style.display = show ? 'block' : 'none';
+        loading.style.display = show ? 'flex' : 'none';
     }
 
     debounce(func, wait) {
@@ -419,28 +291,14 @@ class VidtapzApp {
     }
 }
 
-// Global functions for inline event handlers
-function filterVideos(category) {
-    app.filterVideos(category);
-}
-
-function searchVideos() {
-    app.searchVideos();
-}
-
-function toggleTheme() {
-    app.toggleTheme();
-}
-
-function closeModal() {
-    app.closeModal();
-}
-
-let lastTime = 0;
+// Global variables and functions
 let lastVideoTitle = '';
-let lastVideoThumb = '';
 let lastVideoSrc = '';
-let lastVideoType = '';
+
+function filterVideos(category) { app.filterVideos(category); }
+function searchVideos() { app.searchVideos(); }
+function toggleTheme() { app.toggleTheme(); }
+function closeModal() { app.closeModal(); }
 
 function minimizeModal() {
     const videoPlayer = document.getElementById('videoPlayer');
@@ -448,25 +306,13 @@ function minimizeModal() {
     const videoModal = document.getElementById('videoModal');
     const miniPlayer = document.getElementById('miniPlayer');
 
-    // Simpan elemen video yang ada
     const videoElement = videoPlayer.firstElementChild;
     if (videoElement) {
-        // Pindahkan video ke mini player
         miniPlayerVideo.appendChild(videoElement);
-
-        // Pastikan video tetap berjalan dengan menyimpan status pemutaran
-        if (videoElement.tagName === 'IFRAME') {
-            // Untuk video YouTube/Dailymotion, biarkan iframe berjalan
-            videoElement.style.width = '100%';
-            videoElement.style.height = '100%';
-        }
     }
     
-    // Sembunyikan modal dan tampilkan mini player
     videoModal.style.display = 'none';
     miniPlayer.style.display = 'block';
-    
-    // Update judul di mini player
     document.getElementById('miniPlayerTitle').textContent = lastVideoTitle;
 }
 
@@ -476,20 +322,11 @@ function restoreModal() {
     const videoModal = document.getElementById('videoModal');
     const miniPlayer = document.getElementById('miniPlayer');
 
-    // Pindahkan video kembali ke modal
     const videoElement = miniPlayerVideo.firstElementChild;
     if (videoElement) {
-        // Pindahkan video ke modal tanpa me-reset pemutaran
         videoPlayer.appendChild(videoElement);
-
-        // Sesuaikan ukuran video untuk modal
-        if (videoElement.tagName === 'IFRAME') {
-            videoElement.style.width = '100%';
-            videoElement.style.height = '100%';
-        }
     }
     
-    // Tampilkan modal dan sembunyikan mini player
     miniPlayer.style.display = 'none';
     videoModal.style.display = 'block';
 }
@@ -498,52 +335,14 @@ function closeMiniPlayer() {
     const miniPlayer = document.getElementById('miniPlayer');
     const miniPlayerVideo = document.getElementById('miniPlayerVideo');
     
-    // Bersihkan video dan sembunyikan mini player
     miniPlayerVideo.innerHTML = '';
     miniPlayer.style.display = 'none';
 }
 
-// Initialize app
-const app = new VidtapzApp();
-
-// Mobile menu functionality
 function toggleMobileMenu() {
     const mobileMenu = document.getElementById('mobileMenu');
-    if (!mobileMenu) return;
-    const isActive = mobileMenu.classList.contains('active');
-
-    if (isActive) {
-        mobileMenu.classList.remove('active');
-        mobileMenu.style.display = 'none';
-    } else {
-        mobileMenu.classList.add('active');
-        mobileMenu.style.display = 'block';
-    }
+    mobileMenu.style.display = mobileMenu.style.display === 'block' ? 'none' : 'block';
 }
 
-// Close mobile menu when clicking outside
-document.addEventListener('click', (e) => {
-    const mobileMenu = document.getElementById('mobileMenu');
-    const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
-    if (!mobileMenu || !mobileMenuBtn) return;
-    if (!mobileMenu.contains(e.target) && !mobileMenuBtn.contains(e.target)) {
-        mobileMenu.classList.remove('active');
-        mobileMenu.style.display = 'none';
-    }
-});
-
-function getYouTubeId(url) {
-    // Handle embed URL format
-    if (url.includes('/embed/')) {
-        return url.split('/embed/')[1].split('?')[0];
-    }
-    
-    // Handle watch URL format
-    const urlParams = new URL(url).searchParams;
-    return urlParams.get('v') || '';
-}
-
-function getYouTubeThumbnail(url) {
-    const id = getYouTubeId(url);
-    return `https://img.youtube.com/vi/${id}/hqdefault.jpg`;
-}
+// Initialize app
+const app = new VidtapzApp();

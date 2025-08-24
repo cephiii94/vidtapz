@@ -1,8 +1,8 @@
 // videos-music.js - Cukup berisi daftar URL video YouTube
 
-window.VIDTAPZ_URLS_DAKWAH = [
-  "https://www.youtube.com/watch?v=sX-kePnlgy4&pp=ygUSdXN0YWR6IGFkaSBoaWRheWF0",
-  "https://www.youtube.com/watch?v=J5ky4ofT-d0&pp=ygUSdXN0YWR6IGFkaSBoaWRheWF0"
+window.VIDTAPZ_URLS_NEWS = [
+  "https://www.youtube.com/watch?v=6203wdh_qZY&pp=ygULaHV0YW5nIGluZG8%3D",
+  "https://www.youtube.com/watch?v=bYAiIRAPRqk&pp=ygULaHV0YW5nIGluZG_SBwkJrQkBhyohjO8%3D"
 ];
 
 // Anda bisa melakukan hal yang sama untuk file kategori lain

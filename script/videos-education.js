@@ -1,17 +1,17 @@
-// videos-education.js - Educational video collection
-window.VIDTAPZ_VIDEOS_EDUCATION = [
-    {
-    "id": "yt_7209",
-        "title": "100+ JavaScript Concepts you Need to Know",
-        "description": "Video YouTube: 100+ JavaScript Concepts you Need to Know. Konten menarik dari platform YouTube.",
-        "thumbnail": "https://i.ytimg.com/vi/lkIFF4maKMU/hqdefault.jpg",
-        "platform": "youtube",
-        "videoId": "lkIFF4maKMU",
-        "category": "education",
-        "embedUrl": "https://www.youtube.com/embed/lkIFF4maKMU",
-        "author": "Fireship"
-    }
+// videos-music.js - Cukup berisi daftar URL video YouTube
+
+window.VIDTAPZ_URLS_EDUCATION = [
+  "https://www.youtube.com/watch?v=4HrweW4IqJc&pp=ygUOYmVsYWphciBmaXNpa2E%3D",
+  "https://www.youtube.com/watch?v=eQv10AP5BG0&pp=ygUSYmVsYWphciBtYXRlbWF0aWth"
 ];
 
-console.log('videos-education.js loaded successfully!');
-console.log('Total education videos:', window.VIDTAPZ_VIDEOS_EDUCATION.length);
+// Anda bisa melakukan hal yang sama untuk file kategori lain
+// contoh untuk videos-gaming.js:
+// window.VIDTAPZ_URLS_GAMING = [
+//   "https://www.youtube.com/watch?v=Hz8dRnYTGTU"
+// ];
+
+
+
+
+

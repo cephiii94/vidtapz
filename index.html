@@ -23,12 +23,16 @@
             
             <div class="nav-center">
                 <div class="search-container">
-                    <input type="text" id="searchInput" placeholder="Search videos..." class="search-input">
-                    <button class="search-btn" onclick="searchVideos()">
-                        <i class="fas fa-search"></i>
-                    </button>
+                    <!-- Mengubah input menjadi link ke halaman pencarian -->
+                    <a href="search.html" class="search-link-wrapper">
+                        <input type="text" placeholder="Search videos..." class="search-input" readonly>
+                        <button class="search-btn">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </a>
                 </div>
             </div>
+
             
             <div class="nav-right">
                 <div class="nav-links desktop-only">
@@ -99,13 +103,13 @@
         <div class="filter-container">
             <div class="category-filters">
                 <button class="filter-btn active" data-category="all" onclick="filterVideos('all')">All</button>
+                <button class="filter-btn" data-category="dakwah" onclick="filterVideos('dakwah')">Dakwah</button>
+                <button class="filter-btn" data-category="education" onclick="filterVideos('education')">Education</button>
                 <button class="filter-btn" data-category="music" onclick="filterVideos('music')">Music</button>
                 <button class="filter-btn" data-category="gaming" onclick="filterVideos('gaming')">Gaming</button>
-                <button class="filter-btn" data-category="education" onclick="filterVideos('education')">Education</button>
                 <button class="filter-btn" data-category="entertainment" onclick="filterVideos('entertainment')">Entertainment</button>
                 <button class="filter-btn" data-category="sports" onclick="filterVideos('sports')">Sports</button>
                 <button class="filter-btn" data-category="news" onclick="filterVideos('news')">News</button>
-                <button class="filter-btn" data-category="dakwah" onclick="filterVideos('dakwah')">Dakwah</button>
             </div>
         </div>
 
@@ -185,6 +189,9 @@
     <script src="/script/videos-gaming.js"></script>
     <script src="/script/videos-education.js"></script>
     <script src="/script/videos-sports.js"></script>
+    <script src="/script/videos-news.js"></script>
+    <script src="/script/videos-entertainment.js"></script>
+
     <script src="/script/script.js"></script>
     <script src="https://www.youtube.com/iframe_api"></script>
 </body>

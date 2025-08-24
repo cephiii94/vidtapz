@@ -1,17 +1,17 @@
-// videos-gaming.js - Gaming video collection
-window.VIDTAPZ_VIDEOS_GAMING = [
-     {
-        "id": "yt_6944",
-        "title": "TALON vs TEAM NEMESIS - GRAND FINAL !! TI14 The International 2025 Southeast Asia Closed Qualifier",
-        "description": "Video YouTube: TALON vs TEAM NEMESIS - GRAND FINAL !! TI14 The International 2025 Southeast Asia Closed Qualifier. Konten menarik dari platform YouTube.",
-        "thumbnail": "https://i.ytimg.com/vi/Hz8dRnYTGTU/hqdefault.jpg",
-        "platform": "youtube",
-        "videoId": "Hz8dRnYTGTU",
-        "category": "gaming",
-        "embedUrl": "https://www.youtube.com/embed/Hz8dRnYTGTU",
-        "author": "hOlyhexOr"
-    }
+// videos-music.js - Cukup berisi daftar URL video YouTube
+
+window.VIDTAPZ_URLS_GAMING = [
+  "https://www.youtube.com/watch?v=RQ3V5nqdiDw&pp=ygUHbWlseWh5YQ%3D%3D",
+  "https://www.youtube.com/watch?v=cMZ1KKGdVmI&pp=ygUKZG90YSAyIHd0Zg%3D%3D"
 ];
 
-console.log('videos-gaming.js loaded successfully!');
-console.log('Total gaming videos:', window.VIDTAPZ_VIDEOS_GAMING.length);
+// Anda bisa melakukan hal yang sama untuk file kategori lain
+// contoh untuk videos-gaming.js:
+// window.VIDTAPZ_URLS_GAMING = [
+//   "https://www.youtube.com/watch?v=Hz8dRnYTGTU"
+// ];
+
+
+
+
+
