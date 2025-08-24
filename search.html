@@ -8,7 +8,7 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
 <body>
-    <!-- Navigation Bar (Sama seperti index.html) -->
+    <!-- Navigation Bar -->
     <nav class="navbar">
         <div class="nav-container">
             <div class="nav-left">
@@ -34,18 +34,11 @@
                 <button id="mainSearchBtn"><i class="fas fa-search"></i></button>
             </div>
             
-            <!-- Search Results Area -->
-            <div class="search-results-grid" id="searchResultsGrid">
-                <!-- Hasil pencarian akan ditampilkan di sini -->
-            </div>
-
-            <!-- Loading Indicator -->
+            <div class="search-results-grid" id="searchResultsGrid"></div>
             <div class="loading" id="loading" style="display: none;">
                 <i class="fas fa-spinner fa-spin"></i>
                 <p>Searching for videos...</p>
             </div>
-
-            <!-- No Results -->
             <div class="no-results" id="noResults" style="display: none;">
                 <i class="fas fa-video-slash"></i>
                 <p>No videos found. Try another keyword.</p>
@@ -58,13 +51,14 @@
         <p>&copy; 2024 Vidtapz. All rights reserved.</p>
     </footer>
 
-    <!-- Data Video Lokal (TAMBAHKAN BAGIAN INI) -->
-    <script src="/script/videos-dakwah.js"></script>
+    <!-- Memuat kembali skrip data per kategori -->
     <script src="/script/videos-music.js"></script>
     <script src="/script/videos-gaming.js"></script>
     <script src="/script/videos-education.js"></script>
+    <script src="/script/videos-dakwah.js"></script>
     <script src="/script/videos-sports.js"></script>
     
-    <script src="search.js"></script>
+    <!-- Memperbaiki lokasi pemanggilan search.js -->
+    <script src="/script/search.js"></script>
 </body>
 </html>

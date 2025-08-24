@@ -8,7 +8,6 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
 <body>
-    <!-- Navigation Bar -->
     <nav class="navbar">
         <div class="nav-container">
             <div class="nav-left">
@@ -20,20 +19,14 @@
                     <span class="logo-text">Vidtapz</span>
                 </h1>
             </div>
-            
             <div class="nav-center">
-                <div class="search-container">
-                    <!-- Mengubah input menjadi link ke halaman pencarian -->
-                    <a href="search.html" class="search-link-wrapper">
-                        <input type="text" placeholder="Search videos..." class="search-input" readonly>
-                        <button class="search-btn">
-                            <i class="fas fa-search"></i>
-                        </button>
-                    </a>
-                </div>
+                <form class="search-container" action="search.html" method="GET">
+                    <input type="text" name="q" placeholder="Search videos..." class="search-input" required>
+                    <button type="submit" class="search-btn">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </form>
             </div>
-
-            
             <div class="nav-right">
                 <div class="nav-links desktop-only">
                     <a href="index.html" class="nav-link active">
@@ -54,8 +47,6 @@
                 </button>
             </div>
         </div>
-
-        <!-- Mobile Menu -->
         <div class="mobile-menu" id="mobileMenu">
             <div class="mobile-menu-content">
                 <a href="index.html" class="mobile-nav-link active">
@@ -76,8 +67,6 @@
             </div>
         </div>
     </nav>
-
-    <!-- Bottom Navigation (Mobile Only) -->
     <nav class="bottom-nav mobile-only">
         <a href="index.html" class="bottom-nav-item active">
             <i class="fas fa-play"></i>
@@ -96,72 +85,51 @@
             <span>Theme</span>
         </button>
     </nav>
-
-    <!-- Main Content -->
     <main class="main-content">
-        <!-- Filter Categories -->
         <div class="filter-container">
             <div class="category-filters">
                 <button class="filter-btn active" data-category="all" onclick="filterVideos('all')">All</button>
-                <button class="filter-btn" data-category="dakwah" onclick="filterVideos('dakwah')">Dakwah</button>
-                <button class="filter-btn" data-category="education" onclick="filterVideos('education')">Education</button>
                 <button class="filter-btn" data-category="music" onclick="filterVideos('music')">Music</button>
                 <button class="filter-btn" data-category="gaming" onclick="filterVideos('gaming')">Gaming</button>
+                <button class="filter-btn" data-category="education" onclick="filterVideos('education')">Education</button>
                 <button class="filter-btn" data-category="entertainment" onclick="filterVideos('entertainment')">Entertainment</button>
                 <button class="filter-btn" data-category="sports" onclick="filterVideos('sports')">Sports</button>
                 <button class="filter-btn" data-category="news" onclick="filterVideos('news')">News</button>
+                <button class="filter-btn" data-category="dakwah" onclick="filterVideos('dakwah')">Dakwah</button>
             </div>
         </div>
-
-        <!-- Video Grid -->
-        <div class="video-grid" id="videoGrid">
-            <!-- Videos will be loaded here -->
-        </div>
-
-        <!-- Loading Indicator -->
+        <div class="video-grid" id="videoGrid"></div>
         <div class="loading" id="loading" style="display: none;">
             <i class="fas fa-spinner fa-spin"></i>
             <p>Loading videos...</p>
         </div>
-
-        <!-- No Results -->
         <div class="no-results" id="noResults" style="display: none;">
             <i class="fas fa-search"></i>
             <p>No videos found</p>
         </div>
     </main>
-
-    <!-- Video Modal -->
     <div class="modal" id="videoModal">
         <div class="modal-content">
-            <!-- Modal Header -->
-            <div class="modal-header">
-                <h3 id="modalTitle">Video Title</h3>
-                <button class="modal-btn minimize-btn" onclick="minimizeModal()" title="Minimize">
-                    <i class="fas fa-window-minimize"></i>
-                </button>
-                <button class="modal-btn close-btn" onclick="closeModal()" title="Close">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
             <div class="modal-body">
-                <div class="video-player" id="videoPlayer">
-                    <!-- Video will be embedded here -->
-                </div>
-                <div class="video-info">
-                    <div class="video-badges">
-                        <span class="platform-badge" id="platformBadge">YouTube</span>
+                <div class="modal-video-main">
+                    <div class="video-player" id="videoPlayer"></div>
+                    <div class="modal-video-info">
+                        <h3 id="modalTitle">Video Title</h3>
+                        <p id="modalAuthor">Author</p>
                     </div>
-                    <p class="video-description" id="videoDescription"></p>
+                </div>
+                <div class="modal-related-videos">
+                    <h4>Up Next</h4>
+                    <div id="relatedVideosContainer"></div>
                 </div>
             </div>
+            <button class="modal-close-btn" onclick="closeModal()" title="Close">
+                <i class="fas fa-times"></i>
+            </button>
         </div>
     </div>
-
-    <!-- Mini Player -->
     <div class="mini-player" id="miniPlayer" style="display: none;">
         <div class="mini-player-content">
-            <!-- Mini Player Controls -->
             <div class="mini-player-controls">
                 <button class="modal-btn restore-btn" onclick="restoreModal()" title="Restore">
                     <i class="fas fa-window-restore"></i>
@@ -176,23 +144,17 @@
             </div>
         </div>
     </div>
-
-    <!-- Footer -->
     <footer class="footer">
         <p>&copy; 2024 Vidtapz. All rights reserved.</p>
     </footer>
 
     <!-- External scripts -->
-    <!--<script src="/script/videos.js"></script>-->
     <script src="/script/videos-dakwah.js"></script>
     <script src="/script/videos-music.js"></script>
     <script src="/script/videos-gaming.js"></script>
     <script src="/script/videos-education.js"></script>
     <script src="/script/videos-sports.js"></script>
-    <script src="/script/videos-news.js"></script>
-    <script src="/script/videos-entertainment.js"></script>
-
     <script src="/script/script.js"></script>
-    <script src="https://www.youtube.com/iframe_api"></script>
+    <!-- SCRIPT YANG TIDAK DIGUNAKAN DIHAPUS -->
 </body>
 </html>

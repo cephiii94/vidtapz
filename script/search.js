@@ -1,6 +1,7 @@
-document.addEventListener('DOMContentLoaded', async () => { // Jadikan event listener ini async
+// Menggunakan window.onload untuk memastikan semua skrip kategori sudah dimuat
+window.onload = async () => {
     // --- KONFIGURASI ---
-    const YOUTUBE_API_KEY = 'MASUKKAN_API_KEY_ANDA_DISINI'; 
+    const YOUTUBE_API_KEY = 'AIzaSyCwGeMX-l_F6C4-5nHuZF2uOJHPFgRxmzg'; 
     const CACHE_DURATION_HOURS = 5;
     // -------------------
 
@@ -14,13 +15,13 @@ document.addEventListener('DOMContentLoaded', async () => { // Jadikan event lis
 
     let localVideos = [];
 
-    // --- PERBAIKAN: Nonaktifkan pencarian saat inisialisasi ---
-    searchInput.disabled = true;
-    searchBtn.disabled = true;
-    searchInput.placeholder = 'Menyiapkan video lokal...';
-    // ----------------------------------------------------
+    const setSearchUIEnabled = (isEnabled, message = '') => {
+        searchInput.disabled = !isEnabled;
+        searchBtn.disabled = !isEnabled;
+        searchInput.placeholder = isEnabled ? 'Search for music, gaming, tutorials...' : message;
+    };
 
-    const fetchVideoDetails = async (youtubeUrl, category) => {
+    const fetchVideoDetails = async (youtubeUrl) => {
         const oembedUrl = `https://www.youtube.com/oembed?url=${encodeURIComponent(youtubeUrl)}&format=json`;
         try {
             const response = await fetch(oembedUrl);
@@ -41,7 +42,7 @@ document.addEventListener('DOMContentLoaded', async () => { // Jadikan event lis
     };
 
     const initializeLocalVideos = async () => {
-        console.log('🔍 Initializing local video data...');
+        console.log('🔍 Initializing local video data from category scripts...');
         const categories = {
             'music': window.VIDTAPZ_URLS_MUSIC || [],
             'gaming': window.VIDTAPZ_URLS_GAMING || [],
@@ -53,7 +54,7 @@ document.addEventListener('DOMContentLoaded', async () => { // Jadikan event lis
         const fetchPromises = [];
         for (const category in categories) {
             for (const url of categories[category]) {
-                fetchPromises.push(fetchVideoDetails(url, category));
+                fetchPromises.push(fetchVideoDetails(url));
             }
         }
         
@@ -184,17 +185,29 @@ document.addEventListener('DOMContentLoaded', async () => { // Jadikan event lis
         if (e.key === 'Enter') performSearch();
     });
 
-    // --- Inisialisasi ---
-    applyTheme();
-    await initializeLocalVideos(); // Tunggu sampai semua video lokal siap
+    // --- Proses Inisialisasi Utama ---
+    try {
+        applyTheme();
+        setSearchUIEnabled(false, 'Menyiapkan video lokal...');
+        await initializeLocalVideos();
+    } catch (error) {
+        console.error("Initialization failed:", error);
+    } finally {
+        setSearchUIEnabled(true);
+        console.log('✅ Initialization complete. Search is ready.');
 
-    // --- PERBAIKAN: Aktifkan kembali pencarian setelah siap ---
-    searchInput.disabled = false;
-    searchBtn.disabled = false;
-    searchInput.placeholder = 'Search for music, gaming, tutorials...';
-    console.log('✅ Initialization complete. Search is ready.');
-    // ---------------------------------------------------------
-});
+        // --- LOGIKA BARU: Cek URL untuk query pencarian ---
+        const urlParams = new URLSearchParams(window.location.search);
+        const queryFromUrl = urlParams.get('q');
+
+        if (queryFromUrl) {
+            console.log(`Found query in URL: "${queryFromUrl}". Starting search...`);
+            searchInput.value = queryFromUrl; // Isi input field
+            performSearch(); // Jalankan pencarian otomatis
+        }
+        // -------------------------------------------------
+    }
+};
 
 function playVideo(videoId) {
     window.open(`https://www.youtube.com/watch?v=${videoId}`, '_blank');
