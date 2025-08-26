@@ -39,7 +39,6 @@ body {
   line-height: 1.6;
 }
 
-/* --- KELAS BARU UNTUK MENCEGAH SCROLL --- */
 body.modal-open {
   overflow: hidden;
 }
@@ -542,15 +541,26 @@ a {
 }
 
 @media (max-width: 992px) {
+  /* --- PERUBAHAN DI SINI --- */
   .modal-body {
-    grid-template-columns: 1fr; /* Tumpuk kolom di layar kecil */
-    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    /* grid-template-columns: 1fr; Dihapus */
+    /* overflow-y: auto; Dihapus */
   }
+  
+  .modal-video-main {
+      overflow-y: visible; /* Memastikan tidak ada scrollbar internal */
+      flex-shrink: 0; /* Mencegah area video menyusut */
+  }
+
   .modal-related-videos {
     border-left: none;
     border-top: 1px solid var(--border-color);
     height: auto;
+    overflow-y: auto; /* HANYA bagian ini yang bisa di-scroll */
   }
+  /* --- AKHIR PERUBAHAN --- */
 }
 
 @media (max-width: 768px) {
