@@ -9,6 +9,10 @@ class VidtapzApp {
         this.currentFilter = 'all';
         this.currentModal = null;
         this.theme = localStorage.getItem('theme') || 'light';
+        // Properti baru untuk melacak video dan status autoplay
+        this.currentVideoIndex = -1;
+        this.player = null; // Untuk objek YouTube Player
+        this.isAutoplayOn = true; // Autoplay aktif secara default
         this.init();
     }
 
@@ -20,9 +24,10 @@ class VidtapzApp {
 
     setupEventListeners() {
         document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape' && this.currentModal) {
-                this.closeModal();
-            }
+            if (!this.currentModal) return;
+            if (e.key === 'Escape') this.closeModal();
+            if (e.key === 'ArrowLeft') this.playPrevious();
+            if (e.key === 'ArrowRight') this.playNext();
         });
 
         const videoModal = document.getElementById('videoModal');
@@ -35,44 +40,31 @@ class VidtapzApp {
         }
     }
     
-    // FUNGSI DIPERBARUI: Menambahkan fallback jika oEmbed gagal
+    // Fungsi ini tidak lagi membuat embedUrl, hanya mengambil data
     async fetchVideoDetails(youtubeUrl, category) {
         const videoId = new URL(youtubeUrl).searchParams.get('v');
         if (!videoId) return null;
-
         const oembedUrl = `https://www.youtube.com/oembed?url=${encodeURIComponent(youtubeUrl)}&format=json`;
-        
         try {
             const response = await fetch(oembedUrl);
-            if (!response.ok) {
-                throw new Error(`Status: ${response.status}`);
-            }
+            if (!response.ok) throw new Error(`Status: ${response.status}`);
             const data = await response.json();
             return {
                 id: `yt_${videoId}`,
                 title: data.title,
-                description: `Video oleh: ${data.author_name}`,
                 thumbnail: data.thumbnail_url.replace('hqdefault.jpg', 'maxresdefault.jpg'),
-                platform: 'youtube',
                 videoId: videoId,
                 category: category,
-                // --- PERUBAHAN DI SINI: mute=1 diubah menjadi mute=0 ---
-                embedUrl: `https://www.youtube.com/embed/${videoId}?autoplay=1&controls=1&mute=0&rel=0`,
                 author: data.author_name,
             };
         } catch (error) {
             console.warn(`oEmbed fetch failed for ${youtubeUrl}: ${error.message}. Using fallback.`);
-            // Fallback: Buat objek video dengan data minimal jika oEmbed gagal
             return {
                 id: `yt_${videoId}`,
                 title: "Video not available (oEmbed failed)",
-                description: "Could not fetch video details.",
                 thumbnail: `https://i.ytimg.com/vi/${videoId}/maxresdefault.jpg`,
-                platform: 'youtube',
                 videoId: videoId,
                 category: category,
-                // --- PERUBAHAN DI SINI: mute=1 diubah menjadi mute=0 ---
-                embedUrl: `https://www.youtube.com/embed/${videoId}?autoplay=1&controls=1&mute=0&rel=0`,
                 author: "Unknown Author",
             };
         }
@@ -87,14 +79,12 @@ class VidtapzApp {
             'dakwah': window.VIDTAPZ_URLS_DAKWAH || [],
             'sports': window.VIDTAPZ_URLS_SPORTS || [],
         };
-
         const fetchPromises = [];
         for (const category in categories) {
             for (const url of categories[category]) {
                 fetchPromises.push(this.fetchVideoDetails(url, category));
             }
         }
-        
         const results = await Promise.all(fetchPromises);
         this.videos = results.filter(video => video !== null);
         this.filteredVideos = [...this.videos];
@@ -138,28 +128,22 @@ class VidtapzApp {
     }
 
     async fetchAndDisplayRelatedVideos(videoTitle, currentVideoId) {
+        // ... (fungsi ini tetap sama, tidak perlu diubah)
         const container = document.getElementById('relatedVideosContainer');
         container.innerHTML = '<p class="related-loading">Loading related videos...</p>';
-
         if (YOUTUBE_API_KEY === 'MASUKKAN_API_KEY_ANDA_DISINI' || !YOUTUBE_API_KEY) {
             container.innerHTML = '<p class="related-error">API Key not configured.</p>';
             return;
         }
-
         const apiUrl = `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(videoTitle)}&type=video&key=${YOUTUBE_API_KEY}&maxResults=11`;
-
         try {
             const response = await fetch(apiUrl);
             const data = await response.json();
-            
             if (data.error) {
-                console.error('YouTube API Error:', data.error.message);
                 container.innerHTML = `<p class="related-error">Error: ${data.error.message}</p>`;
                 return;
             }
-
             const relatedItems = data.items.filter(item => item.id.videoId !== currentVideoId);
-
             if (relatedItems.length > 0) {
                 container.innerHTML = relatedItems.slice(0, 10).map(item => `
                     <div class="related-video-item" onclick="app.openModalFromRelated('${item.id.videoId}')">
@@ -174,7 +158,6 @@ class VidtapzApp {
                 container.innerHTML = '<p>No related videos found.</p>';
             }
         } catch (error) {
-            console.error('Error fetching related videos:', error);
             container.innerHTML = '<p class="related-error">Could not load related videos.</p>';
         }
     }
@@ -188,15 +171,17 @@ class VidtapzApp {
         }
     }
 
+    // Fungsi openModal sekarang memanggil initPlayer
     openModal(videoId, directData = null) {
         let video = directData;
-        if (!video) {
-            video = this.videos.find(v => v.id === videoId);
+        if (video) {
+            this.currentVideoIndex = -1;
+        } else {
+            video = this.filteredVideos.find(v => v.id === videoId);
+            this.currentVideoIndex = this.filteredVideos.findIndex(v => v.id === videoId);
         }
-        if (!video) {
-            console.error(`Video with ID ${videoId} not found.`);
-            return;
-        }
+
+        if (!video) return;
 
         this.currentModal = video.id;
         
@@ -204,23 +189,107 @@ class VidtapzApp {
         document.getElementById('modalTitle').textContent = video.title;
         document.getElementById('modalAuthor').textContent = `by ${video.author}`;
         
-        document.getElementById('videoPlayer').innerHTML = `
-            <iframe src="${video.embedUrl}" allowfullscreen allow="autoplay; encrypted-media; picture-in-picture"></iframe>
-        `;
+        this.initPlayer(video); // Memanggil fungsi player baru
         
-        document.body.classList.add('modal-open'); // Mencegah body scroll
+        document.body.classList.add('modal-open');
         modal.classList.add('active');
         
+        this.updatePlayerControlsState();
         this.fetchAndDisplayRelatedVideos(video.title, video.videoId);
     }
 
+    // Fungsi closeModal sekarang menghancurkan player
     closeModal() {
         const modal = document.getElementById('videoModal');
-        document.body.classList.remove('modal-open'); // Mengizinkan body scroll kembali
+        document.body.classList.remove('modal-open');
         modal.classList.remove('active');
-        document.getElementById('videoPlayer').innerHTML = '';
+        
+        if (this.player) {
+            this.player.destroy();
+            this.player = null;
+        }
+        document.getElementById('videoPlayer').innerHTML = ''; // Membersihkan sisa
         document.getElementById('relatedVideosContainer').innerHTML = '';
         this.currentModal = null;
+        this.currentVideoIndex = -1;
+    }
+
+    // --- FUNGSI BARU UNTUK YOUTUBE PLAYER ---
+    initPlayer(video) {
+        if (this.player) {
+            this.player.destroy();
+        }
+        this.player = new YT.Player('videoPlayer', {
+            videoId: video.videoId,
+            playerVars: {
+                'autoplay': 1,
+                'controls': 1,
+                'rel': 0,
+                'mute': 0
+            },
+            events: {
+                'onStateChange': this.onPlayerStateChange.bind(this)
+            }
+        });
+    }
+
+    onPlayerStateChange(event) {
+        // YT.PlayerState.ENDED nilainya 0
+        if (event.data === YT.PlayerState.ENDED && this.isAutoplayOn) {
+            this.playNext();
+        }
+    }
+    
+    toggleAutoplay() {
+        this.isAutoplayOn = !this.isAutoplayOn;
+        const autoplayBtn = document.getElementById('autoplayBtn');
+        autoplayBtn.classList.toggle('active', this.isAutoplayOn);
+        autoplayBtn.title = this.isAutoplayOn ? 'Autoplay On' : 'Autoplay Off';
+    }
+    // --- AKHIR FUNGSI BARU ---
+    
+    updatePlayerControlsState() {
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const shuffleBtn = document.getElementById('shuffleBtn');
+
+        if (this.currentVideoIndex === -1) {
+            prevBtn.disabled = true;
+            nextBtn.disabled = true;
+            shuffleBtn.disabled = true;
+        } else {
+            prevBtn.disabled = this.currentVideoIndex === 0;
+            nextBtn.disabled = this.currentVideoIndex >= this.filteredVideos.length - 1;
+            shuffleBtn.disabled = this.filteredVideos.length <= 1;
+        }
+    }
+
+    playNext() {
+        if (this.currentVideoIndex < this.filteredVideos.length - 1) {
+            const nextIndex = this.currentVideoIndex + 1;
+            const nextVideo = this.filteredVideos[nextIndex];
+            this.openModal(nextVideo.id);
+        }
+    }
+
+    playPrevious() {
+        if (this.currentVideoIndex > 0) {
+            const prevIndex = this.currentVideoIndex - 1;
+            const prevVideo = this.filteredVideos[prevIndex];
+            this.openModal(prevVideo.id);
+        }
+    }
+    
+    playRandom() {
+        if (this.filteredVideos.length > 1) {
+            let randomIndex;
+            do {
+                randomIndex = Math.floor(Math.random() * this.filteredVideos.length);
+            } while (randomIndex === this.currentVideoIndex);
+            
+            const randomVideo = this.filteredVideos[randomIndex];
+            this.openModal(randomVideo.id);
+        }
     }
 
     applyTheme() {

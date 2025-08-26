@@ -410,6 +410,39 @@ a {
   border: none;
 }
 
+.modal-player-controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1.5rem;
+    margin-top: 16px;
+}
+
+.player-control-btn {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 1.4rem;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+}
+
+.player-control-btn:hover {
+    color: var(--primary-color);
+    transform: scale(1.1);
+}
+
+/* GAYA BARU UNTUK TOMBOL AUTOPLAY AKTIF */
+.player-control-btn.active {
+    color: var(--primary-color);
+}
+
+.player-control-btn:disabled {
+    color: var(--border-color);
+    cursor: not-allowed;
+    transform: scale(1);
+}
+
 .modal-video-info {
   margin-bottom: 20px; 
 }
@@ -541,26 +574,22 @@ a {
 }
 
 @media (max-width: 992px) {
-  /* --- PERUBAHAN DI SINI --- */
   .modal-body {
     display: flex;
     flex-direction: column;
-    /* grid-template-columns: 1fr; Dihapus */
-    /* overflow-y: auto; Dihapus */
   }
   
   .modal-video-main {
-      overflow-y: visible; /* Memastikan tidak ada scrollbar internal */
-      flex-shrink: 0; /* Mencegah area video menyusut */
+      overflow-y: visible; 
+      flex-shrink: 0; 
   }
 
   .modal-related-videos {
     border-left: none;
     border-top: 1px solid var(--border-color);
     height: auto;
-    overflow-y: auto; /* HANYA bagian ini yang bisa di-scroll */
+    overflow-y: auto; 
   }
-  /* --- AKHIR PERUBAHAN --- */
 }
 
 @media (max-width: 768px) {
@@ -594,7 +623,7 @@ a {
   }
 
   .mobile-menu {
-    display: none; /* Dikelola oleh JavaScript */
+    display: none; 
     background-color: var(--surface-color);
     border-top: 1px solid var(--border-color);
     position: absolute;
