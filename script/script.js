@@ -56,7 +56,8 @@ class VidtapzApp {
                 platform: 'youtube',
                 videoId: videoId,
                 category: category,
-                embedUrl: `https://www.youtube.com/embed/${videoId}?autoplay=1&controls=1&mute=1&rel=0`,
+                // --- PERUBAHAN DI SINI: mute=1 diubah menjadi mute=0 ---
+                embedUrl: `https://www.youtube.com/embed/${videoId}?autoplay=1&controls=1&mute=0&rel=0`,
                 author: data.author_name,
             };
         } catch (error) {
@@ -70,7 +71,8 @@ class VidtapzApp {
                 platform: 'youtube',
                 videoId: videoId,
                 category: category,
-                embedUrl: `https://www.youtube.com/embed/${videoId}?autoplay=1&controls=1&mute=1&rel=0`,
+                // --- PERUBAHAN DI SINI: mute=1 diubah menjadi mute=0 ---
+                embedUrl: `https://www.youtube.com/embed/${videoId}?autoplay=1&controls=1&mute=0&rel=0`,
                 author: "Unknown Author",
             };
         }
@@ -206,6 +208,7 @@ class VidtapzApp {
             <iframe src="${video.embedUrl}" allowfullscreen allow="autoplay; encrypted-media; picture-in-picture"></iframe>
         `;
         
+        document.body.classList.add('modal-open'); // Mencegah body scroll
         modal.classList.add('active');
         
         this.fetchAndDisplayRelatedVideos(video.title, video.videoId);
@@ -213,6 +216,7 @@ class VidtapzApp {
 
     closeModal() {
         const modal = document.getElementById('videoModal');
+        document.body.classList.remove('modal-open'); // Mengizinkan body scroll kembali
         modal.classList.remove('active');
         document.getElementById('videoPlayer').innerHTML = '';
         document.getElementById('relatedVideosContainer').innerHTML = '';

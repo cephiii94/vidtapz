@@ -39,6 +39,11 @@ body {
   line-height: 1.6;
 }
 
+/* --- KELAS BARU UNTUK MENCEGAH SCROLL --- */
+body.modal-open {
+  overflow: hidden;
+}
+
 a {
   text-decoration: none;
   color: inherit;
@@ -407,7 +412,7 @@ a {
 }
 
 .modal-video-info {
-  padding-top: 16px;
+  margin-bottom: 20px; 
 }
 .modal-video-info h3 {
   font-size: 1.4rem;
