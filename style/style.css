@@ -39,7 +39,8 @@ body {
   line-height: 1.6;
 }
 
-body.modal-open {
+/* Kelas untuk mengunci scroll body saat modal terbuka */
+.body-modal-open {
   overflow: hidden;
 }
 
@@ -385,14 +386,13 @@ a {
   grid-template-columns: 1fr 350px;
   width: 100%;
   height: 100%;
-  overflow: hidden;
+  align-items: start;
 }
 
 .modal-video-main {
   padding: 20px;
   display: flex;
   flex-direction: column;
-  overflow-y: auto;
   min-width: 0;
 }
 
@@ -410,41 +410,152 @@ a {
   border: none;
 }
 
-.modal-player-controls {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 1.5rem;
-    margin-top: 16px;
+/* --- Gaya Panel Kontrol Kustom --- */
+.modal-player-control {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem;
+  background-color: var(--background-color);
+  border-radius: 8px;
+  margin-top: 1rem;
 }
 
-.player-control-btn {
-    background: none;
-    border: none;
-    color: var(--text-secondary);
-    font-size: 1.4rem;
+.control-btn {
+  background: none;
+  border: none;
+  color: var(--text-color);
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+.control-btn:hover {
+  background-color: var(--border-color);
+}
+.control-btn.active {
+    color: var(--primary-color);
+}
+
+.progress-bar {
+  flex-grow: 1;
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 8px;
+  background: var(--border-color);
+  outline: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.progress-bar::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  background: var(--primary-color);
+  border-radius: 50%;
+  cursor: pointer;
+}
+.progress-bar::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  background: var(--primary-color);
+  border-radius: 50%;
+  cursor: pointer;
+  border: none;
+}
+
+.time-display {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+.volume-control {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.volume-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 80px;
+  height: 5px;
+  background: var(--border-color);
+  outline: none;
+  border-radius: 2.5px;
+  transition: width 0.3s ease;
+}
+.volume-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 12px;
+  height: 12px;
+  background: var(--primary-color);
+  border-radius: 50%;
+  cursor: pointer;
+}
+.volume-slider::-moz-range-thumb {
+  width: 12px;
+  height: 12px;
+  background: var(--primary-color);
+  border-radius: 50%;
+  cursor: pointer;
+  border: none;
+}
+
+/* --- Gaya Menu Pengaturan Kualitas --- */
+.settings-container {
+    position: relative;
+}
+
+.quality-menu {
+    display: none;
+    position: absolute;
+    bottom: 120%; /* Muncul di atas tombol */
+    right: 0;
+    background-color: var(--surface-color);
+    border-radius: 8px;
+    box-shadow: var(--shadow);
+    padding: 0.5rem;
+    z-index: 10;
+    width: 120px;
+}
+
+.quality-menu.active {
+    display: block;
+}
+
+.quality-option {
+    padding: 0.5rem 1rem;
     cursor: pointer;
-    transition: all 0.2s ease-in-out;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    transition: background-color 0.2s ease;
 }
 
-.player-control-btn:hover {
-    color: var(--primary-color);
-    transform: scale(1.1);
+.quality-option:hover {
+    background-color: var(--border-color);
 }
 
-/* GAYA BARU UNTUK TOMBOL AUTOPLAY AKTIF */
-.player-control-btn.active {
-    color: var(--primary-color);
+.quality-option.selected {
+    background-color: var(--primary-color);
+    color: white;
+    font-weight: bold;
 }
+/* ---------------------------------- */
 
-.player-control-btn:disabled {
-    color: var(--border-color);
-    cursor: not-allowed;
-    transform: scale(1);
-}
 
 .modal-video-info {
-  margin-bottom: 20px; 
+  padding-bottom: 16px;
 }
 .modal-video-info h3 {
   font-size: 1.4rem;
@@ -577,18 +688,17 @@ a {
   .modal-body {
     display: flex;
     flex-direction: column;
+    overflow: hidden;
   }
-  
   .modal-video-main {
-      overflow-y: visible; 
-      flex-shrink: 0; 
+      flex-shrink: 0;
   }
-
   .modal-related-videos {
+    flex-grow: 1;
+    overflow-y: auto;
     border-left: none;
     border-top: 1px solid var(--border-color);
-    height: auto;
-    overflow-y: auto; 
+    min-height: 0;
   }
 }
 
@@ -623,7 +733,7 @@ a {
   }
 
   .mobile-menu {
-    display: none; 
+    display: none; /* Dikelola oleh JavaScript */
     background-color: var(--surface-color);
     border-top: 1px solid var(--border-color);
     position: absolute;
@@ -635,6 +745,35 @@ a {
 
   .mobile-menu-content {
     padding: 1rem;
+  }
+  
+  .modal-video-main {
+      padding: 10px;
+  }
+    
+  .modal-player-control {
+    position: relative;
+    z-index: 2;
+    background-color: var(--background-color);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    padding: 0.5rem;
+    margin-top: 0.5rem;
+    flex-shrink: 0;
+    width: 100%;
+  }
+    .video-player {
+    position: relative;
+    z-index: 1;
+  }
+  .progress-bar {
+    order: -1;
+    width: 100%;
+    flex-basis: 100%;
+  }
+  .time-display {
+      margin-left: auto;
   }
 
   .mobile-nav-link {
@@ -660,4 +799,27 @@ a {
     color: var(--text-secondary);
     margin-left: auto;
   }
+}
+
+/* Tambahkan di style.css */
+.fullscreen-close-btn {
+  position: fixed;
+  top: 24px;
+  right: 24px;
+  z-index: 9999;
+  background: rgba(0,0,0,0.6);
+  color: #fff;
+  border: none;
+  border-radius: 50%;
+  width: 44px;
+  height: 44px;
+  font-size: 1.5rem;
+  display: none; /* default sembunyi */
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.fullscreen-close-btn:hover {
+  background: rgba(0,0,0,0.85);
 }

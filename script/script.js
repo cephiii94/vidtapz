@@ -9,42 +9,59 @@ class VidtapzApp {
         this.currentFilter = 'all';
         this.currentModal = null;
         this.theme = localStorage.getItem('theme') || 'light';
-        // Properti baru untuk melacak video dan status autoplay
-        this.currentVideoIndex = -1;
-        this.player = null; // Untuk objek YouTube Player
-        this.isAutoplayOn = true; // Autoplay aktif secara default
+        
+        this.player = null;
+        this.progressInterval = null;
+        this.isAutonext = true; // Autonext aktif secara default
+
         this.init();
     }
 
     async init() {
         this.applyTheme();
         this.setupEventListeners();
+        this.updateAutonextButton();
         await this.loadVideos();
     }
 
     setupEventListeners() {
         document.addEventListener('keydown', (e) => {
-            if (!this.currentModal) return;
-            if (e.key === 'Escape') this.closeModal();
-            if (e.key === 'ArrowLeft') this.playPrevious();
-            if (e.key === 'ArrowRight') this.playNext();
+            if (e.key === 'Escape' && this.currentModal) this.closeModal();
+            if (document.fullscreenElement && e.key === 'Escape') this.closeFullscreen();
         });
 
         const videoModal = document.getElementById('videoModal');
-        if (videoModal) {
-            videoModal.addEventListener('click', (e) => {
-                if (e.target === e.currentTarget) {
-                    this.closeModal();
-                }
-            });
-        }
+        videoModal.addEventListener('click', (e) => {
+            if (e.target === e.currentTarget) this.closeModal();
+        });
+        
+        // Event listener untuk kontrol kustom
+        document.getElementById('playPauseBtn').addEventListener('click', () => this.togglePlayPause());
+        document.getElementById('muteBtn').addEventListener('click', () => this.toggleMute());
+        document.getElementById('volumeSlider').addEventListener('input', (e) => this.setVolume(e.target.value));
+        document.getElementById('progressBar').addEventListener('input', (e) => this.seek(e.target.value));
+        document.getElementById('fullscreenBtn').addEventListener('click', () => this.toggleFullscreen());
+        document.getElementById('settingsBtn').addEventListener('click', (e) => {
+            e.stopPropagation();
+            this.toggleQualityMenu();
+        });
+        document.getElementById('autonextBtn').addEventListener('click', () => this.toggleAutonext());
+
+        // Menutup menu kualitas jika klik di luar
+        document.addEventListener('click', (e) => {
+            const qualityMenu = document.getElementById('qualityMenu');
+            if (qualityMenu.classList.contains('active') && !qualityMenu.contains(e.target)) {
+                this.toggleQualityMenu(false);
+            }
+        });
     }
     
-    // Fungsi ini tidak lagi membuat embedUrl, hanya mengambil data
     async fetchVideoDetails(youtubeUrl, category) {
         const videoId = new URL(youtubeUrl).searchParams.get('v');
         if (!videoId) return null;
+
         const oembedUrl = `https://www.youtube.com/oembed?url=${encodeURIComponent(youtubeUrl)}&format=json`;
+        
         try {
             const response = await fetch(oembedUrl);
             if (!response.ok) throw new Error(`Status: ${response.status}`);
@@ -79,14 +96,13 @@ class VidtapzApp {
             'dakwah': window.VIDTAPZ_URLS_DAKWAH || [],
             'sports': window.VIDTAPZ_URLS_SPORTS || [],
         };
-        const fetchPromises = [];
-        for (const category in categories) {
-            for (const url of categories[category]) {
-                fetchPromises.push(this.fetchVideoDetails(url, category));
-            }
-        }
+
+        const fetchPromises = Object.entries(categories).flatMap(([category, urls]) => 
+            urls.map(url => this.fetchVideoDetails(url, category))
+        );
+        
         const results = await Promise.all(fetchPromises);
-        this.videos = results.filter(video => video !== null);
+        this.videos = results.filter(Boolean);
         this.filteredVideos = [...this.videos];
         this.showLoading(false);
         this.renderVideos();
@@ -98,7 +114,6 @@ class VidtapzApp {
         if (this.filteredVideos.length === 0) {
             videoGrid.innerHTML = '';
             noResults.style.display = 'flex';
-            noResults.querySelector('p').textContent = 'No videos found in this category.';
             return;
         }
         noResults.style.display = 'none';
@@ -123,27 +138,29 @@ class VidtapzApp {
         });
         this.filteredVideos = (category === 'all')
             ? [...this.videos]
-            : this.videos.filter(v => v.category && v.category.toLowerCase() === category.toLowerCase());
+            : this.videos.filter(v => v.category === category);
         this.renderVideos();
     }
 
     async fetchAndDisplayRelatedVideos(videoTitle, currentVideoId) {
-        // ... (fungsi ini tetap sama, tidak perlu diubah)
         const container = document.getElementById('relatedVideosContainer');
         container.innerHTML = '<p class="related-loading">Loading related videos...</p>';
-        if (YOUTUBE_API_KEY === 'MASUKKAN_API_KEY_ANDA_DISINI' || !YOUTUBE_API_KEY) {
+
+        if (!YOUTUBE_API_KEY) {
             container.innerHTML = '<p class="related-error">API Key not configured.</p>';
             return;
         }
+
         const apiUrl = `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(videoTitle)}&type=video&key=${YOUTUBE_API_KEY}&maxResults=11`;
+
         try {
             const response = await fetch(apiUrl);
             const data = await response.json();
-            if (data.error) {
-                container.innerHTML = `<p class="related-error">Error: ${data.error.message}</p>`;
-                return;
-            }
+            
+            if (data.error) throw new Error(data.error.message);
+
             const relatedItems = data.items.filter(item => item.id.videoId !== currentVideoId);
+
             if (relatedItems.length > 0) {
                 container.innerHTML = relatedItems.slice(0, 10).map(item => `
                     <div class="related-video-item" onclick="app.openModalFromRelated('${item.id.videoId}')">
@@ -158,29 +175,26 @@ class VidtapzApp {
                 container.innerHTML = '<p>No related videos found.</p>';
             }
         } catch (error) {
-            container.innerHTML = '<p class="related-error">Could not load related videos.</p>';
+            console.error('Error fetching related videos:', error);
+            container.innerHTML = `<p class="related-error">Could not load related videos. ${error.message}</p>`;
         }
     }
     
     async openModalFromRelated(videoId) {
         const videoData = await this.fetchVideoDetails(`https://www.youtube.com/watch?v=${videoId}`, 'related');
         if (videoData) {
+            if (this.player) {
+                this.player.destroy();
+                this.player = null;
+            }
             this.openModal(videoData.id, videoData);
         } else {
             alert("Could not load details for the selected related video.");
         }
     }
 
-    // Fungsi openModal sekarang memanggil initPlayer
     openModal(videoId, directData = null) {
-        let video = directData;
-        if (video) {
-            this.currentVideoIndex = -1;
-        } else {
-            video = this.filteredVideos.find(v => v.id === videoId);
-            this.currentVideoIndex = this.filteredVideos.findIndex(v => v.id === videoId);
-        }
-
+        let video = directData || this.videos.find(v => v.id === videoId);
         if (!video) return;
 
         this.currentModal = video.id;
@@ -189,107 +203,186 @@ class VidtapzApp {
         document.getElementById('modalTitle').textContent = video.title;
         document.getElementById('modalAuthor').textContent = `by ${video.author}`;
         
-        this.initPlayer(video); // Memanggil fungsi player baru
+        document.getElementById('videoPlayer').innerHTML = '';
+        document.getElementById('qualityMenu').innerHTML = '';
         
-        document.body.classList.add('modal-open');
+        if (typeof YT !== 'undefined' && YT.Player) {
+            this.loadYouTubePlayer(video.videoId);
+        } else {
+            document.getElementById('videoPlayer').innerHTML = '<p class="related-error">Error: YouTube Player could not be loaded.</p>';
+        }
+        
         modal.classList.add('active');
+        document.body.classList.add('body-modal-open');
         
-        this.updatePlayerControlsState();
         this.fetchAndDisplayRelatedVideos(video.title, video.videoId);
     }
 
-    // Fungsi closeModal sekarang menghancurkan player
     closeModal() {
         const modal = document.getElementById('videoModal');
-        document.body.classList.remove('modal-open');
         modal.classList.remove('active');
+        document.body.classList.remove('body-modal-open');
         
         if (this.player) {
             this.player.destroy();
             this.player = null;
         }
-        document.getElementById('videoPlayer').innerHTML = ''; // Membersihkan sisa
+        clearInterval(this.progressInterval);
+        this.progressInterval = null;
+
+        this.toggleQualityMenu(false);
         document.getElementById('relatedVideosContainer').innerHTML = '';
         this.currentModal = null;
-        this.currentVideoIndex = -1;
     }
 
-    // --- FUNGSI BARU UNTUK YOUTUBE PLAYER ---
-    initPlayer(video) {
-        if (this.player) {
-            this.player.destroy();
-        }
+    loadYouTubePlayer(videoId) {
         this.player = new YT.Player('videoPlayer', {
-            videoId: video.videoId,
-            playerVars: {
-                'autoplay': 1,
-                'controls': 1,
-                'rel': 0,
-                'mute': 0
-            },
+            height: '100%',
+            width: '100%',
+            videoId: videoId,
+            playerVars: { 'autoplay': 1, 'controls': 0, 'rel': 0, 'showinfo': 0, 'iv_load_policy': 3, 'modestbranding': 1 },
             events: {
-                'onStateChange': this.onPlayerStateChange.bind(this)
+                'onReady': (e) => this.onPlayerReady(e),
+                'onStateChange': (e) => this.onPlayerStateChange(e)
             }
         });
     }
 
+    onPlayerReady(event) {
+        event.target.playVideo();
+        const initialVolume = document.getElementById('volumeSlider').value;
+        event.target.setVolume(initialVolume);
+        this.updateVolumeIcon(initialVolume);
+    }
+
     onPlayerStateChange(event) {
-        // YT.PlayerState.ENDED nilainya 0
-        if (event.data === YT.PlayerState.ENDED && this.isAutoplayOn) {
-            this.playNext();
-        }
-    }
-    
-    toggleAutoplay() {
-        this.isAutoplayOn = !this.isAutoplayOn;
-        const autoplayBtn = document.getElementById('autoplayBtn');
-        autoplayBtn.classList.toggle('active', this.isAutoplayOn);
-        autoplayBtn.title = this.isAutoplayOn ? 'Autoplay On' : 'Autoplay Off';
-    }
-    // --- AKHIR FUNGSI BARU ---
-    
-    updatePlayerControlsState() {
-        const prevBtn = document.getElementById('prevBtn');
-        const nextBtn = document.getElementById('nextBtn');
-        const shuffleBtn = document.getElementById('shuffleBtn');
-
-        if (this.currentVideoIndex === -1) {
-            prevBtn.disabled = true;
-            nextBtn.disabled = true;
-            shuffleBtn.disabled = true;
+        const playPauseIcon = document.querySelector('#playPauseBtn i');
+        if (event.data === YT.PlayerState.PLAYING) {
+            playPauseIcon.className = 'fas fa-pause';
+            this.startProgressTracker();
+            this.populateQualityMenu();
         } else {
-            prevBtn.disabled = this.currentVideoIndex === 0;
-            nextBtn.disabled = this.currentVideoIndex >= this.filteredVideos.length - 1;
-            shuffleBtn.disabled = this.filteredVideos.length <= 1;
+            playPauseIcon.className = 'fas fa-play';
+            this.stopProgressTracker();
         }
-    }
 
-    playNext() {
-        if (this.currentVideoIndex < this.filteredVideos.length - 1) {
-            const nextIndex = this.currentVideoIndex + 1;
-            const nextVideo = this.filteredVideos[nextIndex];
-            this.openModal(nextVideo.id);
-        }
-    }
-
-    playPrevious() {
-        if (this.currentVideoIndex > 0) {
-            const prevIndex = this.currentVideoIndex - 1;
-            const prevVideo = this.filteredVideos[prevIndex];
-            this.openModal(prevVideo.id);
+        if (event.data === YT.PlayerState.ENDED && this.isAutonext) {
+            const nextVideo = document.querySelector('.related-video-item');
+            if (nextVideo) {
+                nextVideo.click();
+            }
         }
     }
     
-    playRandom() {
-        if (this.filteredVideos.length > 1) {
-            let randomIndex;
-            do {
-                randomIndex = Math.floor(Math.random() * this.filteredVideos.length);
-            } while (randomIndex === this.currentVideoIndex);
-            
-            const randomVideo = this.filteredVideos[randomIndex];
-            this.openModal(randomVideo.id);
+    formatTime(seconds) {
+        const min = Math.floor(seconds / 60);
+        const sec = Math.floor(seconds % 60);
+        return `${min.toString().padStart(2, '0')}:${sec.toString().padStart(2, '0')}`;
+    }
+
+    startProgressTracker() {
+        if (this.progressInterval) clearInterval(this.progressInterval);
+        this.progressInterval = setInterval(() => {
+            if (this.player && typeof this.player.getCurrentTime === 'function') {
+                const currentTime = this.player.getCurrentTime();
+                const duration = this.player.getDuration();
+                if (duration > 0) {
+                    document.getElementById('progressBar').value = (currentTime / duration) * 100;
+                    document.getElementById('currentTime').textContent = this.formatTime(currentTime);
+                    document.getElementById('duration').textContent = this.formatTime(duration);
+                }
+            }
+        }, 250);
+    }
+
+    stopProgressTracker() {
+        clearInterval(this.progressInterval);
+        this.progressInterval = null;
+    }
+
+    togglePlayPause() {
+        if (!this.player || typeof this.player.getPlayerState !== 'function') return;
+        const state = this.player.getPlayerState();
+        (state === YT.PlayerState.PLAYING) ? this.player.pauseVideo() : this.player.playVideo();
+    }
+
+    toggleMute() {
+        if (!this.player || typeof this.player.isMuted !== 'function') return;
+        this.player.isMuted() ? this.player.unMute() : this.player.mute();
+        this.updateVolumeIcon(this.player.isMuted() ? 0 : this.player.getVolume());
+    }
+    
+    updateVolumeIcon(volume) {
+        const muteIcon = document.querySelector('#muteBtn i');
+        if (volume == 0 || (this.player && this.player.isMuted())) {
+            muteIcon.className = 'fas fa-volume-mute';
+        } else if (volume < 50) {
+            muteIcon.className = 'fas fa-volume-down';
+        } else {
+            muteIcon.className = 'fas fa-volume-up';
         }
+    }
+
+    setVolume(value) {
+        if (!this.player || typeof this.player.setVolume !== 'function') return;
+        this.player.setVolume(value);
+        if (value > 0 && this.player.isMuted()) this.player.unMute();
+        this.updateVolumeIcon(value);
+    }
+
+    seek(value) {
+        if (!this.player || typeof this.player.getDuration !== 'function') return;
+        this.player.seekTo(this.player.getDuration() * (value / 100), true);
+    }
+    
+    toggleFullscreen() {
+        const playerContainer = document.querySelector('.modal-video-main');
+        if (!document.fullscreenElement) {
+            playerContainer.requestFullscreen().catch(err => {
+                alert(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`);
+            });
+        } else {
+            document.exitFullscreen();
+        }
+    }
+    
+    toggleQualityMenu(forceState) {
+        const qualityMenu = document.getElementById('qualityMenu');
+        qualityMenu.classList.toggle('active', forceState);
+    }
+
+    populateQualityMenu() {
+        if (!this.player || typeof this.player.getAvailableQualityLevels !== 'function') return;
+        const availableQualities = this.player.getAvailableQualityLevels();
+        const currentQuality = this.player.getPlaybackQuality();
+        const qualityMenu = document.getElementById('qualityMenu');
+        qualityMenu.innerHTML = '';
+
+        availableQualities.unshift('auto');
+
+        availableQualities.forEach(quality => {
+            const option = document.createElement('div');
+            option.classList.add('quality-option');
+            option.textContent = quality === 'auto' ? 'Auto' : `${quality.replace('hd', '')}p`;
+            if (quality === currentQuality) {
+                option.classList.add('selected');
+            }
+            option.addEventListener('click', () => {
+                this.player.setPlaybackQuality(quality);
+                this.toggleQualityMenu(false);
+            });
+            qualityMenu.appendChild(option);
+        });
+    }
+
+    toggleAutonext() {
+        this.isAutonext = !this.isAutonext;
+        this.updateAutonextButton();
+    }
+
+    updateAutonextButton() {
+        const autonextBtn = document.getElementById('autonextBtn');
+        autonextBtn.classList.toggle('active', this.isAutonext);
     }
 
     applyTheme() {
@@ -314,19 +407,14 @@ class VidtapzApp {
 
 const app = new VidtapzApp();
 
-// Global functions
-function filterVideos(category) { app.filterVideos(category); }
-function closeModal() { app.closeModal(); }
-function toggleTheme() { app.toggleTheme(); }
+function onYouTubeIframeAPIReady() {
+    console.log("YouTube IFrame API is ready.");
+}
+
+function filterVideos(category) { if(app) app.filterVideos(category); }
+function closeModal() { if(app) app.closeModal(); }
+function toggleTheme() { if(app) app.toggleTheme(); }
 function toggleMobileMenu() {
     const mobileMenu = document.getElementById('mobileMenu');
     mobileMenu.style.display = mobileMenu.style.display === 'block' ? 'none' : 'block';
 }
-
-// Mini player functions
-let lastVideoTitle = '';
-let lastVideoSrc = '';
-
-function minimizeModal() { /* ... logika mini player ... */ }
-function restoreModal() { /* ... logika mini player ... */ }
-function closeMiniPlayer() { /* ... logika mini player ... */ }

@@ -113,23 +113,22 @@
             <div class="modal-body">
                 <div class="modal-video-main">
                     <div class="video-player" id="videoPlayer"></div>
-                    <div class="modal-player-controls">
-                        <button id="prevBtn" class="player-control-btn" onclick="app.playPrevious()" title="Previous">
-                            <i class="fas fa-backward"></i>
-                        </button>
-                        <button id="stopBtn" class="player-control-btn" onclick="closeModal()" title="Stop">
-                            <i class="fas fa-stop"></i>
-                        </button>
-                        <!-- TOMBOL AUTOPLAY BARU -->
-                        <button id="autoplayBtn" class="player-control-btn active" onclick="app.toggleAutoplay()" title="Toggle Autoplay">
-                            <i class="fas fa-infinity"></i>
-                        </button>
-                        <button id="shuffleBtn" class="player-control-btn" onclick="app.playRandom()" title="Shuffle">
-                            <i class="fas fa-random"></i>
-                        </button>
-                        <button id="nextBtn" class="player-control-btn" onclick="app.playNext()" title="Next">
-                            <i class="fas fa-forward"></i>
-                        </button>
+                    <div class="modal-player-control">
+                        <button id="playPauseBtn" class="control-btn" title="Play/Pause"><i class="fas fa-play"></i></button>
+                        <input type="range" id="progressBar" class="progress-bar" value="0" min="0" max="100" step="0.1">
+                        <div class="time-display">
+                            <span id="currentTime">00:00</span> / <span id="duration">00:00</span>
+                        </div>
+                        <div class="volume-control">
+                            <button id="muteBtn" class="control-btn" title="Mute/Unmute"><i class="fas fa-volume-up"></i></button>
+                            <input type="range" id="volumeSlider" class="volume-slider" value="100" min="0" max="100">
+                        </div>
+                        <div class="settings-container">
+                             <button id="settingsBtn" class="control-btn" title="Settings"><i class="fas fa-cog"></i></button>
+                             <div class="quality-menu" id="qualityMenu"></div>
+                        </div>
+                        <button id="autonextBtn" class="control-btn" title="Autonext On/Off"><i class="fas fa-forward-step"></i></button>
+                        <button id="fullscreenBtn" class="control-btn" title="Fullscreen"><i class="fas fa-expand"></i></button>
                     </div>
                 </div>
                 <div class="modal-related-videos">
@@ -143,6 +142,9 @@
             </div>
             <button class="modal-close-btn" onclick="closeModal()" title="Close">
                 <i class="fas fa-times"></i>
+            </button>
+            <button class="fullscreen-close-btn" id="fullscreenCloseBtn" title="Close Fullscreen">
+              <i class="fas fa-times"></i>
             </button>
         </div>
     </div>
@@ -166,10 +168,8 @@
         <p>&copy; 2024 Vidtapz. All rights reserved.</p>
     </footer>
 
-    <!-- SCRIPT YOUTUBE API BARU -->
-    <script src="https://www.youtube.com/iframe_api"></script>
-    
     <!-- External scripts -->
+    <script src="https://www.youtube.com/iframe_api"></script>
     <script src="/script/videos-dakwah.js"></script>
     <script src="/script/videos-music.js"></script>
     <script src="/script/videos-gaming.js"></script>
