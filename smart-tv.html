@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vidtapz - Smart TV</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        /* ==========================================================================
+           1. Variabel Global & Pengaturan Dasar (Disinkronkan dari style.css)
+           ========================================================================== */
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2980b9;
+            --background-color: #f8f9fa;
+            --surface-color: #ffffff;
+            --text-color: #2c3e50;
+            --text-secondary: #7f8c8d;
+            --border-color: #e1e8ed;
+            /* Variabel khusus TV */
+            --focus-color: #3498db;
+            --focus-shadow: 0 0 20px rgba(52, 152, 219, 0.7);
+        }
+
+        [data-theme="dark"] {
+            --background-color: #1a1a1a;
+            --surface-color: #2d2d2d;
+            --text-color: #ffffff;
+            --text-secondary: #b0b0b0;
+            --border-color: #404040;
+            --sidebar-bg: #0b0b0b;
+        }
+
+        [data-theme="light"] {
+            --background-color: #f8f9fa;
+            --surface-color: #ffffff;
+            --text-color: #2c3e50;
+            --text-secondary: #7f8c8d;
+            --border-color: #e1e8ed;
+            --sidebar-bg: #2c3e50;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Dari style.css */
+            background-color: var(--background-color);
+            color: var(--text-color);
+            transition: background-color 0.3s ease, color 0.3s ease;
+            line-height: 1.6; /* Dari style.css */
+            /* Properti khusus TV */
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
+        }
+        
+        /* ==========================================================================
+           2. Layout & Komponen Khusus Smart TV
+           ========================================================================== */
+        #tv-app {
+            display: flex;
+            height: 100%;
+        }
+
+        #sidebar {
+            width: 100px;
+            background-color: var(--sidebar-bg);
+            padding: 20px 0;
+            display: flex;
+            flex-direction: column;
+            transition: width 0.3s ease-in-out;
+            z-index: 20;
+        }
+        
+        #sidebar.expanded {
+            width: 300px;
+        }
+
+        .logo-tv {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: var(--text-color);
+            text-align: center;
+            padding: 10px 0 30px 0;
+            white-space: nowrap;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        #sidebar.expanded .logo-tv {
+           opacity: 1;
+        }
+
+        #sidebar-content {
+            flex-grow: 1;
+            overflow-y: auto;
+            overflow-x: hidden;
+            /* Menghilangkan scrollbar visual */
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;  /* Firefox */
+        }
+        
+        #sidebar-content::-webkit-scrollbar {
+            display: none; /* Chrome, Safari, Opera */
+        }
+
+        .sidebar-item {
+            font-size: 1.3rem;
+            padding: 18px 0;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+            border: 4px solid transparent;
+            color: var(--text-secondary);
+            border-radius: 10px;
+            position: relative;
+        }
+        
+        #sidebar.expanded .sidebar-item {
+            justify-content: flex-start;
+            padding-left: 30px;
+        }
+        
+        .sidebar-item .icon {
+            font-size: 1.7rem;
+            width: 40px;
+            text-align: center;
+            transition: transform 0.2s ease;
+        }
+
+        .sidebar-item .text {
+            margin-left: 25px;
+            font-weight: 500;
+            white-space: nowrap;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+
+        #sidebar.expanded .sidebar-item .text {
+            opacity: 1;
+        }
+
+        .sidebar-item.focused {
+            background-color: var(--primary-color);
+            color: white;
+            border-color: white;
+        }
+
+        .sidebar-item.focused .icon {
+            transform: scale(1.1);
+        }
+        
+        #theme-toggle-container {
+            padding-top: 20px;
+        }
+
+        .category-dropdown {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease-in-out;
+            padding-left: 20px;
+        }
+        .category-dropdown.open {
+            max-height: 500px; /* Adjust as needed */
+        }
+        .subcategory-item {
+            font-size: 1.1rem;
+            padding: 12px 0 12px 55px; /* Indentasi untuk subkategori */
+        }
+
+        .arrow-icon {
+            position: absolute;
+            right: 30px;
+            transition: transform 0.3s ease;
+            opacity: 0;
+        }
+        #sidebar.expanded .arrow-icon {
+            opacity: 1;
+        }
+        .arrow-icon.open {
+            transform: rotate(180deg);
+        }
+
+        #main-content {
+            flex-grow: 1;
+            padding: 30px;
+            overflow-y: auto;
+        }
+
+        #category-title {
+            font-size: 2.5rem;
+            font-weight: 500;
+            margin-bottom: 25px;
+        }
+
+        #video-grid-tv {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 25px;
+        }
+
+        .video-card-tv {
+            border: 4px solid transparent;
+            border-radius: 10px;
+            overflow: hidden;
+            transition: all 0.2s ease-in-out;
+            aspect-ratio: 16 / 9;
+            background-color: var(--surface-color);
+            position: relative;
+        }
+        
+        .video-card-tv.focused {
+            transform: scale(1.1);
+            border-color: var(--focus-color);
+            box-shadow: var(--focus-shadow);
+            z-index: 10;
+        }
+
+        .video-card-tv img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .video-card-tv .title {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 15px;
+            background: linear-gradient(to top, rgba(0,0,0,0.9), transparent);
+            font-size: 1rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            color: #fff;
+        }
+
+        #player-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.95);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        
+        #player-container {
+            width: 90%;
+            height: 90%;
+            max-width: 1920px;
+            aspect-ratio: 16/9;
+        }
+
+        #player-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .close-player-info {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            color: var(--text-secondary);
+            font-size: 1.2rem;
+        }
+    </style>
+</head>
+<body>
+    <div id="tv-app">
+        <nav id="sidebar">
+             <div class="logo-tv">vidtapz</div>
+             <div id="sidebar-content"></div>
+             <div id="theme-toggle-container"></div>
+        </nav>
+        
+        <main id="main-content">
+            <h2 id="category-title">All Videos</h2>
+            <div id="video-grid-tv"></div>
+        </main>
+    </div>
+
+    <div id="player-overlay">
+        <div class="close-player-info">Tekan tombol KEMBALI pada remote untuk menutup</div>
+        <div id="player-container"></div>
+    </div>
+
+    <script src="https://www.youtube.com/iframe_api"></script>
+    <script src="/script/videos-dakwah.js"></script>
+    <script src="/script/videos-music.js"></script>
+    <script src="/script/videos-gaming.js"></script>
+    <script src="/script/videos-education.js"></script>
+    <script src="/script/videos-sports.js"></script>
+    <script>
+    class SmartTVApp {
+        constructor() {
+            this.videos = [];
+            this.theme = localStorage.getItem('tv-theme') || 'dark';
+            
+            this.focusedArea = 'grid'; 
+            this.sidebarIndex = 0;
+            this.gridRow = 0;
+            this.gridCol = 0;
+            this.gridCols = 4;
+            this.isCategoryOpen = false;
+            
+            this.player = null;
+            this.lastFocusedElement = null;
+
+            this.init();
+        }
+
+        async init() {
+            this.dom = {
+                sidebar: document.getElementById('sidebar'),
+                sidebarContent: document.getElementById('sidebar-content'),
+                themeToggleContainer: document.getElementById('theme-toggle-container'),
+                grid: document.getElementById('video-grid-tv'),
+                categoryTitle: document.getElementById('category-title'),
+                playerOverlay: document.getElementById('player-overlay'),
+                playerContainer: document.getElementById('player-container'),
+                html: document.documentElement
+            };
+            
+            this.applyTheme();
+            await this.loadVideos();
+            this.renderSidebar();
+            this.filterVideos('all', true); 
+            this.setFocus('grid', 0, 0);
+            document.addEventListener('keydown', this.handleKeydown.bind(this));
+        }
+        
+        applyTheme() {
+            this.dom.html.setAttribute('data-theme', this.theme);
+            localStorage.setItem('tv-theme', this.theme);
+            if (this.dom.sidebarContent) this.renderSidebar();
+        }
+
+        toggleTheme() {
+            this.theme = this.theme === 'dark' ? 'light' : 'dark';
+            this.applyTheme();
+        }
+
+        async fetchVideoDetails(youtubeUrl, category) {
+            const videoId = new URL(youtubeUrl).searchParams.get('v');
+            if (!videoId) return null;
+            const oembedUrl = `https://www.youtube.com/oembed?url=${encodeURIComponent(youtubeUrl)}&format=json`;
+            try {
+                const response = await fetch(oembedUrl);
+                const data = await response.json();
+                return {
+                    id: `yt_${videoId}`,
+                    title: data.title,
+                    thumbnail: data.thumbnail_url.replace('hqdefault.jpg', 'maxresdefault.jpg'),
+                    videoId: videoId,
+                    category: category,
+                    author: data.author_name,
+                };
+            } catch (error) {
+                console.warn(`oEmbed fetch failed for ${youtubeUrl}.`);
+                return null;
+            }
+        }
+
+        async loadVideos() {
+            const categories = {
+                'music': window.VIDTAPZ_URLS_MUSIC || [],
+                'gaming': window.VIDTAPZ_URLS_GAMING || [],
+                'education': window.VIDTAPZ_URLS_EDUCATION || [],
+                'dakwah': window.VIDTAPZ_URLS_DAKWAH || [],
+                'sports': window.VIDTAPZ_URLS_SPORTS || [],
+            };
+            const fetchPromises = Object.entries(categories).flatMap(([category, urls]) =>
+                urls.map(url => this.fetchVideoDetails(url, category))
+            );
+            const results = await Promise.all(fetchPromises);
+            this.videos = results.filter(Boolean);
+        }
+
+        renderSidebar() {
+            const categories = ['music', 'gaming', 'education', 'dakwah', 'sports'];
+            const themeIcon = this.theme === 'dark' ? 'fa-sun' : 'fa-moon';
+            const arrowIconClass = this.isCategoryOpen ? 'open' : '';
+
+            // Main items
+            const mainItemsHTML = `
+                <div class="sidebar-item" data-action="search" data-index="0">
+                    <i class="fas fa-search icon"></i><span class="text">Search</span>
+                </div>
+                <div class="sidebar-item" data-action="home" data-category="all" data-index="1">
+                    <i class="fas fa-home icon"></i><span class="text">Home</span>
+                </div>
+                <div class="sidebar-item" data-action="toggle-category" data-index="2">
+                    <i class="fas fa-grip-horizontal icon"></i><span class="text">Kategori</span>
+                    <i class="fas fa-chevron-down arrow-icon ${arrowIconClass}"></i>
+                </div>
+            `;
+            
+            // Category dropdown items
+            const categoryItemsHTML = categories.map((cat, i) => `
+                <div class="sidebar-item subcategory-item" data-action="filter" data-category="${cat}" data-index="${3 + i}">
+                    <span class="text">${cat.charAt(0).toUpperCase() + cat.slice(1)}</span>
+                </div>
+            `).join('');
+
+            // Theme toggle item
+            const themeItemHTML = `
+                <div class="sidebar-item" data-action="toggle-theme">
+                    <i class="fas ${themeIcon} icon"></i><span class="text">Theme</span>
+                </div>
+            `;
+            
+            this.dom.sidebarContent.innerHTML = mainItemsHTML + `<div class="category-dropdown ${this.isCategoryOpen ? 'open' : ''}">${categoryItemsHTML}</div>`;
+            this.dom.themeToggleContainer.innerHTML = themeItemHTML;
+            
+            // Re-assign index for theme toggle after render
+            this.dom.themeToggleContainer.querySelector('.sidebar-item').dataset.index = this.getFocusableSidebarItems().length - 1;
+        }
+
+        filterVideos(category, isInitialLoad = false) {
+            this.dom.categoryTitle.textContent = `${category.charAt(0).toUpperCase() + category.slice(1)} Videos`;
+            if (category === 'all') this.dom.categoryTitle.textContent = 'All Videos';
+            const filtered = (category === 'all') ? this.videos : this.videos.filter(v => v.category === category);
+            this.renderGrid(filtered);
+            if (!isInitialLoad) {
+                this.gridRow = 0;
+                this.gridCol = 0;
+            }
+        }
+        
+        renderGrid(videoList) {
+            const gridWidth = this.dom.grid.clientWidth;
+            const cardWidth = 240 + 25; 
+            this.gridCols = Math.max(1, Math.floor(gridWidth / cardWidth));
+            this.dom.grid.innerHTML = videoList.map((video, index) => {
+                const row = Math.floor(index / this.gridCols);
+                const col = index % this.gridCols;
+                return `
+                <div class="video-card-tv" data-video-id="${video.id}" data-row="${row}" data-col="${col}">
+                    <img src="${video.thumbnail}" alt="${video.title}" loading="lazy">
+                    <div class="title">${video.title}</div>
+                </div>`;
+            }).join('');
+        }
+        
+        getFocusableSidebarItems() {
+            return Array.from(this.dom.sidebar.querySelectorAll('.sidebar-item'));
+        }
+
+        setFocus(area, indexOrRow, col) {
+            document.querySelector('.focused')?.classList.remove('focused');
+            this.focusedArea = area;
+            let newFocused;
+            
+            if (area === 'sidebar') {
+                this.dom.sidebar.classList.add('expanded');
+                this.sidebarIndex = indexOrRow;
+                const items = this.getFocusableSidebarItems();
+                newFocused = items[this.sidebarIndex];
+            } else { 
+                this.dom.sidebar.classList.remove('expanded');
+                this.gridRow = indexOrRow;
+                this.gridCol = col;
+                newFocused = this.dom.grid.querySelector(`[data-row="${this.gridRow}"][data-col="${this.gridCol}"]`);
+            }
+            
+            if (newFocused) {
+                newFocused.classList.add('focused');
+                newFocused.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
+            }
+        }
+        
+        handleKeydown(e) {
+            if (this.dom.playerOverlay.style.display === 'flex') {
+                if (e.key === 'Escape' || e.key === 'Backspace' || e.key === 'GoBack') {
+                    e.preventDefault();
+                    this.closePlayer();
+                }
+                return;
+            }
+            e.preventDefault();
+            switch (e.key) {
+                case 'ArrowUp': this.navigateUp(); break;
+                case 'ArrowDown': this.navigateDown(); break;
+                case 'ArrowLeft': this.navigateLeft(); break;
+                case 'ArrowRight': this.navigateRight(); break;
+                case 'Enter': case 'Ok': this.handleEnter(); break;
+            }
+        }
+
+        navigateUp() {
+            if (this.focusedArea === 'sidebar') {
+                const newIndex = Math.max(0, this.sidebarIndex - 1);
+                this.setFocus('sidebar', newIndex);
+            } else {
+                const newRow = Math.max(0, this.gridRow - 1);
+                if (this.dom.grid.querySelector(`[data-row="${newRow}"][data-col="${this.gridCol}"]`)) {
+                    this.setFocus('grid', newRow, this.gridCol);
+                }
+            }
+        }
+        
+        navigateDown() {
+            if (this.focusedArea === 'sidebar') {
+                const items = this.getFocusableSidebarItems();
+                const newIndex = Math.min(items.length - 1, this.sidebarIndex + 1);
+                this.setFocus('sidebar', newIndex);
+            } else {
+                const maxRow = +this.dom.grid.querySelector('[data-col="0"]:last-child')?.dataset.row || 0;
+                const newRow = Math.min(maxRow, this.gridRow + 1);
+                if (this.dom.grid.querySelector(`[data-row="${newRow}"][data-col="${this.gridCol}"]`)) {
+                    this.setFocus('grid', newRow, this.gridCol);
+                }
+            }
+        }
+
+        navigateLeft() {
+            if (this.focusedArea === 'grid' && this.gridCol > 0) {
+                this.setFocus('grid', this.gridRow, this.gridCol - 1);
+            } else {
+                this.setFocus('sidebar', this.sidebarIndex);
+            }
+        }
+
+        navigateRight() {
+            if (this.focusedArea === 'sidebar') {
+                this.setFocus('grid', this.gridRow, 0);
+            } else {
+                const maxCol = this.gridCols - 1;
+                const newCol = Math.min(maxCol, this.gridCol + 1);
+                if (this.dom.grid.querySelector(`[data-row="${this.gridRow}"][data-col="${newCol}"]`)) {
+                    this.setFocus('grid', this.gridRow, newCol);
+                }
+            }
+        }
+        
+        handleEnter() {
+            const focusedEl = document.querySelector('.focused');
+            if (!focusedEl) return;
+
+            if (this.focusedArea === 'sidebar') {
+                const action = focusedEl.dataset.action;
+                switch(action) {
+                    case 'filter':
+                    case 'home':
+                        const category = focusedEl.dataset.category;
+                        this.filterVideos(category);
+                        this.setFocus('grid', 0, 0);
+                        break;
+                    case 'toggle-category':
+                        this.isCategoryOpen = !this.isCategoryOpen;
+                        this.renderSidebar();
+                        this.setFocus('sidebar', this.sidebarIndex);
+                        break;
+                    case 'toggle-theme':
+                        this.toggleTheme();
+                        this.setFocus('sidebar', this.sidebarIndex);
+                        break;
+                    case 'search':
+                        // Fungsi pencarian belum diimplementasikan
+                        break;
+                }
+            } else {
+                const videoId = focusedEl.dataset.videoId;
+                this.playVideo(videoId);
+            }
+        }
+        
+        playVideo(videoId) {
+            const video = this.videos.find(v => v.id === videoId);
+            if (!video) return;
+            this.lastFocusedElement = document.querySelector('.focused');
+            this.dom.playerOverlay.style.display = 'flex';
+            this.player = new YT.Player('player-container', {
+                videoId: video.videoId,
+                playerVars: { 'autoplay': 1, 'controls': 1, 'rel': 0, 'showinfo': 0 },
+                events: { 'onReady': (e) => e.target.playVideo() }
+            });
+        }
+        
+        closePlayer() {
+            if (this.player) {
+                this.player.destroy();
+                this.player = null;
+            }
+            this.dom.playerOverlay.style.display = 'none';
+            if (this.lastFocusedElement) {
+                this.lastFocusedElement.classList.add('focused');
+                this.lastFocusedElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }
+    }
+
+    function onYouTubeIframeAPIReady() {
+        new SmartTVApp();
+    }
+    </script>
+</body>
+</html>
+
