@@ -1,7 +1,7 @@
 // Menggunakan window.onload untuk memastikan semua skrip kategori sudah dimuat
 window.onload = async () => {
     // --- KONFIGURASI ---
-    const YOUTUBE_API_KEY = 'AIzaSyCwGeMX-l_F6C4-5nHuZF2uOJHPFgRxmzg'; 
+    const YOUTUBE_API_KEY = '-'; 
     const CACHE_DURATION_HOURS = 5;
     // -------------------
 
