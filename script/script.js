@@ -1,5 +1,5 @@
 // --- KONFIGURASI ---
-const YOUTUBE_API_KEY = 'AIzaSyCwGeMX-l_F6C4-5nHuZF2uOJHPFgRxmzg'; 
+const YOUTUBE_API_KEY = '-'; 
 // -------------------
 
 class VidtapzApp {
