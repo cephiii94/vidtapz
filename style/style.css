@@ -9,20 +9,44 @@
   --text-color: #2c3e50;
   --text-secondary: #7f8c8d;
   --border-color: #e1e8ed;
-  --shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  --hover-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+  /* Soft Blue & Glassmorphism Palette */
+  --primary-color: #3498db;
+  --secondary-color: #2980b9;
+  --background-color: #f0f4f8; /* Softer gray-blue */
+  --surface-color: #ffffff;
+
+  --glass-bg: rgba(255, 255, 255, 0.7);
+  --glass-border: rgba(255, 255, 255, 0.5);
+  --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+  --backdrop-blur: blur(12px);
+
+  --text-color: #2c3e50;
+  --text-secondary: #636e72;
+  --border-color: #dfe6e9;
+
+  --shadow:
+    0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --hover-shadow:
+    0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+
   --navbar-height: 70px;
-  --bottom-nav-height: 70px;
+  --bottom-nav-height: 75px; /* Slightly taller for floating look */
+  --radius-md: 16px;
+  --radius-lg: 24px;
 }
 
 [data-theme="dark"] {
-  --background-color: #1a1a1a;
-  --surface-color: #2d2d2d;
-  --text-color: #ffffff;
-  --text-secondary: #b0b0b0;
-  --border-color: #404040;
-  --shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
-  --hover-shadow: 0 5px 20px rgba(0, 0, 0, 0.4);
+  --background-color: #0f172a; /* Deep slate */
+  --surface-color: #1e293b;
+
+  --glass-bg: rgba(30, 41, 59, 0.7);
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+
+  --text-color: #f1f5f9;
+  --text-secondary: #94a3b8;
+  --border-color: #334155;
+  --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
 }
 
 * {
@@ -32,11 +56,33 @@
 }
 
 body {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-family: 'Outfit', 'Segoe UI', sans-serif;
   background-color: var(--background-color);
+  background-image:
+    radial-gradient(at 0% 0%, hsla(253,16%,7%,1) 0, transparent 50%),
+    radial-gradient(at 50% 0%, hsla(225,39%,30%,1) 0, transparent 50%),
+    radial-gradient(at 100% 0%, hsla(339,49%,30%,1) 0, transparent 50%);
+  background-attachment: fixed; /* Parallax effect */
   color: var(--text-color);
   transition: background-color 0.3s ease, color 0.3s ease;
   line-height: 1.6;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes float {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-5px); }
+  100% { transform: translateY(0px); }
 }
 
 /* Kelas untuk mengunci scroll body saat modal terbuka */
@@ -53,12 +99,21 @@ a {
    2. Navigasi (Atas & Bawah)
    ========================================================================== */
 .navbar {
-  background-color: var(--surface-color);
-  box-shadow: var(--shadow);
+  background: var(--glass-bg);
+  backdrop-filter: var(--backdrop-blur);
+  -webkit-backdrop-filter: var(--backdrop-blur);
+  border-bottom: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
   position: sticky;
   top: 0;
   z-index: 1000;
   height: var(--navbar-height);
+}
+
+.nav-links {
+  display: flex;
+  gap: 1.5rem; /* Fix spacing here */
+  align-items: center;
 }
 
 .nav-container {
@@ -71,7 +126,8 @@ a {
   height: 100%;
 }
 
-.nav-left, .nav-right {
+.nav-left,
+.nav-right {
   display: flex;
   align-items: center;
   gap: 1rem;
@@ -84,11 +140,29 @@ a {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  transition: transform 0.3s ease, color 0.3s ease;
+  transition:
+    transform 0.3s ease,
+    color 0.3s ease;
 }
 .logo:hover {
   transform: scale(1.05);
   color: var(--secondary-color);
+}
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 500;
+  transition: color 0.3s ease, transform 0.2s ease;
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius-md);
+}
+
+.nav-link:hover, .nav-link.active {
+  background: rgba(52, 152, 219, 0.1);
+  color: var(--primary-color);
+  transform: translateY(-2px);
 }
 
 .nav-center {
@@ -148,17 +222,22 @@ a {
 .bottom-nav {
   display: none; /* Defaultnya tersembunyi */
   position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background-color: var(--surface-color);
-  border-top: 1px solid var(--border-color);
-  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+  bottom: 20px; /* Floating */
+  left: 20px;
+  right: 20px;
+  background: var(--glass-bg);
+  backdrop-filter: var(--backdrop-blur);
+  -webkit-backdrop-filter: var(--backdrop-blur);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--glass-shadow);
   z-index: 1000;
   height: var(--bottom-nav-height);
   justify-content: space-around;
   align-items: center;
   padding: 0.5rem;
+  max-width: 500px;
+  margin: 0 auto; /* Center on mobile */
 }
 
 .bottom-nav-item {
@@ -207,7 +286,8 @@ a {
   font-weight: 500;
   font-size: 0.9rem;
 }
-.filter-btn:hover, .filter-btn.active {
+.filter-btn:hover,
+.filter-btn.active {
   background-color: var(--primary-color);
   color: white;
   border-color: var(--primary-color);
@@ -221,17 +301,34 @@ a {
 }
 
 .video-card {
-  background-color: var(--surface-color);
-  border-radius: 15px;
-  overflow: hidden;
+  background: var(--glass-bg);
+  backdrop-filter: var(--backdrop-blur);
+  -webkit-backdrop-filter: var(--backdrop-blur);
+  border: 1px solid var(--glass-border);
   box-shadow: var(--shadow);
-  transition: all 0.3s ease;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* Bouncy spring */
   cursor: pointer;
+  animation: slideUp 0.6s ease-out;
+  animation-fill-mode: both;
 }
+
 .video-card:hover {
-  transform: translateY(-5px);
+  transform: translateY(-10px) scale(1.02);
   box-shadow: var(--hover-shadow);
+  border-color: var(--primary-color);
 }
+
+/* Stagger animations for grid items (up to 20 items) */
+.video-card:nth-child(1) { animation-delay: 0.05s; }
+.video-card:nth-child(2) { animation-delay: 0.1s; }
+.video-card:nth-child(3) { animation-delay: 0.15s; }
+.video-card:nth-child(4) { animation-delay: 0.2s; }
+.video-card:nth-child(5) { animation-delay: 0.25s; }
+.video-card:nth-child(6) { animation-delay: 0.3s; }
+.video-card:nth-child(7) { animation-delay: 0.35s; }
+.video-card:nth-child(8) { animation-delay: 0.4s; }
 
 .video-thumbnail {
   width: 100%;
@@ -277,6 +374,7 @@ a {
   color: var(--text-color);
   display: -webkit-box;
   -webkit-line-clamp: 2;
+  line-clamp: 2; /* Standard property */
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
@@ -434,13 +532,15 @@ a {
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: background-color 0.2s ease, color 0.2s ease;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
 }
 .control-btn:hover {
   background-color: var(--border-color);
 }
 .control-btn.active {
-    color: var(--primary-color);
+  color: var(--primary-color);
 }
 
 .progress-bar {
@@ -514,45 +614,44 @@ a {
 
 /* --- Gaya Menu Pengaturan Kualitas --- */
 .settings-container {
-    position: relative;
+  position: relative;
 }
 
 .quality-menu {
-    display: none;
-    position: absolute;
-    bottom: 120%; /* Muncul di atas tombol */
-    right: 0;
-    background-color: var(--surface-color);
-    border-radius: 8px;
-    box-shadow: var(--shadow);
-    padding: 0.5rem;
-    z-index: 10;
-    width: 120px;
+  display: none;
+  position: absolute;
+  bottom: 120%; /* Muncul di atas tombol */
+  right: 0;
+  background-color: var(--surface-color);
+  border-radius: 8px;
+  box-shadow: var(--shadow);
+  padding: 0.5rem;
+  z-index: 10;
+  width: 120px;
 }
 
 .quality-menu.active {
-    display: block;
+  display: block;
 }
 
 .quality-option {
-    padding: 0.5rem 1rem;
-    cursor: pointer;
-    border-radius: 6px;
-    font-size: 0.9rem;
-    transition: background-color 0.2s ease;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  transition: background-color 0.2s ease;
 }
 
 .quality-option:hover {
-    background-color: var(--border-color);
+  background-color: var(--border-color);
 }
 
 .quality-option.selected {
-    background-color: var(--primary-color);
-    color: white;
-    font-weight: bold;
+  background-color: var(--primary-color);
+  color: white;
+  font-weight: bold;
 }
 /* ---------------------------------- */
-
 
 .modal-video-info {
   padding-bottom: 16px;
@@ -607,6 +706,7 @@ a {
   font-weight: 500;
   display: -webkit-box;
   -webkit-line-clamp: 2;
+  line-clamp: 2; /* Standard property */
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
@@ -616,7 +716,8 @@ a {
   display: block;
   margin-top: 4px;
 }
-.related-loading, .related-error {
+.related-loading,
+.related-error {
   color: var(--text-secondary);
   font-size: 0.9rem;
 }
@@ -636,7 +737,9 @@ a {
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: background-color 0.2s ease, transform 0.2s ease;
+  transition:
+    background-color 0.2s ease,
+    transform 0.2s ease;
 }
 .modal-close-btn:hover {
   background: rgba(0, 0, 0, 0.6);
@@ -646,7 +749,8 @@ a {
 /* ==========================================================================
    6. Komponen Lain (Loading, Footer, dll)
    ========================================================================== */
-.loading, .no-results {
+.loading,
+.no-results {
   text-align: center;
   padding: 3rem;
   color: var(--text-secondary);
@@ -655,7 +759,8 @@ a {
   align-items: center;
   justify-content: center;
 }
-.loading i, .no-results i {
+.loading i,
+.no-results i {
   font-size: 3rem;
   margin-bottom: 1rem;
   color: var(--primary-color);
@@ -673,15 +778,17 @@ a {
 /* ==========================================================================
    7. Desain Responsif (Media Queries)
    ========================================================================== */
-.mobile-menu-btn, .mobile-menu, .desktop-only {
-    display: none; /* Sembunyikan semua elemen mobile & desktop-only secara default */
+.mobile-menu-btn,
+.mobile-menu,
+.desktop-only {
+  display: none; /* Sembunyikan semua elemen mobile & desktop-only secara default */
 }
 
 /* Tampilkan elemen desktop di layar besar */
 @media (min-width: 769px) {
-    .desktop-only {
-        display: flex;
-    }
+  .desktop-only {
+    display: flex;
+  }
 }
 
 @media (max-width: 992px) {
@@ -691,7 +798,7 @@ a {
     overflow: hidden;
   }
   .modal-video-main {
-      flex-shrink: 0;
+    flex-shrink: 0;
   }
   .modal-related-videos {
     flex-grow: 1;
@@ -709,7 +816,8 @@ a {
   .desktop-only {
     display: none;
   }
-  .mobile-menu-btn, .bottom-nav {
+  .mobile-menu-btn,
+  .bottom-nav {
     display: flex;
   }
   .logo-text {
@@ -746,11 +854,11 @@ a {
   .mobile-menu-content {
     padding: 1rem;
   }
-  
+
   .modal-video-main {
-      padding: 10px;
+    padding: 10px;
   }
-    
+
   .modal-player-control {
     position: relative;
     z-index: 2;
@@ -763,7 +871,7 @@ a {
     flex-shrink: 0;
     width: 100%;
   }
-    .video-player {
+  .video-player {
     position: relative;
     z-index: 1;
   }
@@ -773,7 +881,7 @@ a {
     flex-basis: 100%;
   }
   .time-display {
-      margin-left: auto;
+    margin-left: auto;
   }
 
   .mobile-nav-link {
@@ -784,7 +892,8 @@ a {
     border-radius: 12px;
     transition: all 0.3s ease;
   }
-  .mobile-nav-link:hover, .mobile-nav-link.active {
+  .mobile-nav-link:hover,
+  .mobile-nav-link.active {
     background-color: rgba(52, 152, 219, 0.1);
     color: var(--primary-color);
   }
@@ -807,7 +916,7 @@ a {
   top: 24px;
   right: 24px;
   z-index: 9999;
-  background: rgba(0,0,0,0.6);
+  background: rgba(0, 0, 0, 0.6);
   color: #fff;
   border: none;
   border-radius: 50%;
@@ -821,5 +930,5 @@ a {
   transition: background 0.2s;
 }
 .fullscreen-close-btn:hover {
-  background: rgba(0,0,0,0.85);
+  background: rgba(0, 0, 0, 0.85);
 }

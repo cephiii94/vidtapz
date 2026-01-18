@@ -1,5 +1,6 @@
 // --- KONFIGURASI ---
-const YOUTUBE_API_KEY = 'AIzaSyCwGeMX-l_F6C4-5nHuZF2uOJHPFgRxmzg'; 
+// Menggunakan CONFIG global dari config.js
+const YOUTUBE_API_KEY = window.CONFIG ? window.CONFIG.YOUTUBE_API_KEY : 'YOUR_API_KEY_HERE'; 
 // -------------------
 
 class VidtapzApp {
