@@ -558,10 +558,10 @@
             <p>Putar video dari perangkat Tuan tanpa internet.<br>Privasi terjaga 100%. Data tidak dikirim ke server manapun.</p>
             
             <div class="file-upload-wrapper">
-                <button class="btn-primary">
+                <button class="btn-primary" onclick="document.getElementById('videoInput').click()">
                     <span class="material-icons">video_library</span> Pilih Video / Playlist
                 </button>
-                <input type="file" id="videoInput" accept="video/*" multiple>
+                <input type="file" id="videoInput" accept="video/*" multiple style="display: none;">
             </div>
             
             <p style="margin-top: 10px; font-size: 0.85rem; opacity: 0.8;">
@@ -608,10 +608,10 @@
                             <span class="material-icons">queue_music</span> Playlist
                             <span id="playlist-count" style="font-size: 0.8em; opacity: 0.7; margin-left: 5px;">(0)</span>
                         </div>
-                        <button class="btn-add-video" title="Tambah Video">
+                        <button class="btn-add-video" title="Tambah Video" onclick="document.getElementById('addVideoInput').click()">
                             <span class="material-icons">add</span>
-                            <input type="file" id="addVideoInput" accept="video/*" multiple>
                         </button>
+                        <input type="file" id="addVideoInput" accept="video/*" multiple style="display: none;">
                     </div>
                     <div id="playlist-list">
                         <!-- Playlist Items injected here -->
@@ -655,7 +655,31 @@
                 this.initTheme();
                 this.setupListeners();
                 this.setupKeyboardNav(); // Add keyboard support
+                this.setupMouseNav(); // Add Mouse Cursor support
                 console.log("Bri: Aplikasi siap digunakan, Tuan!");
+            },
+
+            setupMouseNav: function() {
+                // Add hover listeners to update focus state
+                const updateHover = () => {
+                   const elements = this.getFocusableElements();
+                   elements.forEach(el => {
+                       // Avoid duplicates
+                       if (el.dataset.hasMouseListener) return;
+                       
+                       el.addEventListener('mouseenter', () => {
+                           this.setFocus(el);
+                       });
+                       el.dataset.hasMouseListener = 'true';
+                   });
+                };
+
+                // Run initially
+                updateHover();
+
+                // Observer for dynamic elements (playlist)
+                const observer = new MutationObserver(() => updateHover());
+                observer.observe(document.body, { childList: true, subtree: true });
             },
 
             setupListeners: function() {
