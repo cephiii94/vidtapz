@@ -456,6 +456,11 @@
                 font-size: 1rem;
                 gap: 8px;
             }
+
+            .nav-back {
+                margin-right: auto;
+                margin-left: 0;
+            }
             
             nav a:hover, nav a.active {
                 transform: translateY(-2px);
@@ -505,6 +510,9 @@
 <body>
 
     <nav>
+        <a href="index.html" class="nav-back">
+            <span class="material-icons">arrow_back</span> Back
+        </a>
         <a onclick="app.navigate('home')" id="nav-home" class="active">
             <span class="material-icons">home</span> Home
         </a>
